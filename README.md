@@ -5,10 +5,16 @@
 
 Team 1
 ------
-Keerthan Kumaranayagam	kku007
-Malin Jakobsen	xun007
-Olav Gjerde	ogj005
-Ole Kristian Solheim Gjerløw	ogj003
-Renate Nikolajeva	rni006
-Rune Vatne	rva013
-Simen Gad Hasvi	qax007
++ Keerthan Kumaranayagam	(kku007)
+
++ Malin Jakobsen	(xun007)
+
++ Olav Gjerde	(ogj005)
+
++ Ole Kristian Solheim Gjerløw	(ogj003)
+
++ Renate Nikolajeva	(rni006)
+
++ Rune Vatne	(rva013)
+
++ Simen Gad Hasvi	(qax007)

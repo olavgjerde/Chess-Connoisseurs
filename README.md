@@ -1,4 +1,4 @@
-# Arbeidslag: gruppe-6
+# Arbeidslag: gruppe-5
 # Time: Tuesday 12-14
 # Coach:
 	Jonathan Prieto-Cubides(jcu043@uib.no)

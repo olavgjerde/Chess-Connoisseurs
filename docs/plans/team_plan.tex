@@ -6,6 +6,7 @@
 \usepackage[table,xcdraw]{xcolor}
 \usepackage{geometry} 
 \usepackage{tabularx}
+\usepackage[utf8]{inputenc}
 \graphicspath{{images/}}
 
 \begin{document}
@@ -75,6 +76,8 @@ Hotfix branches are used for fixing urgent issues with the released product in t
 Initial documentation will be produced with google docs for fast collaboration before being translated into latex and pdf formats. After this changes to the documentation happens through the git repository. \\
 
 \includegraphics[scale=0.8]{image12.png} \\
+\textit{Branch figure from: (Atlassian, 2018)}
+\vspace{5mm}
 
 \noindent
 "1. A develop branch is created from master\\
@@ -84,11 +87,13 @@ Initial documentation will be produced with google docs for fast collaboration b
 5. When the release branch is done it is merged into develop and master\\
 6. If an issue in master is detected a hotfix branch is created from master\\
 7. Once the hotfix is complete it is merged to both develop and master"\\
+\textit{(Atlassian, 2018)}
 
 
 
 \section{General risk analysis}
 This is a list containing the risks that we found most pressing for this project. The list is subject to change, and may also grow as the project progresses.
+\vspace{5mm}
 
 
 \begin{tabularx}{\linewidth}{ r X X }
@@ -107,8 +112,13 @@ Underestimated development time
 & Cut back on features that does contribute directly to the main specification of the product, and reallocate team members to the feature features in question.                 \\ \hline
 \end{tabularx}
 
-\end{document}
-
-
+\section{Resources}
+\begin{itemize}
+\item Atlassian (2018) Gitflow Workflow | Atlassian Git Tutorial [Internet] \\
+	  Available from: \textless https://www.atlassian.com/git/tutorials/comparing-workflows/
+	  gitflow-workflow\textgreater
+	  [Read 20.february 2018].\\
+	  License:\textless https://creativecommons.org/licenses/by/2.5/au/\textgreater .
+\end{itemize}
 
 \end{document}

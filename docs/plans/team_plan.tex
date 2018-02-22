@@ -1,25 +1,24 @@
 \documentclass[12pt]{article}%
+
 \usepackage{blindtext}
 \usepackage{enumitem}
 \usepackage{natbib}
-\usepackage{graphicx}
-\usepackage[table,xcdraw]{xcolor}
-\usepackage{geometry} 
-\usepackage{tabularx}
-\usepackage[utf8]{inputenc}
-\graphicspath{{images/}}
 
-\begin{document}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{tabularx}
+ 
+\graphicspath{{images/}}
 
 \title{Team Plan}
 \author{Group 5}
 \date{}
+
+\begin{document}
 \maketitle
+
 \section{Team information}
-
-
-
-
 \begin{itemize}
 \item Malin Jakobsen (xun007) - Team leader. 
 Responsibility: Maintain house rules and general management of team.
@@ -52,7 +51,6 @@ Responsibility: Class diagram and project structure.
         
 More roles will be assigned as the project progresses and as we establish a clear view of what it is that must be done.
 
-
 \section{House rules}
 
 
@@ -80,21 +78,24 @@ Initial documentation will be produced with google docs for fast collaboration b
 \vspace{5mm}
 
 \noindent
-"1. A develop branch is created from master\\
-2. A release branch is created from develop\\
-3. Feature branches are created from develop\\
-4. When a feature is complete it is merged into the develop branch\\
-5. When the release branch is done it is merged into develop and master\\
-6. If an issue in master is detected a hotfix branch is created from master\\
-7. Once the hotfix is complete it is merged to both develop and master"\\
-\textit{(Atlassian, 2018)}
+"1. A develop branch is created from master \\
+2. A release branch is created from develop \\
+3. Feature branches are created from develop \\
+4. When a feature is complete it is merged into the develop branch \\
+5. When the release branch is done it is merged into develop and master \\
+6. If an issue in master is detected a hotfix branch is created from master \\
+7. Once the hotfix is complete it is merged to both develop and master" \\
+\textit{(Atlassian, 2018)} \\
 
-
+\vspace{50mm}
+\noindent
+Additionally the folder structure will look something like this: \\ \\
+\includegraphics[scale=1]{structure.png}
+\vspace{50mm}
 
 \section{General risk analysis}
 This is a list containing the risks that we found most pressing for this project. The list is subject to change, and may also grow as the project progresses.
 \vspace{5mm}
-
 
 \begin{tabularx}{\linewidth}{ r X X }
 \hline
@@ -112,6 +113,7 @@ Underestimated development time
 & Cut back on features that does contribute directly to the main specification of the product, and reallocate team members to the feature features in question.                 \\ \hline
 \end{tabularx}
 
+
 \section{Resources}
 \begin{itemize}
 \item Atlassian (2018) Gitflow Workflow | Atlassian Git Tutorial [Internet] \\
@@ -120,5 +122,4 @@ Underestimated development time
 	  [Read 20.february 2018].\\
 	  License:\textless https://creativecommons.org/licenses/by/2.5/au/\textgreater .
 \end{itemize}
-
 \end{document}

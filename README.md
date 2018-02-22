@@ -18,7 +18,3 @@ Team 1
 + Rune Vatne	(rva013)
 
 + Simen Gad Hasvi	(qax007)
-
-Link to google document
------------------------
-https://docs.google.com/document/d/1NYGyt3wg4uebYYQbGLkHPfty1fJrHrCeKth0LqgvCLg/edit?usp=sharing

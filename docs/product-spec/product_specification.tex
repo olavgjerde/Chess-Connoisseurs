@@ -4,7 +4,7 @@
 \author{Group 5}
 \usepackage{outlines}
 \usepackage{graphicx}
-\graphicspath{{images/}}
+\graphicspath{{images/}{../diagrams/}}
 \date{}
 
 \begin{document}
@@ -44,7 +44,7 @@
     \end{outline}
     
     \section{User stories}
-        USER STORY 1: As a Chess player i want to play against good chess ai’s 
+        USER STORY 1: As a Chess player i want to play against good chess AI’s 
         so i can become better at chess. \\
         
         \noindent
@@ -65,11 +65,14 @@
         
         \noindent
         USER STORY 6: As a frequent user of the software i want my MMR to be 
-        saved/updated after every match so i can show it to my friends.
-
+        saved/updated after every match so i can show it to my friends. \\
+	
+	\vspace{30mm}
     \section{Use case diagram}
-    \includegraphics[width=\linewidth]{image11.png}
+    Diagram showcasing the major user operations of the chess application. \\ \\
+    \includegraphics[scale=0.6]{usecase-diagram.png}
     
+    \vspace{100mm}
     \section{Use cases}
         \subsection{Use case 1 (fully dressed)}
         A start menu allows a user to start the game and choose single player to
@@ -80,9 +83,10 @@
         pieces according to the game rules. The player can move pieces by clicking
         on their piece (if it is their turn and a legal move) and pick the square that
         the piece should be moved to. The machine will respond according to the 
-        difficulty chosen by the player earlier. \\
+        difficulty chosen by the player earlier. \\ \\
         \includegraphics[width=\linewidth]{play-ai.png}
         
+        \vspace{30mm}
         \subsection{Use case 2 (fully dressed)}
         A start menu allows a user to start a game and choose multiplayer with 
         another local player. After the player picks the multiplayer option it 
@@ -93,7 +97,7 @@
         The players must progress with moving their pieces according to the game rules.
         The player can move pieces by clicking on their piece (if it is their 
         turn and a legal move) and pick the square that the piece should be moved
-        to. \\
+        to. \\ \\
         \includegraphics[width=\linewidth]{play-multiplayer.png}
         
     \section{Domain model (class diagram)}

@@ -1,12 +1,14 @@
+import GUI.GameGUI;
+
 import java.util.ArrayList;
 
 public class ChessMain {
-    Game game;
+    Game game = new Game();
     boolean isAI;
     Player player1;
     Player player2;
     AI AI;
-    gameGUI GUI;
+    GameGUI GUI = new GameGUI();
 
     public static void main(String[] args) {
         //set up all the instance variables

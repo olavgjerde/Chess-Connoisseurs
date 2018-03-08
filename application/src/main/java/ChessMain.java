@@ -7,7 +7,7 @@ public class ChessMain {
     boolean isAI;
     Player player1;
     Player player2;
-    AI AI;
+    // AI AI;
     GameGUI GUI = new GameGUI();
 
     public static void main(String[] args) {
@@ -15,7 +15,7 @@ public class ChessMain {
         initialize();
 
         //not yet implemented
-        assert(AI);
+        // assert(AI);
 
         while (true){
             //GUI.getMove(the player, was the previous move valid? (used for displaying error messages))
@@ -44,6 +44,7 @@ public class ChessMain {
 
 
     }
+
     private static voind initialize(){
         //make a menuGUI object that we use to get the necessary information
         MenuGUI menuGUI = new MenuGUI();

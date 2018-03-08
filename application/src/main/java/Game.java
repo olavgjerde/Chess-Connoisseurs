@@ -1,3 +1,8 @@
+import board.Board;
+import board.Move;
+import board.Piece;
+import board.Position;
+
 import java.util.ArrayList;
 
 public class Game {
@@ -8,12 +13,12 @@ public class Game {
             // update piece position
             return true;
         }
-        
+
         return false;
     }
 
     private boolean checkMove(Move move) {
-        return getLegalMoves(move.getPiece).contains(move.getNewPosition());
+        return getLegalMoves(move.getPiece()).contains(move.getNewPosition());
     }
 
     /**
@@ -28,7 +33,9 @@ public class Game {
         return chessboard;
     }
 
-    private ArrayList<Position> getLegalMoves(Pieces piece) {
+    private ArrayList<Position> getLegalMoves(Piece piece) {
         //check which type the piece is, return legal moves in relation to piece.
+
+        return new ArrayList<Position>();
     }
 }

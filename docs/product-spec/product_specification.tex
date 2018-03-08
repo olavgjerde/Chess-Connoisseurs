@@ -131,11 +131,11 @@
         \noindent
         Game:\\
         \begin{outline}
-            The Game class is where we have our current game. It has a Board 
+            The Game class is where we have our current game. It has a board.Board
             variable that is simply a list of all the pieces, the position
             of the pieces is stored in the pieces themselves. The ChessMain class
             will interact with the game via a few methods.
-            \1 Move(Piece piece, Position newPos) will simply make a new Board 
+            \1 Move(Piece piece, Position newPos) will simply make a new board.Board
             with updated pieces. This is mostly just a copy of the previous board
             except the piece that were moved and pieces that are knocked out.
             However before we make this new board we have to make sure it’s a

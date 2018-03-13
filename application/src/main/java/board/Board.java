@@ -168,6 +168,7 @@ public class Board {
         builder.setPiece(new Pawn(new Coordinate(5,1), Alliance.BLACK));
         builder.setPiece(new Pawn(new Coordinate(6,1), Alliance.BLACK));
         builder.setPiece(new Pawn(new Coordinate(7,1), Alliance.BLACK));
+
         // White pieces
         builder.setPiece(new Rook(new Coordinate(0,7), Alliance.WHITE));
         builder.setPiece(new Knight(new Coordinate(1,7), Alliance.WHITE));
@@ -187,6 +188,38 @@ public class Board {
         builder.setPiece(new Pawn(new Coordinate(7,6), Alliance.WHITE));
         builder.setMoveMaker(Alliance.WHITE);
         return builder.build();
+    }
+
+    /**
+     * Returns an identical board to this one.
+     * Mainly used by AI to try out moves without effecting this board
+     * @return clone of this board
+     */
+    public Board clone(){
+
+        //TODO: implement method
+
+        return null; //placeholder
+    }
+
+    public Collection<Move> getBlackStandardLegalMoves() {
+        return blackStandardLegalMoves;
+    }
+
+    public Collection<Move> getWhiteStandardLegalMoves() {
+        return whiteStandardLegalMoves;
+    }
+
+    public Map<Coordinate, Tile> getGameBoard() {
+        return gameBoard;
+    }
+
+    public Collection<Piece> getWhitePieces() {
+        return whitePieces;
+    }
+
+    public Collection<Piece> getBlackPieces() {
+        return blackPieces;
     }
 
     /**

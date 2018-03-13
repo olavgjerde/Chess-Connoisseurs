@@ -143,6 +143,18 @@ public class Board {
         return builder.build();
     }
 
+    /**
+     * Returns an identical board to this one.
+     * Mainly used by AI to try out moves without effecting this board
+     * @return clone of this board
+     */
+    public Board clone(){
+
+        //TODO: implement method
+
+        return null; //placeholder
+    }
+
     public Collection<Move> getBlackStandardLegalMoves() {
         return blackStandardLegalMoves;
     }

@@ -30,6 +30,22 @@ public abstract class Piece {
     }
 
     /**
+     * Every class which implements this method shall calculate according to the rules defined by itself which moves
+     * that are legal to do.
+     * @param board on which the piece belongs
+     * @return A list of possible moves that a piece can make
+     */
+    public abstract Collection<Move> calculateLegalMoves(final Board board);
+
+    /**
+     * Pieces shall construct a copy of itself but with the new coordinates
+     * contained in the Move object.
+     * @param move Move object which the piece shall evaluate
+     * @return a Piece with the new position
+     */
+    public abstract Piece movePiece(Move move);
+
+    /**
      * Get the alliance of a piece object
      * @return enum Alliance
      */
@@ -37,6 +53,9 @@ public abstract class Piece {
         return this.pieceAlliance;
     }
 
+    /**
+     * @return a Coordinate object belonging to the piece
+     */
     public Coordinate getPieceCoordinate() {
         return this.pieceCoordinate;
     }
@@ -48,14 +67,6 @@ public abstract class Piece {
     public boolean isFirstMove() {
         return this.isFirstMove;
     }
-
-    /**
-     * Every class which implements this method shall calculate according to the rules defined by itself which moves
-     * that are legal to do.
-     * @param board on which the piece belongs
-     * @return A list of possible moves that a piece can make
-     */
-    public abstract Collection<Move> calculateLegalMoves(final Board board);
 
     @Override
     public boolean equals(Object o) {
@@ -72,6 +83,10 @@ public abstract class Piece {
         return Objects.hash(pieceCoordinate, pieceAlliance, isFirstMove);
     }
 
+    /**
+     * Enums for the different types of pieces; to help
+     * represent the board in String based manner.
+     */
     public enum PieceType {
         PAWN("P"),
         KNIGHT("N"),

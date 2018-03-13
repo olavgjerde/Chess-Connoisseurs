@@ -1,6 +1,9 @@
 package board;
 
 import pieces.*;
+import player.BlackPlayer;
+import player.Player;
+import player.WhitePlayer;
 
 import java.util.*;
 
@@ -13,8 +16,11 @@ public class Board {
     private final Map<Coordinate, Tile> gameBoard;
     private final Collection<Piece> whitePieces;
     private final Collection<Piece> blackPieces;
-    final Collection<Move> whiteStandardLegalMoves;
-    final Collection<Move> blackStandardLegalMoves;
+    private final Collection<Move> whiteStandardLegalMoves;
+    private final Collection<Move> blackStandardLegalMoves;
+    private final WhitePlayer whitePlayer;
+    private final BlackPlayer blackPlayer;
+    private final Player currentPlayer;
 
     public Board(Builder builder) {
         this.gameBoard = createGameBoard(builder);
@@ -23,6 +29,11 @@ public class Board {
 
         this.whiteStandardLegalMoves = calculateLegalMoves(this.whitePieces);
         this.blackStandardLegalMoves = calculateLegalMoves(this.blackPieces);
+
+        this.whitePlayer = new WhitePlayer(this, whiteStandardLegalMoves, blackStandardLegalMoves);
+        this.blackPlayer = new BlackPlayer(this, blackStandardLegalMoves, whiteStandardLegalMoves);
+
+        this.currentPlayer = builder.nextMoveMaker.choosePlayer(this.whitePlayer, this.blackPlayer);
     }
 
     /**
@@ -79,6 +90,42 @@ public class Board {
      */
     public Tile getTile(final Coordinate tileCoordinate) {
         return this.gameBoard.get(tileCoordinate);
+    }
+
+    /**
+     * @return all the black pieces on the board
+     */
+    public Collection<Piece> getBlackPieces() {
+        return this.blackPieces;
+    }
+
+    /**
+     * @return all the white pieces on the board
+     */
+    public Collection<Piece> getWhitePieces() {
+        return this.whitePieces;
+    }
+
+    /**
+     * @return the Player object which controls the white pieces
+     */
+    public WhitePlayer getWhitePlayer() {
+        return whitePlayer;
+    }
+
+    /**
+     * @return the Player object which controls the black pieces
+     */
+    public BlackPlayer getBlackPlayer() {
+        return blackPlayer;
+    }
+
+    /**
+     * @return the Player currently playing ('in charge')
+     */
+    public Player currentPlayer() {
+        //todo:
+        return null;
     }
 
     /**

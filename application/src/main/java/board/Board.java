@@ -12,13 +12,17 @@ public class Board {
     private final Collection<Piece> whitePieces;
     private final Collection<Piece> blackPieces;
 
+    final Collection<Move> whiteStandardLegalMoves;
+    final Collection<Move> blackStandardLegalMoves;
+
     public Board(Builder builder) {
         this.gameBoard = createGameBoard(builder);
         this.whitePieces = calculateActivePieces(this.gameBoard, Alliance.WHITE);
         this.blackPieces = calculateActivePieces(this.gameBoard, Alliance.BLACK);
 
-        final Collection<Move> whiteStandardLegalMoves = calculateLegalMoves(this.whitePieces);
-        final Collection<Move> blackStandardLegalMoves = calculateLegalMoves(this.blackPieces);
+        this.whiteStandardLegalMoves = calculateLegalMoves(this.whitePieces);
+        this.blackStandardLegalMoves = calculateLegalMoves(this.blackPieces);
+
     }
 
     private Map<Coordinate, Tile> createGameBoard(Builder builder) {
@@ -132,5 +136,26 @@ public class Board {
         public Board build() {
             return new Board(this);
         }
+    }
+
+    public Collection<Move> getBlackStandardLegalMoves() {
+        return blackStandardLegalMoves;
+    }
+
+    public Collection<Move> getWhiteStandardLegalMoves() {
+        return whiteStandardLegalMoves;
+
+    }
+
+    public Map<Coordinate, Tile> getGameBoard() {
+        return gameBoard;
+    }
+
+    public Collection<Piece> getWhitePieces() {
+        return whitePieces;
+    }
+
+    public Collection<Piece> getBlackPieces() {
+        return blackPieces;
     }
 }

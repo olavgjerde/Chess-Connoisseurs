@@ -15,8 +15,6 @@ public class Board {
     private final Collection<Piece> blackPieces;
     final Collection<Move> whiteStandardLegalMoves;
     final Collection<Move> blackStandardLegalMoves;
-    final Collection<Move> whiteStandardLegalMoves;
-    final Collection<Move> blackStandardLegalMoves;
 
     public Board(Builder builder) {
         this.gameBoard = createGameBoard(builder);
@@ -151,7 +149,6 @@ public class Board {
 
     public Collection<Move> getWhiteStandardLegalMoves() {
         return whiteStandardLegalMoves;
-
     }
 
     public Map<Coordinate, Tile> getGameBoard() {

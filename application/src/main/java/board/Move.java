@@ -63,6 +63,35 @@ public abstract class Move {
         return null;
     }
 
+    /**
+     * Enums represents the different statuses that a move
+     * can have.
+     */
+    public enum MoveStatus {
+        DONE {
+            @Override
+            public boolean isDone() {
+                return true;
+            }
+        },
+        ILLEGAL_MOVE {
+            @Override
+            public boolean isDone() {
+                return false;
+            }
+        }, LEAVES_PLAYER_IN_CHECK {
+            @Override
+            public boolean isDone() {
+                return false;
+            }
+        };
+
+        /**
+         * @return true if the move can be done, false otherwise
+         */
+        public abstract boolean isDone();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -302,5 +331,4 @@ public abstract class Move {
             return NULL_MOVE;
         }
     }
-
 }

@@ -18,6 +18,11 @@ public enum Alliance {
         public Player choosePlayer(WhitePlayer whitePlayer, BlackPlayer blackPlayer) {
             return whitePlayer;
         }
+
+        @Override
+        public String toString() {
+            return "White";
+        }
     },
     BLACK {
         @Override
@@ -28,6 +33,11 @@ public enum Alliance {
         @Override
         public Player choosePlayer(WhitePlayer whitePlayer, BlackPlayer blackPlayer) {
             return blackPlayer;
+        }
+
+        @Override
+        public String toString() {
+            return "Black";
         }
     };
 

@@ -2,6 +2,7 @@ package player;
 
 import board.Board;
 import board.Move;
+import static board.Move.*;
 
 /**
  * Class represents a transition from one board-state to another when executing a move.

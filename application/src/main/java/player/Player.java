@@ -3,7 +3,6 @@ package player;
 import board.Board;
 import board.Coordinate;
 import board.Move;
-import com.sun.istack.internal.NotNull;
 import pieces.Alliance;
 import pieces.King;
 import pieces.Piece;
@@ -12,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import static board.Move.*;
 
 public abstract class Player {
     protected final Board board;
@@ -30,8 +31,10 @@ public abstract class Player {
         this.playerKing = establishKing();
 
         // add castling moves to legal moves
-        legalMoves.addAll(calculateKingCastles(legalMoves, opponentMoves));
-        this.legalMoves = legalMoves;
+        final Collection<Move> allMoves = new ArrayList<>();
+        allMoves.addAll(legalMoves);
+        allMoves.addAll(opponentMoves);
+        this.legalMoves = allMoves;
         this.isInCheck = !calculateAttacksOnTile(this.playerKing.getPieceCoordinate(), opponentMoves).isEmpty();
     }
 
@@ -174,7 +177,6 @@ public abstract class Player {
         * currentPlayer() will now return black after the transition.
         */
         final Board transitionBoard = move.execute();
-
         // check if move leaves player's king in check
         final King kingOfEnemy = transitionBoard.currentPlayer().getOpponent().getPlayerKing();
         final Collection<Move> currentPlayerMoves = transitionBoard.currentPlayer().getLegalMoves();
@@ -182,7 +184,6 @@ public abstract class Player {
         if (!kingAttacks.isEmpty()) {
             return new MoveTransition(this.board, move, MoveStatus.LEAVES_PLAYER_IN_CHECK);
         }
-
         return new MoveTransition(transitionBoard, move, MoveStatus.DONE);
     }
 }

@@ -2,18 +2,32 @@ package board;
 
 import java.util.Objects;
 
+/**
+ * Class represent a coordinate with x and y values
+ */
 public class Coordinate {
     private final int x, y;
 
+    /**
+     * Construct a new coordinate
+     * @param x value of coordinate
+     * @param y value of coordinate
+     */
     public Coordinate(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
+    /**
+     * @return x-value of coordinate
+     */
     public int getX() {
         return x;
     }
 
+    /**
+     * @return y-value of coordinate
+     */
     public int getY() {
         return y;
     }
@@ -29,7 +43,6 @@ public class Coordinate {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(x, y);
     }
 }

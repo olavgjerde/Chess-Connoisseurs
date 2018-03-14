@@ -3,6 +3,7 @@ package player;
 import board.Board;
 import board.Coordinate;
 import board.Move;
+import com.sun.istack.internal.NotNull;
 import pieces.Alliance;
 import pieces.King;
 import pieces.Piece;
@@ -27,6 +28,9 @@ public abstract class Player {
     Player(Board board, Collection<Move> legalMoves, Collection<Move> opponentMoves) {
         this.board = board;
         this.playerKing = establishKing();
+
+        // add castling moves to legal moves
+        legalMoves.addAll(calculateKingCastles(legalMoves, opponentMoves));
         this.legalMoves = legalMoves;
         this.isInCheck = !calculateAttacksOnTile(this.playerKing.getPieceCoordinate(), opponentMoves).isEmpty();
     }
@@ -47,12 +51,21 @@ public abstract class Player {
     public abstract Player getOpponent();
 
     /**
+     * TODO: FIX ROOK IS FIRST MOVE FOR ALL SUBCLASSES
+     * This method shall calculate if there are any castling moves that is available to the player
+     * @param playerMoves the moves available to the player
+     * @param opponentMoves the moves available to the opponent
+     * @return a Collection of possible castling moves
+     */
+    protected abstract Collection<Move> calculateKingCastles(Collection<Move> playerMoves, Collection<Move> opponentMoves);
+
+    /**
      * Finds all possible attacks on a given coordinate
      * @param pieceCoordinate coordinate to calculate attacks for
      * @param moves available for the opponent player
      * @return a list for moves that can attack the given coordinate
      */
-    private static Collection<Move> calculateAttacksOnTile(Coordinate pieceCoordinate, Collection<Move> moves) {
+    protected static Collection<Move> calculateAttacksOnTile(Coordinate pieceCoordinate, Collection<Move> moves) {
         final List<Move> attackMoves = new ArrayList<>();
         for (Move move :  moves) {
             if (pieceCoordinate.equals(move.getDestinationCoordinate())) {
@@ -83,19 +96,19 @@ public abstract class Player {
     }
 
     /**
+     * @return Collection of the player's legal moves
+     */
+    public Collection<Move> getLegalMoves() {
+        return this.legalMoves;
+    }
+
+    /**
      * Check if a given move is legal
      * @param move to evaluate
      * @return true is move is legal, false otherwise
      */
     public boolean isMoveLegal(Move move) {
         return this.legalMoves.contains(move);
-    }
-
-    /**
-     * @return Collection of the player's legal moves
-     */
-    public Collection<Move> getLegalMoves() {
-        return this.legalMoves;
     }
 
     /**
@@ -129,7 +142,7 @@ public abstract class Player {
     }
 
     /**
-     * Calculate if the player as any moves that enables he/she to escape 'check'
+     * Calculate if the player as any moves that enables them to escape 'check'
      * @return true if player has moves that escapes check-status, false otherwise
      */
     private boolean hasEscapesMoves() {

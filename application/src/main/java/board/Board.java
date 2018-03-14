@@ -9,7 +9,7 @@ import java.util.*;
 
 /**
  * This class represents a chessboard.
- * A Map<Coordinate, Tile> is the base representation of the board layout,
+ * Note: a Map<Coordinate, Tile> is the base representation of the board layout,
  * where a Coordinate object as key gives a Tile object as value with some content.
  */
 public class Board {
@@ -121,11 +121,21 @@ public class Board {
     }
 
     /**
+     * Adds all of the black and white player's moves to one list
+     * @return an Iterable list of all the moves
+     */
+    public Iterable<Move> getAllLegalMoves() {
+        final List<Move> allMoves = new ArrayList<>();
+        allMoves.addAll(this.getWhitePlayer().getLegalMoves());
+        allMoves.addAll(this.getBlackPlayer().getLegalMoves());
+        return Collections.unmodifiableList(allMoves);
+    }
+
+    /**
      * @return the Player currently playing ('in charge')
      */
     public Player currentPlayer() {
-        //todo:
-        return null;
+        return this.currentPlayer;
     }
 
     /**
@@ -214,20 +224,13 @@ public class Board {
         return gameBoard;
     }
 
-    public Collection<Piece> getWhitePieces() {
-        return whitePieces;
-    }
-
-    public Collection<Piece> getBlackPieces() {
-        return blackPieces;
-    }
-
     /**
      * Helper class for constructing chessboards given a defined layout
      */
     public static class Builder {
         Map<Coordinate, Piece> boardConfig;
         Alliance nextMoveMaker;
+        Pawn enPassantPawn;
 
         /**
          * Construct a Builder object with an empty map.
@@ -262,6 +265,11 @@ public class Board {
          */
         public Board build() {
             return new Board(this);
+        }
+
+
+        public void setEnPassantPawn(Pawn enPassantPawn) {
+            this.enPassantPawn = enPassantPawn;
         }
     }
 }

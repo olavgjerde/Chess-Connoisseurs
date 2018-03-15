@@ -33,7 +33,7 @@ public abstract class Player {
         // add castling moves to legal moves
         final Collection<Move> allMoves = new ArrayList<>();
         allMoves.addAll(legalMoves);
-        allMoves.addAll(opponentMoves);
+        allMoves.addAll(calculateKingCastles(legalMoves, opponentMoves));
         this.legalMoves = allMoves;
         this.isInCheck = !calculateAttacksOnTile(this.playerKing.getPieceCoordinate(), opponentMoves).isEmpty();
     }
@@ -139,7 +139,7 @@ public abstract class Player {
         return !isInCheck && !hasEscapesMoves();
     }
 
-    //todo: implement methods
+    //todo: implement method
     public boolean isCastled() {
         return false;
     }

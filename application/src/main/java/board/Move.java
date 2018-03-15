@@ -116,7 +116,6 @@ public abstract class Move {
             final Builder builder = new Builder();
             // place all of the current player's pieces that has not been moved
             for (Piece piece : this.board.currentPlayer().getActivePieces()) {
-                //todo: something is wrong here - duplication of pieces
                 if(!this.movedPiece.equals(piece)) {
                     builder.setPiece(piece);
                 }

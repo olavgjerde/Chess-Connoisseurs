@@ -8,8 +8,6 @@ import player.MoveTransition;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
@@ -20,6 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static javax.swing.SwingUtilities.invokeLater;
 import static javax.swing.SwingUtilities.isLeftMouseButton;
 import static javax.swing.SwingUtilities.isRightMouseButton;
 
@@ -40,12 +39,12 @@ public class Table {
 
     // options
     private BoardDirection boardDirection;
-    public boolean highLightLegalMoves;
+    public boolean highLightLegalMoves= true;
 
     // visual dimensions
-    private final static Dimension OUTER_FRAME_DIMENSION = new Dimension(600,600);
-    private static final Dimension BOARD_PANEL_DIMENSION = new Dimension(400, 350);
-    private static final Dimension TILE_PANEL_DIMENSION = new Dimension(10, 10);
+    private final static Dimension OUTER_FRAME_DIMENSION = new Dimension(900,900);
+    private static final Dimension BOARD_PANEL_DIMENSION = new Dimension(500, 450);
+    private static final Dimension TILE_PANEL_DIMENSION = new Dimension(20, 20);
 
     //todo correct this path
     private static String pieceImagesPath = "application/src/main/resources/images/";
@@ -56,7 +55,7 @@ public class Table {
         this.gameFrame.setSize(OUTER_FRAME_DIMENSION);
         this.gameFrame.setLayout(new BorderLayout());
         // add menu
-        final JMenuBar tableMenuBar = createTableMenuBar();
+        final JMenuBar tableMenuBar = populateTableMenuBar();
         this.gameFrame.setJMenuBar(tableMenuBar);
         // construct data structure board representation
         this.chessBoard = Board.createStandardBoard();
@@ -73,7 +72,7 @@ public class Table {
      * Creates the top menu bar for the window frame
      * @return JMenuBar with menu items
      */
-    private JMenuBar createTableMenuBar() {
+    private JMenuBar populateTableMenuBar() {
         final JMenuBar tableMenuBar = new JMenuBar();
         tableMenuBar.add(createFileMenu());
         tableMenuBar.add(createPreferenceMenu());
@@ -149,9 +148,10 @@ public class Table {
         public void drawBoard(Board board) {
             removeAll();
             // draw board in a orientation given by enum boardDirection
-            for (TilePanel tile : boardDirection.traverse(boardTiles)) {
-                tile.drawTile(board);
-                add(tile);
+            int x = 0;
+            for (final TilePanel boardTile : boardDirection.traverse(boardTiles)) {
+                boardTile.drawTile(board);
+                add(boardTile);
             }
             validate();
             repaint();
@@ -164,51 +164,51 @@ public class Table {
     private class TilePanel extends JPanel {
         private final Coordinate coordinateId;
 
-        TilePanel(BoardPanel boardPanel, Coordinate coordinateId) {
+        TilePanel(BoardPanel boardPanel, Coordinate tilePosition) {
             super(new GridBagLayout());
-            this.coordinateId = coordinateId;
+            this.coordinateId = tilePosition;
             setPreferredSize(TILE_PANEL_DIMENSION);
             assignTileColor();
+            assignTilePieceImage(chessBoard);
             if (highLightLegalMoves) highlightPossibleMoves(chessBoard);
-            validate();
-
             // every tile has a event listener
             addMouseListener(new MouseListener() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    if (isLeftMouseButton(e)) {
+                    if (isRightMouseButton(e)) {
+                        // reset choice
+                        sourceTile = null;
+                        destinationTile = null;
+                        humanMovedPiece = null;
+                    } else if (isLeftMouseButton(e)) {
                         if (sourceTile == null) {
-                            // first click (pick piece to move)
-                            sourceTile = chessBoard.getTile(coordinateId);
+                            // select piece to move
+                            sourceTile = chessBoard.getTile(tilePosition);
                             humanMovedPiece = sourceTile.getPiece();
-                            if (humanMovedPiece == null) sourceTile = null;
-                        } else {
-                            // second click (pick destination)
-                            destinationTile = chessBoard.getTile(coordinateId);
-                            final Move move = Move.MoveFactory.createMove(chessBoard,
-                                                                          sourceTile.getTileCoord(),
-                                                                          destinationTile.getTileCoord());
-                            // this step updates the board
-                            final MoveTransition transition = chessBoard.currentPlayer().makeMove(move);
-                            if (transition.getMoveStatus().isDone()) {
-                                chessBoard = transition.getTransitionBoard();
-                                System.out.println("\n" + chessBoard);
-                                //todo: add move to the move log
+                            if (humanMovedPiece == null) {
+                                sourceTile = null;
                             }
-                            //todo: refactor clear tiles
+                        } else {
+                            // select where to move
+                            destinationTile = chessBoard.getTile(tilePosition);
+                            // does this move (source to destination) exist? -> check with the MoveFactory
+                            final Move moveToTile = Move.MoveFactory.createMove(chessBoard, sourceTile.getTileCoord(), destinationTile.getTileCoord());
+                            // try to execute the move on the board
+                            final MoveTransition boardChange = chessBoard.currentPlayer().makeMove(moveToTile);
+                            // did the move follow through? if so -> replace current board -> redraw
+                            if (boardChange.getMoveStatus().isDone()) {
+                                chessBoard = boardChange.getTransitionBoard();
+                                // todo: add to move log
+                            }
                             sourceTile = null;
                             destinationTile = null;
                             humanMovedPiece = null;
                         }
-                        SwingUtilities.invokeLater(() -> boardPanel.drawBoard(chessBoard));
-                    } else if (isRightMouseButton(e)) {
-                        // cancel tile selection
-                        sourceTile = null;
-                        destinationTile = null;
-                        humanMovedPiece = null;
                     }
+                    invokeLater(() -> {
+                        boardPanel.drawBoard(chessBoard);
+                    });
                 }
-
                 // not used by gui
                 @Override
                 public void mousePressed(MouseEvent e) { }
@@ -219,10 +219,23 @@ public class Table {
                 @Override
                 public void mouseExited(MouseEvent e) { }
             });
-
+            validate();
         }
 
         /**
+         * Set image and background color for a piece
+         * @param board where the tiles are located
+         */
+        public void drawTile(Board board) {
+            assignTileColor();
+            assignTilePieceImage(board);
+            if (highLightLegalMoves) highlightPossibleMoves(board);
+            validate();
+            repaint();
+        }
+
+        /**
+         * TODO: WARNING THIS MAY BE SLOW -> FETCH IMAGE FROM DISK FOR EVERY REDRAW (= for every board change)
          * Set image on tile given what piece the tile contains.
          * @param board which contain the tiles and pieces
          */
@@ -234,11 +247,7 @@ public class Table {
                     final BufferedImage image = ImageIO.read(new File(pieceImagesPath +
                             board.getTile(this.coordinateId).getPiece().getPieceAlliance().toString().substring(0, 1) +
                             board.getTile(this.coordinateId).getPiece().toString() + ".png"));
-                    // image scaling using java built in feature
-                    ImageIcon pieceImage = new ImageIcon(image);
-                    Image imageToScale = pieceImage.getImage();
-                    Image scaledImage = imageToScale.getScaledInstance(25, 25,  java.awt.Image.SCALE_SMOOTH);
-                    this.add(new JLabel(new ImageIcon(scaledImage)));
+                    this.add(new JLabel(new ImageIcon(image)));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -278,18 +287,6 @@ public class Table {
                 return humanMovedPiece.calculateLegalMoves(board);
             }
             return Collections.emptyList();
-        }
-
-        /**
-         * Set image and background color for a piece
-         * @param board where the tiles are located
-         */
-        public void drawTile(Board board) {
-            assignTileColor();
-            assignTilePieceImage(board);
-            if (highLightLegalMoves) highlightPossibleMoves(board);
-            validate();
-            repaint();
         }
     }
 

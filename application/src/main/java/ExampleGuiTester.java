@@ -1,4 +1,3 @@
-import board.Board;
 import swingExampleGui.Table;
 
 /**

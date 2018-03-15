@@ -8,6 +8,7 @@ import java.util.Objects;
 import static board.Board.*;
 
 /**
+ * TODO: THIS CLASS IS NOT FINISHED -> THEREBY INVALIDATING THE MOVE LOGIC OF THE PIECES
  * Abstract class Move represents the base logic of a move
  * on a chessboard, where we have the board the movement takes place on,
  * the piece that is moving, and the destination coordinate of the moving piece.

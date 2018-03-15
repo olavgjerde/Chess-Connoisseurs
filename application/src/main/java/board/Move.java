@@ -116,6 +116,7 @@ public abstract class Move {
             final Builder builder = new Builder();
             // place all of the current player's pieces that has not been moved
             for (Piece piece : this.board.currentPlayer().getActivePieces()) {
+                //todo: something is wrong here - duplication of pieces
                 if(!this.movedPiece.equals(piece)) {
                     builder.setPiece(piece);
                 }
@@ -323,8 +324,8 @@ public abstract class Move {
 
         public static Move createMove(Board board, Coordinate currentCoordinate, Coordinate destinationCoordinate) {
             for (Move move : board.getAllLegalMoves()) {
-                if (move.getCurrentCoordinate() == currentCoordinate &&
-                    move.getDestinationCoordinate() == destinationCoordinate) {
+                if (move.getCurrentCoordinate().equals(currentCoordinate) &&
+                    move.getDestinationCoordinate().equals(destinationCoordinate)) {
                     return move;
                 }
             }

@@ -52,9 +52,9 @@ public class Queen extends Piece {
                     if (this.pieceAlliance != pieceAtDestination.getPieceAlliance()) {
                         // enemy tile detected
                         legalMoves.add(new AttackMove(board, this, possibleDestCoord, pieceAtDestination));
-                        // path obstructed by enemy -> can't move beyond
-                        break;
                     }
+                    // path obstructed -> can't move beyond
+                    break;
                 }
                 possibleDestCoord = new Coordinate(possibleDestCoord.getX() + x, possibleDestCoord.getY() + y);
             }

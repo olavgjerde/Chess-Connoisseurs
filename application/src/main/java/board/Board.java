@@ -24,8 +24,8 @@ public class Board {
 
     public Board(Builder builder) {
         this.gameBoard = createGameBoard(builder);
-        this.whitePieces = calculateActivePieces(this.gameBoard, Alliance.WHITE);
-        this.blackPieces = calculateActivePieces(this.gameBoard, Alliance.BLACK);
+        this.whitePieces = calculateActivePieces(builder, Alliance.WHITE);
+        this.blackPieces = calculateActivePieces(builder, Alliance.BLACK);
 
         this.whiteStandardLegalMoves = calculateLegalMoves(this.whitePieces);
         this.blackStandardLegalMoves = calculateLegalMoves(this.blackPieces);
@@ -37,34 +37,31 @@ public class Board {
     }
 
     /**
-     * Creates a chessboard with a certain layout
+     * Creates a chessboard with a the layout given by the builder object
      * @param builder defines the layout/settings of the board
      * @return a Map with coordinates as keys and tiles as values
      */
     private Map<Coordinate, Tile> createGameBoard(Builder builder) {
-        Map<Coordinate, Tile> coordTile = new HashMap<>();
+        Map<Coordinate, Tile> coordToTile = new HashMap<>();
         for (int i = 0; i < BoardUtils.getHeight(); i++) {
             for (int j = 0; j < BoardUtils.getWidth(); j++) {
-                coordTile.put(new Coordinate(j,i), Tile.createTile(new Coordinate(j,i), builder.boardConfig.get(new Coordinate(j,i))));
+                coordToTile.put(new Coordinate(j,i), Tile.createTile(new Coordinate(j,i), builder.boardConfig.get(new Coordinate(j,i))));
             }
         }
-        return coordTile;
+        return coordToTile;
     }
 
     /**
      * Calculates how many active pieces there is of a given alliance on a board
-     * @param gameBoard board representation which holds pieces
+     * @param builder board-builder which holds piece layout
      * @param alliance to calculate for (black/white)
      * @return a list of active pieces of a given alliance
      */
-    private static Collection<Piece> calculateActivePieces(Map<Coordinate, Tile> gameBoard, Alliance alliance) {
+    private static Collection<Piece> calculateActivePieces(Builder builder, Alliance alliance) {
         final List<Piece> activePieces = new ArrayList<>();
-        for (Tile tile : gameBoard.values()) {
-            if (!tile.isTileEmpty()) {
-                final Piece piece = tile.getPiece();
-                if (piece.getPieceAlliance() == alliance) {
-                    activePieces.add(piece);
-                }
+        for (Piece piece : builder.boardConfig.values()) {
+            if (piece.getPieceAlliance() == alliance) {
+                activePieces.add(piece);
             }
         }
         return Collections.unmodifiableList(activePieces);

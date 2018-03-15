@@ -12,6 +12,10 @@ import java.util.Objects;
  * Abstract class representing the concept of a chessboard tile.
  */
 public abstract class Tile {
+    public Coordinate getTileCoord() {
+        return tileCoord;
+    }
+
     /**
      * the coordinate of a tile
      */

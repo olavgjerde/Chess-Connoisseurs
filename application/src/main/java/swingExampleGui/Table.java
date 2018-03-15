@@ -1,33 +1,54 @@
 package swingExampleGui;
 
-import board.Board;
-import board.BoardUtils;
-import board.Coordinate;
+import board.*;
+import com.google.common.collect.Lists;
+import pieces.Piece;
+import player.MoveTransition;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+
+import static javax.swing.SwingUtilities.isLeftMouseButton;
+import static javax.swing.SwingUtilities.isRightMouseButton;
 
 /**
  * TODO: *THIS SHALL BE REPLACED BY AN UPDATED JAVAFX VARIANT*
  * GUI class to represent the chessboard.
  */
 public class Table {
-
+    // base structures
     private final JFrame gameFrame;
     private final BoardPanel boardPanel;
-    private final Board chessBoard;
-    //todo fix this path
-    private static String pieceImagesPath = "application/src/main/resources/images/";
+    private Board chessBoard;
 
+    // movement
+    private Tile sourceTile;
+    private Tile destinationTile;
+    private Piece humanMovedPiece;
+
+    // options
+    private BoardDirection boardDirection;
+    public boolean highLightLegalMoves;
+
+    // visual dimensions
     private final static Dimension OUTER_FRAME_DIMENSION = new Dimension(600,600);
     private static final Dimension BOARD_PANEL_DIMENSION = new Dimension(400, 350);
     private static final Dimension TILE_PANEL_DIMENSION = new Dimension(10, 10);
+
+    //todo correct this path
+    private static String pieceImagesPath = "application/src/main/resources/images/";
 
     public Table() {
         // main frame
@@ -39,13 +60,13 @@ public class Table {
         this.gameFrame.setJMenuBar(tableMenuBar);
         // construct data structure board representation
         this.chessBoard = Board.createStandardBoard();
+        // set orientation
+        this.boardDirection = BoardDirection.NORMAL;
         // add visual board representation
         this.boardPanel = new BoardPanel();
         this.gameFrame.add(this.boardPanel, BorderLayout.CENTER);
-
-        // show frame
+        // show main frame
         this.gameFrame.setVisible(true);
-
     }
 
     /**
@@ -55,6 +76,7 @@ public class Table {
     private JMenuBar createTableMenuBar() {
         final JMenuBar tableMenuBar = new JMenuBar();
         tableMenuBar.add(createFileMenu());
+        tableMenuBar.add(createPreferenceMenu());
         return tableMenuBar;
     }
 
@@ -77,6 +99,29 @@ public class Table {
     }
 
     /**
+     * Creates a menu item 'Preference' which contains several options
+     * @return JMenu with several JMenuItems
+     */
+    private JMenu createPreferenceMenu() {
+        final JMenu preferenceMenu = new JMenu("Preferences");
+
+        final JMenuItem flipBoardItem = new JMenuItem("Flip Board");
+        flipBoardItem.addActionListener(e -> {
+            boardDirection = boardDirection.opposite();
+            boardPanel.drawBoard(chessBoard);
+        });
+        preferenceMenu.add(flipBoardItem);
+
+        preferenceMenu.addSeparator();
+
+        final JCheckBoxMenuItem highLighting = new JCheckBoxMenuItem("Highlight Legal Moves", false);
+        highLighting.addActionListener(e -> this.highLightLegalMoves = !this.highLightLegalMoves);
+        preferenceMenu.add(highLighting);
+
+        return preferenceMenu;
+    }
+
+    /**
      * This class BoardPanel keeps track of all tiles on a board
      * Keeps a list of board-width * board-height tiles.
      */
@@ -96,6 +141,21 @@ public class Table {
             setPreferredSize(BOARD_PANEL_DIMENSION);
             validate();
         }
+
+        /**
+         * Redraw/repaint a given BoardPanel
+         * @param board which contains the board to redraw
+         */
+        public void drawBoard(Board board) {
+            removeAll();
+            // draw board in a orientation given by enum boardDirection
+            for (TilePanel tile : boardDirection.traverse(boardTiles)) {
+                tile.drawTile(board);
+                add(tile);
+            }
+            validate();
+            repaint();
+        }
     }
 
     /**
@@ -109,8 +169,57 @@ public class Table {
             this.coordinateId = coordinateId;
             setPreferredSize(TILE_PANEL_DIMENSION);
             assignTileColor();
-            assignTilePieceImage(chessBoard);
+            if (highLightLegalMoves) highlightPossibleMoves(chessBoard);
             validate();
+
+            // every tile has a event listener
+            addMouseListener(new MouseListener() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (isLeftMouseButton(e)) {
+                        if (sourceTile == null) {
+                            // first click (pick piece to move)
+                            sourceTile = chessBoard.getTile(coordinateId);
+                            humanMovedPiece = sourceTile.getPiece();
+                            if (humanMovedPiece == null) sourceTile = null;
+                        } else {
+                            // second click (pick destination)
+                            destinationTile = chessBoard.getTile(coordinateId);
+                            final Move move = Move.MoveFactory.createMove(chessBoard,
+                                                                          sourceTile.getTileCoord(),
+                                                                          destinationTile.getTileCoord());
+                            // this step updates the board
+                            final MoveTransition transition = chessBoard.currentPlayer().makeMove(move);
+                            if (transition.getMoveStatus().isDone()) {
+                                chessBoard = transition.getTransitionBoard();
+                                System.out.println("\n" + chessBoard);
+                                //todo: add move to the move log
+                            }
+                            //todo: refactor clear tiles
+                            sourceTile = null;
+                            destinationTile = null;
+                            humanMovedPiece = null;
+                        }
+                        SwingUtilities.invokeLater(() -> boardPanel.drawBoard(chessBoard));
+                    } else if (isRightMouseButton(e)) {
+                        // cancel tile selection
+                        sourceTile = null;
+                        destinationTile = null;
+                        humanMovedPiece = null;
+                    }
+                }
+
+                // not used by gui
+                @Override
+                public void mousePressed(MouseEvent e) { }
+                @Override
+                public void mouseReleased(MouseEvent e) { }
+                @Override
+                public void mouseEntered(MouseEvent e) { }
+                @Override
+                public void mouseExited(MouseEvent e) { }
+            });
+
         }
 
         /**
@@ -128,7 +237,7 @@ public class Table {
                     // image scaling using java built in feature
                     ImageIcon pieceImage = new ImageIcon(image);
                     Image imageToScale = pieceImage.getImage();
-                    Image scaledImage = imageToScale.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
+                    Image scaledImage = imageToScale.getScaledInstance(25, 25,  java.awt.Image.SCALE_SMOOTH);
                     this.add(new JLabel(new ImageIcon(scaledImage)));
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -146,5 +255,73 @@ public class Table {
                setBackground(Color.decode("#e9d7be"));
            }
         }
+
+        /**
+         * Highlights legal moves on the board
+         * @param board which contains the pieces the player might move
+         */
+        private void highlightPossibleMoves(Board board) {
+            for (Move move: pieceLegalMoves(board)) {
+                if (move.getDestinationCoordinate().equals(this.coordinateId)) {
+                    setBackground(Color.GREEN);
+                }
+            }
+        }
+
+        /**
+         * Find the legal moves for a given piece
+         * @param board on which the piece resides
+         * @return a collection of legal moves, empty if none
+         */
+        private Collection<Move> pieceLegalMoves(Board board) {
+            if (humanMovedPiece != null && humanMovedPiece.getPieceAlliance() == board.currentPlayer().getAlliance()) {
+                return humanMovedPiece.calculateLegalMoves(board);
+            }
+            return Collections.emptyList();
+        }
+
+        /**
+         * Set image and background color for a piece
+         * @param board where the tiles are located
+         */
+        public void drawTile(Board board) {
+            assignTileColor();
+            assignTilePieceImage(board);
+            if (highLightLegalMoves) highlightPossibleMoves(board);
+            validate();
+            repaint();
+        }
+    }
+
+    /**
+     * BoardDirection enums represent in which orientation the board shall be viewed.
+     * This helps the GUI flip the board.
+     */
+    public enum BoardDirection {
+        NORMAL {
+            @Override
+            List<TilePanel> traverse(List<TilePanel> boardTiles) {
+                return boardTiles;
+            }
+
+            @Override
+            BoardDirection opposite() {
+                return FLIPPED;
+            }
+        },
+        FLIPPED {
+            @Override
+            List<TilePanel> traverse(List<TilePanel> boardTiles) {
+                return Lists.reverse(boardTiles);
+            }
+
+            @Override
+            BoardDirection opposite() {
+                return NORMAL;
+            }
+        };
+
+        abstract List<TilePanel> traverse(List<TilePanel> boardTiles);
+        abstract BoardDirection opposite();
     }
 }

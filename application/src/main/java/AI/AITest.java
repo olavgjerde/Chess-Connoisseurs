@@ -1,7 +1,7 @@
 package AI;
 
 import board.Board;
-import player.Player;
+import board.Move;
 
 import java.util.concurrent.TimeUnit;
 
@@ -14,20 +14,34 @@ public class AITest {
 
         while (true) {
 
-            //since we make a new board every move we also need to retrieve the players from the most recent board when making a move.
-            //also have to make a new AI every time with the new and updated board
+            //since we make a new board every move we also have to make a new AI every time with the new and updated board
 
-            Player white = b.getWhitePlayer();
             AI AI1 = new AI(b, false);
-            b = white.makeMove(AI1.getMove()).getTransitionBoard();
+            Move m = AI1.getMove();
+            b = m.execute();
+            System.out.printf("WHITE MAKES MOVE: " + moveToString(m) + "\n");
             System.out.println("########################\n" + b.toString() + "########################\n");
             TimeUnit.SECONDS.sleep(1);
 
-            Player black = b.getBlackPlayer();
             AI AI2 = new AI(b, false);
-            b = black.makeMove(AI2.getMove()).getTransitionBoard();
+            m = AI2.getMove();
+            b = m.execute();
+            System.out.printf("BLACK MAKES MOVE: " + moveToString(m) + "\n");
             System.out.println("########################\n" + b.toString() + "########################\n");
             TimeUnit.SECONDS.sleep(1);
         }
+    }
+
+    /**
+     * dont wanna mess around in the move class too much so i just add a simple toString method here
+     * @return
+     */
+    private static String moveToString(Move m) {
+        int x1 = m.getCurrentCoordinate().getX();
+        int y1 = m.getCurrentCoordinate().getY();
+        int x2 = m.getDestinationCoordinate().getX();
+        int y2 = m.getDestinationCoordinate().getY();
+
+        return ("(" + x1 + ", " + y1 + ") -> (" + x2 + ", " + y2 + ")");
     }
 }

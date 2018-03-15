@@ -62,7 +62,7 @@ public class BoardStateTree {
             if (BOARD.currentPlayer().isMoveLegal(m)){
 
                 //get the new board after the move
-                Board transitionBoard = BOARD.currentPlayer().makeMove(m).getTransitionBoard();
+                Board transitionBoard = m.execute();
 
                 //make a node with the new board. The current player is switched so the opponent will go in this next node
                 BoardStateTree BT = new BoardStateTree(transitionBoard, MAX_NODES, MAX_DEPTH, CURRENT_DEPTH+1);
@@ -100,7 +100,7 @@ public class BoardStateTree {
             if (BOARD.currentPlayer().isMoveLegal(m)){
 
                 //get the new board after the move
-                Board transitionBoard = BOARD.currentPlayer().makeMove(m).getTransitionBoard();
+                Board transitionBoard = m.execute();
 
                 //make a node with the new board. The current player is switched so the opponent will go in this next node
                 BoardStateTree BT = new BoardStateTree(transitionBoard, MAX_NODES, MAX_DEPTH, CURRENT_DEPTH+1);
@@ -134,7 +134,7 @@ public class BoardStateTree {
             if (BOARD.currentPlayer().isMoveLegal(m)){
 
                 //get the new board after the move
-                Board transitionBoard = BOARD.currentPlayer().makeMove(m).getTransitionBoard();
+                Board transitionBoard = m.execute();
 
                 //make a evaluator for the new boar. note that the current player of that board has changed
                 BoardEval transitionBoardEval = new BoardEval(transitionBoard);

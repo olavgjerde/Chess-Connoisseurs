@@ -28,6 +28,9 @@ public class BoardEval {
     public BoardEval(Board board) {
         this.BOARD = board;
 
+        //TODO: this gives a nullPointerException????
+        BOARD.currentPlayer();
+
         if (BOARD.currentPlayer().getAlliance() == Alliance.WHITE){
             this.PLAYER = BOARD.getWhitePlayer();
             this.OPPONENT_PLAYER = BOARD.getBlackPlayer();

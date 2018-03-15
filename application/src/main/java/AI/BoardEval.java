@@ -8,7 +8,9 @@ import java.util.Collection;
 
 public class BoardEval {
 
-    //which players are we evaluating relative to?
+    private final Board BOARD;
+
+    //the players playing, PLAYER is the current player
     private final Player PLAYER;
     private final Player OPPONENT_PLAYER;
 
@@ -20,34 +22,50 @@ public class BoardEval {
     private final int QUEEN_VALUE = 9;
 
     /**
-     * construction for the BoardEval class
-     * It will give the score of the board state relative to the player parameter
-     * @param player the player that we are evaluating for
-     * @param opponent the opponent of the player
+     * Constructor for the BoardEval class. This is used to analyze the board
+     * @param board the board we are analyzing
      */
-    public BoardEval(Player player, Player opponent) {
-        this.PLAYER = player;
-        this.OPPONENT_PLAYER = opponent;
+    public BoardEval(Board board) {
+        this.BOARD = board;
+
+        if (BOARD.currentPlayer().getAlliance() == Alliance.WHITE){
+            this.PLAYER = BOARD.getWhitePlayer();
+            this.OPPONENT_PLAYER = BOARD.getBlackPlayer();
+        }
+        else {
+            this.PLAYER = BOARD.getBlackPlayer();
+            this.OPPONENT_PLAYER = BOARD.getWhitePlayer();
+        }
     }
 
     /**
-     * A very simple way of analysing the board.
-     * Its just the score of the AI and subtract the score of the opponent
-     * So if you take one of the opponent pieces the score will go up, if you loose one the score will go down.
+     * get the board value of the board relative to the current player
      *
-     * TODO: make it such that pieces in danger have an effect on the score, also implement some way of evaluating trades
+     * TODO: make pieces in danger have an effect on the score
      *
-     * @return the score of the board for the AI player
+     * @return value of the board relative to the current player
      */
-    public int getValue() {
+    public int getValueOfCurrentPlayer() {
         return getTotalScore(PLAYER.getActivePieces()) - getTotalScore(OPPONENT_PLAYER.getActivePieces());
+    }
+
+    /**
+     * get the board value of the board relative to the opponent of the current player
+     *
+     * TODO: make pieces in danger have an effect on the score
+     *
+     * @return value of the board relative to the opponent if the current player
+     */
+    public int getValueOfOpponentPlayer() {
+        return getTotalScore(OPPONENT_PLAYER.getActivePieces()) - getTotalScore(PLAYER.getActivePieces());
+
     }
 
     /**
      * Count up the total score of all the pieces in the given collection
      * The score is based on the value instance variables
-     * @param pieceCollection : the collection of pieces to count
-     * @return totalScore : the total value
+     * @param pieceCollection the collection of pieces to count
+     * @return the total value
      */
     private int getTotalScore (Collection<Piece> pieceCollection){
         int totalScore = 0;

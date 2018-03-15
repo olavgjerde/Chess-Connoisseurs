@@ -2,169 +2,159 @@ package AI;
 
 import board.Board;
 import board.Move;
-import player.Player;
-
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 public class BoardStateTree {
 
-    //clone of the players that are playing
-    protected final Player AI;
-    protected final Player OPPONENT;
+    //the board we are working on
+    protected Board BOARD;
 
     //the limits on how we will allow the tree to become
     protected final int MAX_NODES;
     protected final int MAX_DEPTH;
-    protected final int OPPONENT_MAX_NODES;
-    protected final int OPPONENT_MAX_DEPTH;
 
     //how deep down in the tree are we?
     protected final int CURRENT_DEPTH;
 
-    //the evaluator used to evaluate the current board. Note that this is the value of the AI player, not the opponent
-    //we donn't want to just store the value so that we can evaluate again after a move
-    protected final BoardEval EVALUATOR;
+    //value of the current board relative to the current player
+    protected final int BOARD_VALUE;
 
     /**
-     * The constructor for the BoardStateTree class.
-     * It will make a tree of all the best moves, and find the best one.
-     * The shape of the free is determined by the parameters.
-     * @param AI the player that this tree is finding the move for
-     * @param opponent the opponent that we are playing against
-     * @param maxNodes how many children will we allow for each node? (how many moves will we analyze)
-     * @param maxDepth how deep will we allow the tree to grow? (how far into the future we will look)
-     * @param opponentMaxNodes how many children will we allow for each node in the opponents tree?
-     * @param opponentMaxDepth how deep will we allow the opponents tree to grow?
-     * @param currentDepth how deep are we currently in the tree? (amount of moves away from the initial board state)
+     * Constructor of the BoardStateTree class.
+     * Used for making a tree of different moves and finding the best one
+     *
+     * @param board the board we are finding a move for (for the current player)
+     * @param maxNodes the maximum amount of the nodes we will spawn from here
+     * @param maxDepth the maximum depth of the tree we are currently in
+     * @param currentDepth the depth of the node we are currently in
      */
-    public BoardStateTree(Player AI, Player opponent, int maxNodes, int maxDepth, int opponentMaxNodes, int opponentMaxDepth, int currentDepth) {
-
-        //TODO: make these clones so that we don't move the actually game when calculating
-        this.AI = AI;
-        this.OPPONENT = opponent;
-
+    public BoardStateTree(Board board, int maxNodes, int maxDepth, int currentDepth) {
+        this.BOARD = board;
         this.MAX_NODES = maxNodes;
         this.MAX_DEPTH = maxDepth;
-        this.OPPONENT_MAX_NODES = opponentMaxNodes;
-        this.OPPONENT_MAX_DEPTH = opponentMaxDepth;
-
         this.CURRENT_DEPTH = currentDepth;
-
-        this.EVALUATOR = new BoardEval(this.AI, this.OPPONENT);
+        BoardEval evaluator = new BoardEval(BOARD);
+        this.BOARD_VALUE = evaluator.getValueOfCurrentPlayer();
     }
 
     /**
      * find the move that will give the branch with the best results
      * this should only be used from the root node
+     *
      * @return the best move we can find
      */
     public Move getBestMove(){
-        //get the moves that we use to branch out
-        List<Move> moves = (List<Move>) filterMoves(AI.getLegalMoves());
 
-        //the first one is the best one for now
+        //get the MAX_NODES best moves
+        List<Move> moves = filterMoves(BOARD.currentPlayer().getLegalMoves());
+
+        //value of the best move
+        int bestMoveValue = -500;
+
+        //the best move
         Move bestMove = moves.get(0);
 
-        //we haven't found a value yet
-        int bestBranchValue = 0;
-
-        //try out the moves we have and find the one with the best value by using getBestBranchValue()
+        //iterate through the moves and find the best one
         for (Move m : moves){
-            //TODO: clone the players
+            //double check if the move is legal
+            if (BOARD.currentPlayer().isMoveLegal(m)){
 
-            AI.makeMove(m);
+                //get the new board after the move
+                Board transitionBoard = BOARD.currentPlayer().makeMove(m).getTransitionBoard();
 
-            //create a node from here with this move (m)
-            OpponentBoardStateTree BT = new OpponentBoardStateTree(OPPONENT, AI, OPPONENT_MAX_NODES, OPPONENT_MAX_DEPTH, MAX_NODES, MAX_DEPTH, CURRENT_DEPTH+1);
+                //make a node with the new board. The current player is switched so the opponent will go in this next node
+                BoardStateTree BT = new BoardStateTree(transitionBoard, MAX_NODES, MAX_DEPTH, CURRENT_DEPTH+1);
 
-            //find the best value in the BT node
-            int branchValue = BT.getBestBranchValue();
+                //make a tree and retrieve the best value with this node
+                int moveValue = BT.getBestMoveValue();
 
-            //check if this new value is better than what we already have
-            if (branchValue > bestBranchValue) {
-                bestBranchValue = branchValue;
-                bestMove = m;
+                //if the new move gave better results we save that
+                if (moveValue > bestMoveValue) {bestMove = m; bestMoveValue = moveValue;}
             }
         }
-        //return the move that gave the best value
         return bestMove;
     }
 
     /**
      * build the tree as far as allowed and return the best value we could find
+     *
      * @return the value of the highest value leaf
      */
-    protected int getBestBranchValue(){
+    protected int getBestMoveValue(){
 
-        //we reached the bottom
-        if (CURRENT_DEPTH >= MAX_DEPTH) return EVALUATOR.getValue();
+        // we have made it as far as we are allowed to so we return the value of the current board
+        if (CURRENT_DEPTH == MAX_DEPTH) return BOARD_VALUE;
 
-        //get the moves that we use to branch out
-        List<Move> moves = (List<Move>) filterMoves(AI.getLegalMoves());
+        //get the MAX_NODES best moves
+        List<Move> moves = filterMoves(BOARD.currentPlayer().getLegalMoves());
 
-        //in the rare case where there is no more moves
-        if (moves.isEmpty()) return EVALUATOR.getValue();
+        //value of the best move
+        int bestMoveValue = -500;
 
-        //branch out and find the best value of all the leafs
-        int bestBranch = 0;
+        //iterate through the moves and find the best value
         for (Move m : moves){
-            //TODO: clone the players
 
-            AI.makeMove(m);
+            //double check if the move is legal
+            if (BOARD.currentPlayer().isMoveLegal(m)){
 
-            //create a node from here
-            OpponentBoardStateTree BT = new OpponentBoardStateTree(OPPONENT, AI, OPPONENT_MAX_NODES, OPPONENT_MAX_DEPTH, MAX_NODES, MAX_DEPTH, CURRENT_DEPTH+1);
+                //get the new board after the move
+                Board transitionBoard = BOARD.currentPlayer().makeMove(m).getTransitionBoard();
 
-            int branchValue = BT.getBestBranchValue();
-            if (branchValue > bestBranch) bestBranch = branchValue;
+                //make a node with the new board. The current player is switched so the opponent will go in this next node
+                BoardStateTree BT = new BoardStateTree(transitionBoard, MAX_NODES, MAX_DEPTH, CURRENT_DEPTH+1);
+
+                //make a tree and retrieve the best value with this node
+                int moveValue = BT.getBestMoveValue();
+
+                //if the new move gave a better value we save that value
+                if (moveValue > bestMoveValue) bestMoveValue = moveValue;
+            }
         }
-        return bestBranch;
+        return bestMoveValue;
     }
 
     /**
-     * filter out the moves we don't need
-     * @param moveCollection collection of moves to filter from
+     * filter out the moves that will decrease the value, will also only pick the MAX_NODES best moves
+     * TODO: we are now just taking the first MAX_NODES that wont decrease the value. We want the best ones!
+     *
+     * @param moves collection of moves we are filtering
      * @return a collection of the moves we will use to branch out with, size <= MAX_NODES
      */
-    protected Collection<Move> filterMoves(Collection<Move> moveCollection){
+    protected List<Move> filterMoves(Collection<Move> moves){
 
-        //the collection with the moves remaining after the filtering
-        ArrayList<Move> filteredMoveCollection = new ArrayList<>();
+        //the list we will store the filtered moves in
+        List<Move> filteredMoves = new ArrayList<Move>();
 
-        //scores of board after the moves. not necessary but makes code readable and reduce calculations
-        ArrayList<Integer> scores = new ArrayList<>();
+        //iterate through all the moves
+        for (Move m : moves){
 
-        //smallest score in the scores collection so that we don't need to calculate that every time.
-        int minScore = scores.indexOf(Collections.min(scores));
+            //make sure the move is legal
+            if (BOARD.currentPlayer().isMoveLegal(m)){
 
-        //filter the moves based on the evaluator
-        for (Move m : moveCollection){
+                //get the new board after the move
+                Board transitionBoard = BOARD.currentPlayer().makeMove(m).getTransitionBoard();
 
-            //get the score before and after the move
-            int eval1 = EVALUATOR.getValue();
-            AI.makeMove(m);
-            int eval2 = EVALUATOR.getValue();
+                //make a evaluator for the new boar. note that the current player of that board has changed
+                BoardEval transitionBoardEval = new BoardEval(transitionBoard);
 
-            //is the new score better than before? and is it better than the smallest score we have found so far?
-            if (eval2 > eval1 && eval2 > scores.get(minScore)) {
-                if (!(filteredMoveCollection.size() > MAX_NODES)) {
-                    filteredMoveCollection.add(m);
-                    scores.add(eval2);
-                }
-                else {
-                    filteredMoveCollection.set(minScore, m);
-                    scores.set(minScore, eval2);
-                    minScore = scores.indexOf(Collections.min(scores));
+                //get the value of the board relative to the current player before the move (the current player of BOARD)
+                int transitionBoardValue = transitionBoardEval.getValueOfOpponentPlayer();
+
+                //is the new value more than or the same as the current board value?
+                if (transitionBoardValue >= BOARD_VALUE) {
+
+                    //do we already have the maximum amount of moves?
+                    if (filteredMoves.size() < MAX_NODES) {
+                        filteredMoves.add(m);
+                    }
+                    else {
+                        //TODO: replace the worst move in filteredMoves with m
+                    }
                 }
             }
         }
-
-        //this should never happen
-        assert(filteredMoveCollection.size() <= MAX_NODES);
-
-        return filteredMoveCollection;
+        return filteredMoves;
     }
 }

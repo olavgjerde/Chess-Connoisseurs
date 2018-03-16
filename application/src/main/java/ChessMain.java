@@ -12,11 +12,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import pieces.Piece;
+import player.MoveTransition;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class ChessMain extends Application {
 
@@ -25,7 +24,7 @@ public class ChessMain extends Application {
     private BorderPane root;
     private GridPane grid;
     private Board board;
-    private Tile selectedTile;
+    private Coordinate selectedTile;
 
     @Override
     public void start(Stage mainStage) throws Exception{
@@ -46,8 +45,6 @@ public class ChessMain extends Application {
         //Center - GridPane
         grid.setPadding(new Insets(5,5,5,5));
 
-        draw(board, null);
-
         //Button
         Button testButton = new Button();
         testButton.setText("Test");
@@ -62,6 +59,8 @@ public class ChessMain extends Application {
         mainStage.setTitle("Chess Application");
         mainStage.setScene(mainScene);
         mainStage.show();
+
+        draw(board);
     }
 
     //mostly going to be used for debugging
@@ -119,20 +118,19 @@ public class ChessMain extends Application {
     /**
      * Draws the board in the GridPane
      * @param board a board from the Board class
-     * @param selectedPos position of the tile that is to be highlighted
      */
-    private void draw(Board board, Coordinate selectedPos){
+    private void draw(Board board){
         //flip is used to keep track on the tile color
         boolean flip = true;
 
-        Collection legalMoves = listLegalMoves(selectedPos);
+        Collection legalMoves = listLegalMoves(selectedTile);
 
         for (int i = 0; i < BoardUtils.getHeight(); i++) {
             flip=!flip;
             for (int j = 0; j < BoardUtils.getWidth(); j++) {
                 flip=!flip;
 
-                boolean selected = checkHightlight(selectedPos, i, j);
+                boolean selected = checkSelected(selectedTile, i, j);
 
                 boolean highlight = false;
                 if(legalMoves != null)
@@ -147,23 +145,31 @@ public class ChessMain extends Application {
 
     private void onClickHandler(Coordinate coord, Piece piece){
         if (selectedTile == null){
-            if (piece == null){
-                draw(board, null);
-            } else {
-                selectedTile = board.getTile(coord);
-                draw(board, coord);
+            if(!board.getTile(coord).isTileEmpty()){
+                if(board.currentPlayer().getAlliance() == piece.getPieceAlliance()){
+                    if (piece != null){
+                        selectedTile = coord;
+                        draw(board);
+                    }
+                }
             }
         } else {
-            if (piece == null){
-                selectedTile = null;
-                draw(board, null);
-            } else if (coord != selectedTile.getTileCoord()){
-                draw(board, coord);
+            if(board.getTile(coord).isTileEmpty()){
+                attemptMove(coord);
+            } else {
+                if(board.currentPlayer().getAlliance() == piece.getPieceAlliance()){
+                    if (piece.getPieceAlliance() != board.getTile(selectedTile).getPiece().getPieceAlliance()){
+                        attemptMove(coord);
+                    } else {
+                        selectedTile = null;
+                        draw(board);
+                    }
+                }
             }
         }
     }
 
-    private boolean checkHightlight(Coordinate c, int x, int y){
+    private boolean checkSelected(Coordinate c, int x, int y){
         if (c == null)
             return false;
 
@@ -188,6 +194,19 @@ public class ChessMain extends Application {
             list.add(m.getDestinationCoordinate());
 
         return list;
+    }
+
+    private void attemptMove (Coordinate c){
+
+        final Move move = Move.MoveFactory.createMove(board, selectedTile, c);
+        final MoveTransition newBoard = board.currentPlayer().makeMove(move);
+
+        selectedTile = null;
+
+        if (newBoard.getMoveStatus().isDone())
+            board = newBoard.getTransitionBoard();
+
+        draw(board);
     }
 
     public static void main(String[] args) {launch(args);}

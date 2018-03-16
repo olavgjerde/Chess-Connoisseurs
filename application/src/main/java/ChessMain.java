@@ -1,4 +1,6 @@
 import board.Board;
+import board.BoardUtils;
+import board.Coordinate;
 import board.Tile;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -18,24 +20,27 @@ public class ChessMain extends Application {
     private final int SIZE = 50; //width and height of each tile
 
     private BorderPane root;
-    private GridPane grid;
+
+    private Board board;
 
     @Override
     public void start(Stage mainStage) throws Exception{
 
         root = new BorderPane();
-        grid = new GridPane();
+        GridPane grid = new GridPane();
 
         root.setCenter(grid);
 
         //not sure where to put this just yet
-        Board board = Board.createStandardBoard();
+        board = Board.createStandardBoard();
 
         //Top bar - HBox
         HBox topBar = new HBox();
         topBar.setPadding(new Insets(5,5,5,5));
         topBar.setSpacing(5);
         root.setTop(topBar);
+
+        draw(board, grid);
 
         //Button
         Button testButton = new Button();
@@ -51,6 +56,8 @@ public class ChessMain extends Application {
         mainStage.setTitle("Chess Application");
         mainStage.setScene(mainScene);
         mainStage.show();
+
+
     }
 
     //mostly going to be used for debugging
@@ -80,15 +87,19 @@ public class ChessMain extends Application {
             r.setFill(Color.DARKGRAY);
         }
 
+        stack.getChildren().add(r);
+
         //if the tile has a piece add the icon to the stack
         if(!tile.isTileEmpty()){
-            ImageView icon = new ImageView(tile.getPiece().getImage());
-            icon.setFitHeight((double) SIZE);
-            icon.setFitWidth((double) SIZE);
+            String url = "/images/" + tile.getPiece().getPieceAlliance().toString().substring(0, 1) + tile.getPiece().toString() + ".png";
+            ImageView icon = new ImageView(url);
+            icon.setFitHeight((double) SIZE - 10);
+            icon.setFitWidth((double) SIZE - 10);
             icon.setPreserveRatio(true);
+
+            stack.getChildren().add(icon);
         }
 
-        //TODO: make this do something useful
         stack.setOnMouseClicked(e -> r.setFill(Color.RED));
 
         return stack;
@@ -98,14 +109,18 @@ public class ChessMain extends Application {
      * Draws the board in the GridPane
      * @param board a board from the Board class
      */
-    private void draw(Board board){
+    private void draw(Board board, GridPane grid){
         boolean flip = true;
-        //TODO: complete this
+
+        for (int i = 0; i < BoardUtils.getHeight(); i++) {
+            flip=!flip;
+            for (int j = 0; j < BoardUtils.getWidth(); j++) {
+                flip=!flip;
+                StackPane tile = makeStack(board.getTile(new Coordinate(i,j)), flip);
+                grid.add(tile, i,j);
+            }
+        }
     }
 
-    public static void main(String[] args) {
-        Board grid = Board.createStandardBoard();
-        System.out.println(grid);
-        launch(args);
-    }
+    public static void main(String[] args) {launch(args);}
 }

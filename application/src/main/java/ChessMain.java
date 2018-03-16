@@ -78,7 +78,8 @@ public class ChessMain extends Application {
      * Takes a tile and returns a StackPane representation of the tile so it can be put on the board.
      * @param tile a tile from the board
      * @param flip a boolean to decide if the tile should be black or white (true = white, false = black)
-     * @param selected a boolean to decide if the tile should be highlighted
+     * @param selected a boolean to decide if the tile should be marked as selected
+     * @param highlight a boolean to decide if the tile should be highlighted
      * @return a visual representation of a tile
      */
     private StackPane makeStack (Tile tile, boolean flip, boolean selected, boolean highlight){
@@ -110,7 +111,7 @@ public class ChessMain extends Application {
             stack.getChildren().add(icon);
         }
 
-        stack.setOnMouseClicked(e -> onClickHandler(tile.getTileCoord(), tile.getPiece()));
+        stack.setOnMouseClicked(e -> onClickHandler(tile.getTileCoord()));
 
         return stack;
     }
@@ -143,7 +144,10 @@ public class ChessMain extends Application {
         }
     }
 
-    private void onClickHandler(Coordinate coord, Piece piece){
+    private void onClickHandler(Coordinate coord){
+
+        Piece piece = board.getTile(coord).getPiece();
+
         if (selectedTile == null){
             if(!board.getTile(coord).isTileEmpty()){
                 if(board.currentPlayer().getAlliance() == piece.getPieceAlliance()){
@@ -156,15 +160,16 @@ public class ChessMain extends Application {
         } else {
             if(board.getTile(coord).isTileEmpty()){
                 attemptMove(coord);
-            } else {
-                if(board.currentPlayer().getAlliance() == piece.getPieceAlliance()){
-                    if (piece.getPieceAlliance() != board.getTile(selectedTile).getPiece().getPieceAlliance()){
-                        attemptMove(coord);
-                    } else {
-                        selectedTile = null;
-                        draw(board);
-                    }
+            } else if(board.currentPlayer().getAlliance() != piece.getPieceAlliance()){
+                if (piece.getPieceAlliance() != board.getTile(selectedTile).getPiece().getPieceAlliance()){
+                    attemptMove(coord);
+                } else {
+                    selectedTile = null;
+                    draw(board);
                 }
+            } else {
+                selectedTile = coord;
+                draw(board);
             }
         }
     }

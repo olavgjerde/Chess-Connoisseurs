@@ -15,6 +15,11 @@ public enum Alliance {
         }
 
         @Override
+        public int getOppositeDirection() {
+            return 1;
+        }
+
+        @Override
         public Player choosePlayerByAlliance(WhitePlayer whitePlayer, BlackPlayer blackPlayer) {
             return whitePlayer;
         }
@@ -28,6 +33,11 @@ public enum Alliance {
         @Override
         public int getDirection() {
             return 1;
+        }
+
+        @Override
+        public int getOppositeDirection() {
+            return -1;
         }
 
         @Override
@@ -48,6 +58,12 @@ public enum Alliance {
     public abstract int getDirection();
 
     /**
+     * Give the opposite way of which the pieces are moving on the board
+     * @return int 1 if Alliance is white, -1 if black.
+     */
+    public abstract int getOppositeDirection();
+
+    /**
      * This method shall choose the current player given the players of a board
      * See constructor of Board.java for example usage.
      * @param whitePlayer the white player on the board
@@ -55,4 +71,6 @@ public enum Alliance {
      * @return the Player object which controls the next move
      */
     public abstract Player choosePlayerByAlliance(WhitePlayer whitePlayer, BlackPlayer blackPlayer);
+
+
 }

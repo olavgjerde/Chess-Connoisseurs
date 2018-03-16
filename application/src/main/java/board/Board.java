@@ -19,11 +19,13 @@ public class Board {
     private final WhitePlayer whitePlayer;
     private final BlackPlayer blackPlayer;
     private final Player currentPlayer;
+    private final Pawn enPassantPawn;
 
     public Board(Builder builder) {
         this.gameBoard = createGameBoard(builder);
         this.whitePieces = calculateActivePieces(builder, Alliance.WHITE);
         this.blackPieces = calculateActivePieces(builder, Alliance.BLACK);
+        this.enPassantPawn = builder.enPassantPawn;
 
         final Collection<Move> whiteStandardLegalMoves = calculateLegalMoves(this.whitePieces);
         final Collection<Move> blackStandardLegalMoves = calculateLegalMoves(this.blackPieces);
@@ -84,6 +86,13 @@ public class Board {
      */
     public Tile getTile(final Coordinate tileCoordinate) {
         return this.gameBoard.get(tileCoordinate);
+    }
+
+    /**
+     * @return the pawn that is open for an 'en passant' attack
+     */
+    public Pawn getEnPassantPawn() {
+        return this.enPassantPawn;
     }
 
     /**
@@ -236,7 +245,10 @@ public class Board {
             return new Board(this);
         }
 
-
+        /**
+         * Sets the pawn that is now open for an 'en passant' attack
+         * @param enPassantPawn the pawn that made a pawn jump
+         */
         public void setEnPassantPawn(Pawn enPassantPawn) {
             this.enPassantPawn = enPassantPawn;
         }

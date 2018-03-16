@@ -45,37 +45,54 @@ public class Pawn extends Piece {
 
         for (int i = 0; i < POSSIBLE_MOVE_COORDINATES.length; i += 2) {
             // piece alliance is used to determine if the piece is moving up or down the board
-            int x = POSSIBLE_MOVE_COORDINATES[i];
-            int y = POSSIBLE_MOVE_COORDINATES[i + 1];
+            int relativeX = POSSIBLE_MOVE_COORDINATES[i];
+            int relativeY = POSSIBLE_MOVE_COORDINATES[i + 1];
 
-            Coordinate possibleDestCoord = new Coordinate(this.pieceCoordinate.getX() + x * this.getPieceAlliance().getDirection(),
-                                                          this.pieceCoordinate.getY() + y * this.getPieceAlliance().getDirection());
+            Coordinate possibleDestCoord = new Coordinate(this.pieceCoordinate.getX() + (relativeX * this.getPieceAlliance().getDirection()),
+                                                          this.pieceCoordinate.getY() + (relativeY * this.getPieceAlliance().getDirection()));
 
             if (BoardUtils.isValidCoordinate(possibleDestCoord)) {
-                if ((x == 0 && y == 1) && board.getTile(possibleDestCoord).isTileEmpty()) {
+                if ((relativeX == 0 && relativeY == 1) && board.getTile(possibleDestCoord).isTileEmpty()) {
                     // if pawn is moving 1 step
-
-                    // TODO: MORE LOGIC HERE | pawn promotion etc
-                    legalMoves.add(new MajorMove(board, this, possibleDestCoord));
-
-                } else if ((x == 0 && y == 2) && this.isFirstMove() &&
+                    // todo: fix pawn promotion
+                    legalMoves.add(new PawnMove(board, this, possibleDestCoord));
+                } else if (relativeX == 0 && relativeY == 2 && this.isFirstMove() &&
                           ((this.pieceCoordinate.getY() == 1 && this.getPieceAlliance() == Alliance.BLACK) ||
-                          (this.pieceCoordinate.getY() == BoardUtils.getHeight()-2 && this.getPieceAlliance() == Alliance.WHITE))) {
+                          (this.pieceCoordinate.getY() == BoardUtils.getHeight() - 2 && this.getPieceAlliance() == Alliance.WHITE))) {
                     // logic for a "pawn jump" for both directions
 
                     // check if tile at the jump destination is empty and if the tile in-between is empty
                     final int oneBehindY = this.pieceCoordinate.getY() + this.getPieceAlliance().getDirection();
-                    final Coordinate behindPossibleDestCoord = new Coordinate(this.pieceCoordinate.getX() , oneBehindY);
+                    final Coordinate behindPossibleDestCoord = new Coordinate(this.pieceCoordinate.getX(), oneBehindY);
                     if (board.getTile(behindPossibleDestCoord).isTileEmpty() && board.getTile(possibleDestCoord).isTileEmpty()) {
                         legalMoves.add(new PawnJump(board, this, possibleDestCoord));
                     }
-                } else {
-                    // logic for diagonal attack moves
+                } else if (((relativeX == -1 && relativeY == 1) || (relativeX == 1 && relativeY == 1))) {
                     if (!board.getTile(possibleDestCoord).isTileEmpty()) {
+                        // logic for diagonal attack moves
                         final Piece pieceAtDestination = board.getTile(possibleDestCoord).getPiece();
                         if (this.getPieceAlliance() != pieceAtDestination.getPieceAlliance()) {
                             // todo: fix attack into pawn promotion
                             legalMoves.add(new PawnAttackMove(board, this, possibleDestCoord, pieceAtDestination));
+                        }
+                    } else if (board.getEnPassantPawn() != null) {
+                        // logic for 'en passant' attack
+                        final Coordinate enPassantCoord = board.getEnPassantPawn().getPieceCoordinate();
+                        final Piece enPassantPawn = board.getEnPassantPawn();
+                        // NB: this section checks for a possible 'en passant' attacks in both directions for both alliances
+                        // therefore the 'toOneSide' / 'toTheOtherSide' notation
+                        if (relativeX == -1 && relativeY == 1) {
+                            final Coordinate toOneSide = new Coordinate(this.pieceCoordinate.getX() +
+                                    this.pieceAlliance.getOppositeDirection(), this.pieceCoordinate.getY());
+                            if (this.pieceAlliance != enPassantPawn.getPieceAlliance() && enPassantCoord.equals(toOneSide)) {
+                                legalMoves.add(new PawnEnPassantAttackMove(board, this, possibleDestCoord, enPassantPawn));
+                            }
+                        } else if (relativeX == 1 && relativeY == 1) {
+                            final Coordinate toTheOtherSide = new Coordinate(this.pieceCoordinate.getX() -
+                                    this.pieceAlliance.getOppositeDirection(), this.pieceCoordinate.getY());
+                            if (this.pieceAlliance != enPassantPawn.getPieceAlliance() && enPassantCoord.equals(toTheOtherSide)) {
+                                legalMoves.add(new PawnEnPassantAttackMove(board, this, possibleDestCoord, enPassantPawn));
+                            }
                         }
                     }
                 }

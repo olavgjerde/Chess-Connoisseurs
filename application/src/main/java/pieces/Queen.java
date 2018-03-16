@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static board.Move.*;
 import static board.Move.AttackMove;
 import static board.Move.MajorMove;
 
@@ -43,19 +44,18 @@ public class Queen extends Piece {
         for (int i = 0; i < POSSIBLE_MOVE_COORDINATES.length; i += 2) {
             int x = POSSIBLE_MOVE_COORDINATES[i];
             int y = POSSIBLE_MOVE_COORDINATES[i + 1];
-
             // calculate for the 2 horizontal, 2 vertical and 4 diagonal directions on the board
             Coordinate possibleDestCoord = new Coordinate(this.pieceCoordinate.getX() + x, this.pieceCoordinate.getY() + y);
+
             while (BoardUtils.isValidCoordinate(possibleDestCoord)) {
                 final Tile possibleDestinationTile = board.getTile(possibleDestCoord);
-
                 if (possibleDestinationTile.isTileEmpty()) {
                     legalMoves.add(new MajorMove(board, this, possibleDestCoord));
                 } else {
                     final Piece pieceAtDestination = possibleDestinationTile.getPiece();
                     if (this.pieceAlliance != pieceAtDestination.getPieceAlliance()) {
                         // enemy tile detected
-                        legalMoves.add(new AttackMove(board, this, possibleDestCoord, pieceAtDestination));
+                        legalMoves.add(new MajorAttackMove(board, this, possibleDestCoord, pieceAtDestination));
                     }
                     // path obstructed -> can't move beyond
                     break;

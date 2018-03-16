@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static board.Move.*;
 import static board.Move.AttackMove;
 import static board.Move.MajorMove;
 
@@ -50,7 +51,7 @@ public class King extends Piece {
                     final Piece pieceAtDestination = possibleDestinationTile.getPiece();
                     if (this.pieceAlliance != pieceAtDestination.getPieceAlliance()) {
                         // enemy tile detected
-                        legalMoves.add(new AttackMove(board, this, possibleDestCoord, pieceAtDestination));
+                        legalMoves.add(new MajorAttackMove(board, this, possibleDestCoord, pieceAtDestination));
                     }
                 }
             }

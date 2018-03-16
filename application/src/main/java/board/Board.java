@@ -16,8 +16,6 @@ public class Board {
     private final Map<Coordinate, Tile> gameBoard;
     private final Collection<Piece> whitePieces;
     private final Collection<Piece> blackPieces;
-    private final Collection<Move> whiteStandardLegalMoves;
-    private final Collection<Move> blackStandardLegalMoves;
     private final WhitePlayer whitePlayer;
     private final BlackPlayer blackPlayer;
     private final Player currentPlayer;
@@ -27,13 +25,12 @@ public class Board {
         this.whitePieces = calculateActivePieces(builder, Alliance.WHITE);
         this.blackPieces = calculateActivePieces(builder, Alliance.BLACK);
 
-        this.whiteStandardLegalMoves = calculateLegalMoves(this.whitePieces);
-        this.blackStandardLegalMoves = calculateLegalMoves(this.blackPieces);
-
+        final Collection<Move> whiteStandardLegalMoves = calculateLegalMoves(this.whitePieces);
+        final Collection<Move> blackStandardLegalMoves = calculateLegalMoves(this.blackPieces);
         this.whitePlayer = new WhitePlayer(this, whiteStandardLegalMoves, blackStandardLegalMoves);
         this.blackPlayer = new BlackPlayer(this, blackStandardLegalMoves, whiteStandardLegalMoves);
 
-        this.currentPlayer = builder.nextMoveMaker.choosePlayer(this.whitePlayer, this.blackPlayer);
+        this.currentPlayer = builder.nextMoveMaker.choosePlayerByAlliance(this.whitePlayer, this.blackPlayer);
     }
 
     /**
@@ -198,30 +195,6 @@ public class Board {
     }
 
     /**
-     * Returns an identical board to this one.
-     * Mainly used by AI to try out moves without effecting this board
-     * @return clone of this board
-     */
-    public Board clone(){
-
-        //TODO: implement method
-
-        return null; //placeholder
-    }
-
-    public Collection<Move> getBlackStandardLegalMoves() {
-        return blackStandardLegalMoves;
-    }
-
-    public Collection<Move> getWhiteStandardLegalMoves() {
-        return whiteStandardLegalMoves;
-    }
-
-    public Map<Coordinate, Tile> getGameBoard() {
-        return gameBoard;
-    }
-
-    /**
      * Helper class for constructing chessboards given a defined layout
      */
     public static class Builder {
@@ -251,9 +224,8 @@ public class Board {
          * @param alliance who makes the next move
          * @return Builder with this setting
          */
-        public Builder setMoveMaker(Alliance alliance) {
+        public void setMoveMaker(Alliance alliance) {
             this.nextMoveMaker = alliance;
-            return this;
         }
 
         /**

@@ -59,10 +59,10 @@ public class BoardStateTree {
         //iterate through the moves and find the best one
         for (Move m : moves){
             //double check if the move is legal
-            if (BOARD.currentPlayer().isMoveLegal(m)){
+            if (BOARD.currentPlayer().makeMove(m).getMoveStatus().isDone()){
 
                 //get the new board after the move
-                Board transitionBoard = m.execute();
+                Board transitionBoard = BOARD.currentPlayer().makeMove(m).getTransitionBoard();
 
                 //make a node with the new board. The current player is switched so the opponent will go in this next node
                 BoardStateTree BT = new BoardStateTree(transitionBoard, MAX_NODES, MAX_DEPTH, CURRENT_DEPTH+1);
@@ -97,10 +97,10 @@ public class BoardStateTree {
         for (Move m : moves){
 
             //double check if the move is legal
-            if (BOARD.currentPlayer().isMoveLegal(m)){
+            if (BOARD.currentPlayer().makeMove(m).getMoveStatus().isDone()){
 
                 //get the new board after the move
-                Board transitionBoard = m.execute();
+                Board transitionBoard = BOARD.currentPlayer().makeMove(m).getTransitionBoard();
 
                 //make a node with the new board. The current player is switched so the opponent will go in this next node
                 BoardStateTree BT = new BoardStateTree(transitionBoard, MAX_NODES, MAX_DEPTH, CURRENT_DEPTH+1);
@@ -131,10 +131,10 @@ public class BoardStateTree {
         for (Move m : moves){
 
             //make sure the move is legal
-            if (BOARD.currentPlayer().isMoveLegal(m)){
+            if (BOARD.currentPlayer().makeMove(m).getMoveStatus().isDone()){
 
                 //get the new board after the move
-                Board transitionBoard = m.execute();
+                Board transitionBoard = BOARD.currentPlayer().makeMove(m).getTransitionBoard();
 
                 //make a evaluator for the new boar. note that the current player of that board has changed
                 BoardEval transitionBoardEval = new BoardEval(transitionBoard);

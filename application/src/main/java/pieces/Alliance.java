@@ -15,7 +15,7 @@ public enum Alliance {
         }
 
         @Override
-        public Player choosePlayer(WhitePlayer whitePlayer, BlackPlayer blackPlayer) {
+        public Player choosePlayerByAlliance(WhitePlayer whitePlayer, BlackPlayer blackPlayer) {
             return whitePlayer;
         }
 
@@ -31,7 +31,7 @@ public enum Alliance {
         }
 
         @Override
-        public Player choosePlayer(WhitePlayer whitePlayer, BlackPlayer blackPlayer) {
+        public Player choosePlayerByAlliance(WhitePlayer whitePlayer, BlackPlayer blackPlayer) {
             return blackPlayer;
         }
 
@@ -54,5 +54,5 @@ public enum Alliance {
      * @param blackPlayer the black player on the board
      * @return the Player object which controls the next move
      */
-    public abstract Player choosePlayer(WhitePlayer whitePlayer, BlackPlayer blackPlayer);
+    public abstract Player choosePlayerByAlliance(WhitePlayer whitePlayer, BlackPlayer blackPlayer);
 }

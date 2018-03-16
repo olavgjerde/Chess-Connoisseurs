@@ -39,7 +39,7 @@ public class Table {
 
     // options
     private BoardDirection boardDirection;
-    public boolean highLightLegalMoves= true;
+    public boolean highLightLegalMoves;
 
     // visual dimensions
     private final static Dimension OUTER_FRAME_DIMENSION = new Dimension(900,900);
@@ -198,7 +198,7 @@ public class Table {
                             // did the move follow through? if so -> replace current board -> redraw
                             if (boardChange.getMoveStatus().isDone()) {
                                 chessBoard = boardChange.getTransitionBoard();
-                                // todo: add to move log
+                                // todo: add move to move-log
                             }
                             sourceTile = null;
                             destinationTile = null;

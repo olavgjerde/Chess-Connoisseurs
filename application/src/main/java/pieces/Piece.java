@@ -15,23 +15,27 @@ public abstract class Piece {
     final Coordinate pieceCoordinate;
     final Alliance pieceAlliance;
     final boolean isFirstMove;
+    final PieceType pieceType;
 
     /**
      * Sets a piece's position and alliance
+     *
      * @param pieceCoordinate position defined by an int
-     * @param pieceAlliance alliance of the piece
+     * @param pieceAlliance   alliance of the piece
+     * @param isFirstMove     if it is the piece's first move or not
+     * @param pieceType       enum Type of the piece
      */
-    public Piece(final Coordinate pieceCoordinate, final Alliance pieceAlliance) {
+    public Piece(final Coordinate pieceCoordinate, final Alliance pieceAlliance, final boolean isFirstMove, PieceType pieceType) {
         this.pieceCoordinate = pieceCoordinate;
         this.pieceAlliance = pieceAlliance;
-
-        //todo more stuff
-        this.isFirstMove = false;
+        this.isFirstMove = isFirstMove;
+        this.pieceType = pieceType;
     }
 
     /**
      * Every class which implements this method shall calculate according to the rules defined by itself which moves
      * that are legal to do.
+     *
      * @param board on which the piece belongs
      * @return A list of possible moves that a piece can make
      */
@@ -40,6 +44,7 @@ public abstract class Piece {
     /**
      * Pieces shall construct a copy of itself but with the new coordinates
      * contained in the Move object.
+     *
      * @param move Move object which the piece shall evaluate
      * @return a Piece with the new position
      */
@@ -47,10 +52,20 @@ public abstract class Piece {
 
     /**
      * Get the alliance of a piece object
+     *
      * @return enum Alliance
      */
     public Alliance getPieceAlliance() {
         return this.pieceAlliance;
+    }
+
+    /**
+     * Get the enum PieceType of the piece object
+     *
+     * @return enum PieceType
+     */
+    public PieceType getPieceType() {
+        return pieceType;
     }
 
     /**
@@ -62,6 +77,7 @@ public abstract class Piece {
 
     /**
      * Check if it is the piece's first move
+     *
      * @return true or false depending on if it is the first move of the piece
      */
     public boolean isFirstMove() {
@@ -83,22 +99,34 @@ public abstract class Piece {
         return Objects.hash(pieceCoordinate, pieceAlliance, isFirstMove);
     }
 
+
     /**
      * Enums for the different types of pieces; to help
-     * represent the board in String based manner.
+     * represent the board in String based manner and assign
+     * values to each piece.
      */
     public enum PieceType {
-        PAWN("P"),
-        KNIGHT("N"),
-        BISHOP("B"),
-        ROOK("R"),
-        QUEEN("Q"),
-        KING("K");
+        PAWN("P", 1),
+        KNIGHT("N", 3),
+        BISHOP("B", 3),
+        ROOK("R", 5),
+        QUEEN("Q", 9),
+        //todo: value for king has been chosen arbitrarily, research this
+        KING("K", 18);
 
         private String pieceName;
+        private int pieceValue;
 
-        PieceType(String pieceName) {
+        PieceType(String pieceName, int pieceValue) {
             this.pieceName = pieceName;
+            this.pieceValue = pieceValue;
+        }
+
+        /**
+         * @return value of a given piece type
+         */
+        public int getPieceValue() {
+            return pieceValue;
         }
 
         @Override

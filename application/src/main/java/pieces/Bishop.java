@@ -23,13 +23,17 @@ public class Bishop extends Piece {
     private final static int[] POSSIBLE_MOVE_COORDINATES = {-1, 1, -1, -1, 1, -1, 1, 1};
 
     /**
-     * Sets a piece's position and alliance
-     *
-     * @param pieceCoordinate position defined by an int
-     * @param pieceAlliance   alliance of the piece
+     * Constructor which defaults the Pieces isFirstMove variable to true
      */
     public Bishop(Coordinate pieceCoordinate, Alliance pieceAlliance) {
-        super(pieceCoordinate, pieceAlliance);
+        super(pieceCoordinate, pieceAlliance, true, PieceType.BISHOP);
+    }
+
+    /**
+     * Constructor which allows the setting of isFirstMove variable
+     */
+    public Bishop(Coordinate pieceCoordinate, Alliance pieceAlliance, boolean isFirstMove) {
+        super(pieceCoordinate, pieceAlliance, isFirstMove, PieceType.BISHOP);
     }
 
     @Override
@@ -64,7 +68,7 @@ public class Bishop extends Piece {
 
     @Override
     public Bishop movePiece(Move move) {
-        return new Bishop(move.getDestinationCoordinate(), move.getMovedPiece().getPieceAlliance());
+        return new Bishop(move.getDestinationCoordinate(), move.getMovedPiece().getPieceAlliance(), false);
     }
 
     @Override

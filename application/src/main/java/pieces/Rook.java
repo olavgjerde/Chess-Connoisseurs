@@ -23,13 +23,17 @@ public class Rook extends Piece {
     private final static int[] POSSIBLE_MOVE_COORDINATES = {-1, 0, 0, -1, 0, 1, 1, 0};
 
     /**
-     * Sets a piece's position and alliance
-     *
-     * @param pieceCoordinate position defined by an int
-     * @param pieceAlliance   alliance of the piece
+     * Constructor which defaults the Pieces isFirstMove variable to true
      */
     public Rook(Coordinate pieceCoordinate, Alliance pieceAlliance) {
-        super(pieceCoordinate, pieceAlliance);
+        super(pieceCoordinate, pieceAlliance, true, PieceType.ROOK);
+    }
+
+    /**
+     * Constructor which allows the setting of isFirstMove variable
+     */
+    public Rook(Coordinate pieceCoordinate, Alliance pieceAlliance, boolean isFirstMove) {
+        super(pieceCoordinate, pieceAlliance, isFirstMove, PieceType.ROOK);
     }
 
     @Override
@@ -64,7 +68,7 @@ public class Rook extends Piece {
 
     @Override
     public Rook movePiece(Move move) {
-        return new Rook(move.getDestinationCoordinate(), move.getMovedPiece().getPieceAlliance());
+        return new Rook(move.getDestinationCoordinate(), move.getMovedPiece().getPieceAlliance(), false);
     }
 
     @Override

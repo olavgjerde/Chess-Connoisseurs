@@ -54,7 +54,6 @@ public abstract class Player {
     public abstract Player getOpponent();
 
     /**
-     * TODO: FIX ROOK IS FIRST MOVE FOR ALL SUBCLASSES
      * This method shall calculate if there are any castling moves that is available to the player
      * @param playerMoves the moves available to the player
      * @param opponentMoves the moves available to the opponent
@@ -110,7 +109,7 @@ public abstract class Player {
      * @param move to evaluate
      * @return true is move is legal, false otherwise
      */
-    public boolean isMoveLegal(Move move) {
+    private boolean isMoveLegal(Move move) {
         return this.legalMoves.contains(move);
     }
 
@@ -171,17 +170,14 @@ public abstract class Player {
             return new MoveTransition(this.board, move, MoveStatus.ILLEGAL_MOVE);
         }
 
-        /*
-        * Board where the move has taken place.
-        * NB!: if the player who made the move has the color white,
-        * currentPlayer() will now return black after the transition.
-        */
+        // Board where the move has taken place. NB!: if the player who made the move has the color white,
+        // then currentPlayer() will return black after the transition.
         final Board transitionBoard = move.execute();
         // check if move leaves player's king in check
-        final King kingOfEnemy = transitionBoard.currentPlayer().getOpponent().getPlayerKing();
+        final King kingOfPlayerThatMoves = transitionBoard.currentPlayer().getOpponent().getPlayerKing();
         final Collection<Move> currentPlayerMoves = transitionBoard.currentPlayer().getLegalMoves();
-        final Collection<Move> kingAttacks = Player.calculateAttacksOnTile(kingOfEnemy.getPieceCoordinate(), currentPlayerMoves);
-        if (!kingAttacks.isEmpty()) {
+        final Collection<Move> attacksOnPlayerKing = Player.calculateAttacksOnTile(kingOfPlayerThatMoves.getPieceCoordinate(), currentPlayerMoves);
+        if (!attacksOnPlayerKing.isEmpty()) {
             return new MoveTransition(this.board, move, MoveStatus.LEAVES_PLAYER_IN_CHECK);
         }
         return new MoveTransition(transitionBoard, move, MoveStatus.DONE);

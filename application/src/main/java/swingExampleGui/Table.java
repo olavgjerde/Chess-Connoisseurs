@@ -18,9 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static javax.swing.SwingUtilities.invokeLater;
-import static javax.swing.SwingUtilities.isLeftMouseButton;
-import static javax.swing.SwingUtilities.isRightMouseButton;
+import static javax.swing.SwingUtilities.*;
 
 /**
  * TODO: *THIS SHALL BE REPLACED BY AN UPDATED JAVAFX VARIANT*
@@ -29,8 +27,11 @@ import static javax.swing.SwingUtilities.isRightMouseButton;
 public class Table {
     // base structures
     private final JFrame gameFrame;
+    private final GameHistoryPanel gameHistoryPanel;
+    private final TakenPiecesPanel takenPiecesPanel;
     private final BoardPanel boardPanel;
     private Board chessBoard;
+    private final MoveLog moveLog;
 
     // movement
     private Tile sourceTile;
@@ -46,7 +47,7 @@ public class Table {
     private static final Dimension BOARD_PANEL_DIMENSION = new Dimension(500, 450);
     private static final Dimension TILE_PANEL_DIMENSION = new Dimension(20, 20);
 
-    //todo correct this path
+    // todo: correct this path
     private static String pieceImagesPath = "application/src/main/resources/images/";
 
     public Table() {
@@ -54,6 +55,10 @@ public class Table {
         this.gameFrame = new JFrame("Chess");
         this.gameFrame.setSize(OUTER_FRAME_DIMENSION);
         this.gameFrame.setLayout(new BorderLayout());
+        this.gameHistoryPanel = new GameHistoryPanel();
+        this.takenPiecesPanel = new TakenPiecesPanel();
+        // add a log of movements
+        this.moveLog = new MoveLog();
         // add menu
         final JMenuBar tableMenuBar = populateTableMenuBar();
         this.gameFrame.setJMenuBar(tableMenuBar);
@@ -64,6 +69,9 @@ public class Table {
         // add visual board representation
         this.boardPanel = new BoardPanel();
         this.gameFrame.add(this.boardPanel, BorderLayout.CENTER);
+        // add game history panel and taken pieces panel
+        this.gameFrame.add(gameHistoryPanel, BorderLayout.EAST);
+        this.gameFrame.add(takenPiecesPanel, BorderLayout.WEST);
         // show main frame
         this.gameFrame.setVisible(true);
     }
@@ -198,7 +206,9 @@ public class Table {
                             // did the move follow through? if so -> replace current board -> redraw
                             if (boardChange.getMoveStatus().isDone()) {
                                 chessBoard = boardChange.getTransitionBoard();
-                                // todo: add move to move-log
+                                moveLog.addMove(moveToTile);
+                                gameHistoryPanel.redoPanel(chessBoard, moveLog);
+                                takenPiecesPanel.redoPanel(moveLog);
                             }
                             sourceTile = null;
                             destinationTile = null;
@@ -259,9 +269,9 @@ public class Table {
          */
         private void assignTileColor() {
            if ((coordinateId.getY() % 2) == (coordinateId.getX() % 2)) {
-               setBackground(Color.decode("#ca9b5e"));
+               setBackground(Color.decode("#411410"));
            } else {
-               setBackground(Color.decode("#e9d7be"));
+               setBackground(Color.decode("#832821"));
            }
         }
 
@@ -287,6 +297,38 @@ public class Table {
                 return humanMovedPiece.calculateLegalMoves(board);
             }
             return Collections.emptyList();
+        }
+    }
+
+    /**
+     * This class wraps methods for list so that we can
+     * represent the moves that happen on a board.
+     */
+    static class MoveLog {
+        private final List<Move> moves;
+
+        private MoveLog() {
+            this.moves = new ArrayList<>();
+        }
+
+        public List<Move> getMoves() {
+            return this.moves;
+        }
+
+        public void addMove(Move move) {
+            this.moves.add(move);
+        }
+
+        public int size() {
+            return this.moves.size();
+        }
+
+        public void clear() {
+            this.moves.clear();
+        }
+
+        public boolean removeMove(Move move) {
+           return this.moves.remove(move);
         }
     }
 

@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static board.Move.AttackMove;
+import static board.Move.*;
 import static board.Move.MajorMove;
 
 /**
@@ -26,13 +26,17 @@ public class Pawn extends Piece {
     private final static int[] POSSIBLE_MOVE_COORDINATES = {0, 1, 0, 2, -1, 1, 1, 1};
 
     /**
-     * Sets a piece's position and alliance
-     *
-     * @param pieceCoordinate position defined by an int
-     * @param pieceAlliance   alliance of the piece
+     * Constructor which defaults the Pieces isFirstMove variable to true
      */
     public Pawn(Coordinate pieceCoordinate, Alliance pieceAlliance) {
-        super(pieceCoordinate, pieceAlliance);
+        super(pieceCoordinate, pieceAlliance, true, PieceType.PAWN);
+    }
+
+    /**
+     * Constructor which allows the setting of isFirstMove variable
+     */
+    public Pawn(Coordinate pieceCoordinate, Alliance pieceAlliance, boolean isFirstMove) {
+        super(pieceCoordinate, pieceAlliance, isFirstMove, PieceType.PAWN);
     }
 
     @Override
@@ -48,28 +52,30 @@ public class Pawn extends Piece {
                                                           this.pieceCoordinate.getY() + y * this.getPieceAlliance().getDirection());
 
             if (BoardUtils.isValidCoordinate(possibleDestCoord)) {
-                // if pawn is moving 1 step
                 if ((x == 0 && y == 1) && board.getTile(possibleDestCoord).isTileEmpty()) {
+                    // if pawn is moving 1 step
+
                     // TODO: MORE LOGIC HERE | pawn promotion etc
                     legalMoves.add(new MajorMove(board, this, possibleDestCoord));
-                // logic for a "pawn jump" for both directions
+
                 } else if ((x == 0 && y == 2) && this.isFirstMove() &&
-                          (this.pieceCoordinate.getY() == 1 && this.getPieceAlliance() == Alliance.BLACK) ||
-                          (this.pieceCoordinate.getY() == BoardUtils.getHeight()-2 && this.getPieceAlliance() == Alliance.WHITE)) {
+                          ((this.pieceCoordinate.getY() == 1 && this.getPieceAlliance() == Alliance.BLACK) ||
+                          (this.pieceCoordinate.getY() == BoardUtils.getHeight()-2 && this.getPieceAlliance() == Alliance.WHITE))) {
+                    // logic for a "pawn jump" for both directions
 
                     // check if tile at the jump destination is empty and if the tile in-between is empty
                     final int oneBehindY = this.pieceCoordinate.getY() + this.getPieceAlliance().getDirection();
                     final Coordinate behindPossibleDestCoord = new Coordinate(this.pieceCoordinate.getX() , oneBehindY);
                     if (board.getTile(behindPossibleDestCoord).isTileEmpty() && board.getTile(possibleDestCoord).isTileEmpty()) {
-                        legalMoves.add(new MajorMove(board, this, possibleDestCoord));
+                        legalMoves.add(new PawnJump(board, this, possibleDestCoord));
                     }
-                // logic for diagonal attack moves
                 } else {
+                    // logic for diagonal attack moves
                     if (!board.getTile(possibleDestCoord).isTileEmpty()) {
                         final Piece pieceAtDestination = board.getTile(possibleDestCoord).getPiece();
                         if (this.getPieceAlliance() != pieceAtDestination.getPieceAlliance()) {
                             // todo: fix attack into pawn promotion
-                            legalMoves.add(new AttackMove(board, this, possibleDestCoord, pieceAtDestination));
+                            legalMoves.add(new PawnAttackMove(board, this, possibleDestCoord, pieceAtDestination));
                         }
                     }
                 }
@@ -80,7 +86,7 @@ public class Pawn extends Piece {
 
     @Override
     public Pawn movePiece(Move move) {
-        return new Pawn(move.getDestinationCoordinate(), move.getMovedPiece().getPieceAlliance());
+        return new Pawn(move.getDestinationCoordinate(), move.getMovedPiece().getPieceAlliance(), false);
     }
 
     @Override

@@ -23,13 +23,17 @@ public class Knight extends Piece {
     private final static int[] POSSIBLE_MOVE_COORDINATES = {-2, 1, -1, 2, 1, 2, 2, 1, -2, -1, -1, -2, 1, -2, 2, -1};
 
     /**
-     * Sets a piece's position and alliance
-     *
-     * @param pieceCoordinate position defined by an int
-     * @param pieceAlliance   alliance of the piece
+     * Constructor which defaults the Pieces isFirstMove variable to true
      */
     public Knight(Coordinate pieceCoordinate, Alliance pieceAlliance) {
-        super(pieceCoordinate, pieceAlliance);
+        super(pieceCoordinate, pieceAlliance, true, PieceType.KNIGHT);
+    }
+
+    /**
+     * Constructor which allows the setting of isFirstMove variable
+     */
+    public Knight(Coordinate pieceCoordinate, Alliance pieceAlliance, boolean isFirstMove) {
+        super(pieceCoordinate, pieceAlliance, isFirstMove, PieceType.KNIGHT);
     }
 
     @Override
@@ -60,7 +64,7 @@ public class Knight extends Piece {
 
     @Override
     public Knight movePiece(Move move) {
-        return new Knight(move.getDestinationCoordinate(), move.getMovedPiece().getPieceAlliance());
+        return new Knight(move.getDestinationCoordinate(), move.getMovedPiece().getPieceAlliance(), false);
     }
 
     @Override

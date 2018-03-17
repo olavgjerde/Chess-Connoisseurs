@@ -17,19 +17,22 @@ public class King extends Piece {
      * NB: 2 and 2 integers represent x and y. [0] = x [1] = y etc.
      */
     private final static int[] POSSIBLE_MOVE_COORDINATES = {-1, 0, -1, -1, 0, -1, 1, -1, 1, 0, 1, 1, 0, 1, -1, 1};
+    private final boolean isCastled;
 
     /**
      * Constructor which defaults the Pieces isFirstMove variable to true
      */
     public King(Coordinate pieceCoordinate, Alliance pieceAlliance) {
         super(pieceCoordinate, pieceAlliance, true, PieceType.KING);
+        this.isCastled = false;
     }
 
     /**
-     * Constructor which allows the setting of isFirstMove variable
+     * Constructor which allows the setting of isFirstMove and isCastled variable
      */
-    public King(Coordinate pieceCoordinate, Alliance pieceAlliance, boolean isFirstMove) {
+    public King(Coordinate pieceCoordinate, Alliance pieceAlliance, boolean isFirstMove, boolean isCastled) {
         super(pieceCoordinate, pieceAlliance, isFirstMove, PieceType.KING);
+        this.isCastled = isCastled;
     }
 
     @Override
@@ -60,11 +63,15 @@ public class King extends Piece {
 
     @Override
     public King movePiece(Move move) {
-        return new King(move.getDestinationCoordinate(), move.getMovedPiece().getPieceAlliance(), false);
+        return new King(this.pieceCoordinate, this.pieceAlliance, false, move.isCastlingMove());
     }
 
     @Override
     public String toString() {
         return PieceType.KING.toString();
+    }
+
+    public boolean isCastled() {
+        return this.isCastled;
     }
 }

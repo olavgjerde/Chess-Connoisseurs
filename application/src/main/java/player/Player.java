@@ -153,9 +153,11 @@ public abstract class Player {
         return !isInCheck && !hasEscapesMoves();
     }
 
-    //todo: implement method
+    /**
+     * @return true if the current player is castled
+     */
     public boolean isCastled() {
-        return false;
+        return this.playerKing.isCastled();
     }
 
     /**

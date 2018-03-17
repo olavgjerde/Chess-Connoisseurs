@@ -16,6 +16,8 @@ import player.MoveTransition;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class ChessMain extends Application {
 
@@ -188,12 +190,18 @@ public class ChessMain extends Application {
     }
 
     private Collection<Coordinate> listLegalMoves (Coordinate c){
-
-        if (c == null)
-            return null;
+        if (c == null) return null;
 
         //Collection<Move> temp = board.getTile(c).getPiece().calculateLegalMoves(board);
-        Collection<Move> temp = board.currentPlayer().getLegalMovesForPiece(board.getTile(c).getPiece());
+        // Note: this is a bit heavy on the system, since we are making every move and checking
+        // the status of it to remove highlighting tiles which sets the player in check
+        List<Move> temp = new ArrayList<>(board.currentPlayer().getLegalMovesForPiece(board.getTile(c).getPiece()));
+        for (Move move : temp) {
+            if(!board.currentPlayer().makeMove(move).getMoveStatus().isDone()) {
+                temp.remove(move);
+            }
+        }
+
         Collection<Coordinate> list = new ArrayList<>();
 
         for (Move m : temp)

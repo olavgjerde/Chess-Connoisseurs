@@ -67,11 +67,11 @@ public class BlackPlayer extends Player {
 
                 // Check that that the rook is in position, and that it is making it's first move.
                 // Check that there are no attacks on tiles in between the king and the rook
+                // Rook may moved through attacked piece (threeStepsLeft)
                 final Piece rookPiece = this.board.getTile(new Coordinate(0, 0)).getPiece();
                 if (rookPiece instanceof Rook && rookPiece.isFirstMove() &&
                     calculateAttacksOnTile(oneStepLeft, opponentMoves).isEmpty() &&
-                    calculateAttacksOnTile(twoStepsLeft, opponentMoves).isEmpty() &&
-                    calculateAttacksOnTile(threeStepsLeft, opponentMoves).isEmpty()) {
+                    calculateAttacksOnTile(twoStepsLeft, opponentMoves).isEmpty()) {
                     // add this move to list of possible castling moves
                     kingCastles.add(new QueenSideCastleMove(this.board, this.playerKing, twoStepsLeft,
                                    (Rook) rookPiece, rookPiece.getPieceCoordinate(), oneStepLeft));

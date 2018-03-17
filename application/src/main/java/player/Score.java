@@ -2,28 +2,29 @@ package player;
 
 public class Score {
     String username;
-    int ELOrating;
+    int EloRating = findEloRating(username);
 
-    public Score(String username) { //Constructor is also a placeholder, not sure how the logic will work yet.
-        this.username = username;
-        int elo = findUsername(username);
-        if (elo == -1) {
-            ELOrating = 1500; //1500 is a placeholder for the default starting rating.
-        } else {
-            ELOrating = elo;
-        } //Else set ELOrating to the rating that already exists for the user.
-    }
 
 
     /**
      * Method to check if a username exists in usernames.txt
      * @param username
-     * @return the elo-rating for the user as int, returns -1 if username is not found.
+     * @return the elo-rating for the user as int, set the rating to 1500(placeholder) if name is not found.
      */
-    public int findUsername(String username){
+    public int findEloRating(String username){
         //TODO
+        String[2] userElo; //stores username/elo rating in [0]/[1]
+        try (BufferedReader br = new BufferedReader(new FileReader("username.txt"))) {
+            String line = br.readLine();
 
-        return -1;
+            while(line != null){
+                userElo = line.split("/");
+                int  = Integer.parseInt(userElo[1]);
+
+            }
+        }
+        ELO = 1500;
+        return ELO;
     }
 
 

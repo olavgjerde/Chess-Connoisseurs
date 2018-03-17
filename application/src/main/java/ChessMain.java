@@ -196,18 +196,19 @@ public class ChessMain extends Application {
         // Note: this is a bit heavy on the system, since we are making every move and checking
         // the status of it to remove highlighting tiles which sets the player in check
         List<Move> temp = new ArrayList<>(board.currentPlayer().getLegalMovesForPiece(board.getTile(c).getPiece()));
+        List<Coordinate> coordinatesToHighlight = new ArrayList<>();
         for (Move move : temp) {
-            if(!board.currentPlayer().makeMove(move).getMoveStatus().isDone()) {
-                temp.remove(move);
+            if(board.currentPlayer().makeMove(move).getMoveStatus().isDone()) {
+                coordinatesToHighlight.add(move.getDestinationCoordinate());
             }
         }
 
-        Collection<Coordinate> list = new ArrayList<>();
+        /*Collection<Coordinate> list = new ArrayList<>();
 
         for (Move m : temp)
-            list.add(m.getDestinationCoordinate());
+            list.add(m.getDestinationCoordinate());*/
 
-        return list;
+        return coordinatesToHighlight;
     }
 
     private void attemptMove (Coordinate c){

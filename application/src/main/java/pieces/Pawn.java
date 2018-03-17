@@ -58,9 +58,9 @@ public class Pawn extends Piece {
 
                 if (relativeX == 0 && relativeY == 1) {
                     // 1 step
-                    if (promotionIsPossible) {
+                    if (promotionIsPossible && destinationIsEmpty) {
                         legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination)));
-                    } else {
+                    } else if (destinationIsEmpty) {
                         legalMoves.add(new PawnMove(board, this, destination));
                     }
                 } else if (relativeX == 0 && relativeY == 2) {

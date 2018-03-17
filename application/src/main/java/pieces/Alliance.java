@@ -1,5 +1,7 @@
 package pieces;
 
+import board.BoardUtils;
+import board.Coordinate;
 import player.BlackPlayer;
 import player.Player;
 import player.WhitePlayer;
@@ -17,6 +19,11 @@ public enum Alliance {
         @Override
         public int getOppositeDirection() {
             return 1;
+        }
+
+        @Override
+        public boolean isPawnPromotionCoordinate(Coordinate coordinate) {
+            return coordinate.getY() == 0;
         }
 
         @Override
@@ -41,6 +48,11 @@ public enum Alliance {
         }
 
         @Override
+        public boolean isPawnPromotionCoordinate(Coordinate coordinate) {
+            return coordinate.getY() == BoardUtils.getHeight() - 1;
+        }
+
+        @Override
         public Player choosePlayerByAlliance(WhitePlayer whitePlayer, BlackPlayer blackPlayer) {
             return blackPlayer;
         }
@@ -62,6 +74,13 @@ public enum Alliance {
      * @return int 1 if Alliance is white, -1 if black.
      */
     public abstract int getOppositeDirection();
+
+    /**
+     * Checks if the coordinate belongs to a tile where pawn promotion can happen
+     * @param coordinate to check
+     * @return true if pawn promotion is available, false otherwise
+     */
+    public abstract boolean isPawnPromotionCoordinate(Coordinate coordinate);
 
     /**
      * This method shall choose the current player given the players of a board

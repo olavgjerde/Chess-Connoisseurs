@@ -45,7 +45,7 @@ public class WhitePlayer extends Player {
             // White king side castle
             Coordinate oneStepRight = new Coordinate(this.playerKing.getPieceCoordinate().getX() + 1, this.playerKing.getPieceCoordinate().getY());
             Coordinate twoStepsRight = new Coordinate(oneStepRight.getX() + 1, oneStepRight.getY());
-            if (this.board.getTile(oneStepRight).isTileEmpty() && this.board.getTile(twoStepsRight).isTileEmpty()) {
+            if (this.board.getTile(oneStepRight).isEmpty() && this.board.getTile(twoStepsRight).isEmpty()) {
 
                 // Check that that the rook is in position, and that it is making it's first move.
                 // Check that there are no attacks on tiles in between the king and the rook
@@ -62,8 +62,8 @@ public class WhitePlayer extends Player {
             Coordinate oneStepLeft = new Coordinate(this.playerKing.getPieceCoordinate().getX() - 1, this.playerKing.getPieceCoordinate().getY());
             Coordinate twoStepsLeft = new Coordinate(oneStepLeft.getX() - 1, oneStepLeft.getY());
             Coordinate threeStepsLeft = new Coordinate(twoStepsLeft.getX()  - 1, twoStepsLeft.getY());
-            if (this.board.getTile(oneStepLeft).isTileEmpty() && this.board.getTile(twoStepsLeft).isTileEmpty() &&
-                this.board.getTile(threeStepsLeft).isTileEmpty()) {
+            if (this.board.getTile(oneStepLeft).isEmpty() && this.board.getTile(twoStepsLeft).isEmpty() &&
+                this.board.getTile(threeStepsLeft).isEmpty()) {
 
                 // Check that that the rook is in position, and that it is making it's first move.
                 // Check that there are no attacks on tiles in between the king and the rook

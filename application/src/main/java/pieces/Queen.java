@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static board.Move.*;
-import static board.Move.AttackMove;
 import static board.Move.MajorMove;
 
 /**
@@ -49,7 +48,7 @@ public class Queen extends Piece {
 
             while (BoardUtils.isValidCoordinate(possibleDestCoord)) {
                 final Tile possibleDestinationTile = board.getTile(possibleDestCoord);
-                if (possibleDestinationTile.isTileEmpty()) {
+                if (possibleDestinationTile.isEmpty()) {
                     legalMoves.add(new MajorMove(board, this, possibleDestCoord));
                 } else {
                     final Piece pieceAtDestination = possibleDestinationTile.getPiece();

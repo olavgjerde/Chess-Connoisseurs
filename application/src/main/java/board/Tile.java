@@ -62,7 +62,7 @@ public abstract class Tile {
      * Method shall check if the tile contains a piece or not
      * @return true or false depending on the contents of a given tile
      */
-    public abstract boolean isTileEmpty();
+    public abstract boolean isEmpty();
 
     /**
      * Method shall return the contents of a given tile
@@ -92,7 +92,7 @@ public abstract class Tile {
         }
 
         @Override
-        public boolean isTileEmpty() {
+        public boolean isEmpty() {
             return true;
         }
 
@@ -120,7 +120,7 @@ public abstract class Tile {
         }
 
         @Override
-        public boolean isTileEmpty() {
+        public boolean isEmpty() {
             return false;
         }
 

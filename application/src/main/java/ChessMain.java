@@ -101,7 +101,7 @@ public class ChessMain extends Application {
 
         //if the tile has a piece add the icon to the stack
         //TODO: maybe make all the images be loaded into variables in init() to improve performance (instead of doing it every redraw here)
-        if(!tile.isTileEmpty()){
+        if(!tile.isEmpty()){
             String url = "/images/" + tile.getPiece().getPieceAlliance().toString().substring(0, 1) + tile.getPiece().toString() + ".png";
             ImageView icon = new ImageView(url);
             icon.setFitHeight((double) SIZE - 10);
@@ -149,7 +149,7 @@ public class ChessMain extends Application {
         Piece piece = board.getTile(coord).getPiece();
 
         if (selectedTile == null){
-            if(!board.getTile(coord).isTileEmpty()){
+            if(!board.getTile(coord).isEmpty()){
                 if(board.currentPlayer().getAlliance() == piece.getPieceAlliance()){
                     if (piece != null){
                         selectedTile = coord;
@@ -158,7 +158,7 @@ public class ChessMain extends Application {
                 }
             }
         } else {
-            if(board.getTile(coord).isTileEmpty()){
+            if(board.getTile(coord).isEmpty()){
                 attemptMove(coord);
             } else if(board.currentPlayer().getAlliance() != piece.getPieceAlliance()){
                 if (piece.getPieceAlliance() != board.getTile(selectedTile).getPiece().getPieceAlliance()){
@@ -178,7 +178,7 @@ public class ChessMain extends Application {
         if (c == null)
             return false;
 
-        if(board.getTile(c).isTileEmpty())
+        if(board.getTile(c).isEmpty())
             return false;
 
         if((c.getX() == x) && (c.getY() == y))

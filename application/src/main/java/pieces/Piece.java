@@ -14,8 +14,8 @@ public abstract class Piece {
 
     final Coordinate pieceCoordinate;
     final Alliance pieceAlliance;
-    final boolean isFirstMove;
-    final PieceType pieceType;
+    private final boolean isFirstMove;
+    private final PieceType pieceType;
 
     /**
      * Sets a piece's position and alliance

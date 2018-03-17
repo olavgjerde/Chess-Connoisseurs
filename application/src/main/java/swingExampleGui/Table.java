@@ -251,7 +251,7 @@ public class Table {
          */
         private void assignTilePieceImage(Board board) {
             this.removeAll();
-            if (!board.getTile(this.coordinateId).isTileEmpty()) {
+            if (!board.getTile(this.coordinateId).isEmpty()) {
                 try {
                     // append path with alliance type and string representation of piece to get correct image from resources
                     final BufferedImage image = ImageIO.read(new File(pieceImagesPath +

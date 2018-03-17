@@ -294,7 +294,7 @@ public class Table {
          */
         private Collection<Move> pieceLegalMoves(Board board) {
             if (humanMovedPiece != null && humanMovedPiece.getPieceAlliance() == board.currentPlayer().getAlliance()) {
-                return humanMovedPiece.calculateLegalMoves(board);
+                return board.currentPlayer().getLegalMovesForPiece(humanMovedPiece);
             }
             return Collections.emptyList();
         }

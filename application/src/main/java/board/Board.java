@@ -84,7 +84,7 @@ public class Board {
      * @param tileCoordinate coordinate of tile to get
      * @return the Tile-object at a given coordinate
      */
-    public Tile getTile(final Coordinate tileCoordinate) {
+    public Tile getTile(Coordinate tileCoordinate) {
         return this.gameBoard.get(tileCoordinate);
     }
 

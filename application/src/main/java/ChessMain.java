@@ -192,7 +192,8 @@ public class ChessMain extends Application {
         if (c == null)
             return null;
 
-        Collection<Move> temp = board.getTile(c).getPiece().calculateLegalMoves(board);
+        //Collection<Move> temp = board.getTile(c).getPiece().calculateLegalMoves(board);
+        Collection<Move> temp = board.currentPlayer().getLegalMovesForPiece(board.getTile(c).getPiece());
         Collection<Coordinate> list = new ArrayList<>();
 
         for (Move m : temp)

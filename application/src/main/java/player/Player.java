@@ -16,8 +16,8 @@ import static board.Move.*;
 
 public abstract class Player {
     protected final Board board;
-    protected final King playerKing;
-    protected final Collection<Move> legalMoves;
+    final King playerKing;
+    private final Collection<Move> legalMoves;
     private final boolean isInCheck;
 
     /**
@@ -102,6 +102,21 @@ public abstract class Player {
      */
     public Collection<Move> getLegalMoves() {
         return this.legalMoves;
+    }
+
+    /**
+     * Find a moves belonging to a given piece
+     * @param piece to find moves for
+     * @return the given piece's moves
+     */
+    public Collection<Move> getLegalMovesForPiece(Piece piece) {
+        List<Move> pieceMoves = new ArrayList<>();
+        for (Move move : legalMoves) {
+            if (piece.equals(move.getMovedPiece())) {
+                pieceMoves.add(move);
+            }
+        }
+        return Collections.unmodifiableList(pieceMoves);
     }
 
     /**

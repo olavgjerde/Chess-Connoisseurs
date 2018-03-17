@@ -194,6 +194,11 @@ public abstract class Move {
         public boolean equals(Object o) {
             return this == o || o instanceof MajorMove && super.equals(o);
         }
+
+        @Override
+        public String toString() {
+            return movedPiece.getPieceType() + BoardUtils.getAlgebraicNotationFromCoordinate(destinationCoordinate);
+        }
     }
 
     /**

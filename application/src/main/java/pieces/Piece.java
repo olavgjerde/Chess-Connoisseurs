@@ -1,6 +1,7 @@
 package pieces;
 
 import board.Board;
+import board.BoardUtils;
 import board.Coordinate;
 import board.Move;
 
@@ -20,13 +21,14 @@ public abstract class Piece {
     /**
      * Sets a piece's position and alliance
      *
-     * @param pieceCoordinate position defined by an int
+     * @param pieceCoordinate position defined by a Coordinate object
      * @param pieceAlliance   alliance of the piece
      * @param isFirstMove     if it is the piece's first move or not
      * @param pieceType       enum Type of the piece
      */
-    public Piece(final Coordinate pieceCoordinate, final Alliance pieceAlliance, final boolean isFirstMove, PieceType pieceType) {
-        this.pieceCoordinate = pieceCoordinate;
+    public Piece(final Coordinate pieceCoordinate, final Alliance pieceAlliance, final boolean isFirstMove, final PieceType pieceType) {
+        if (BoardUtils.isValidCoordinate(pieceCoordinate)) this.pieceCoordinate = pieceCoordinate;
+        else throw new RuntimeException("Piece constructed with coordinate out of bounds");
         this.pieceAlliance = pieceAlliance;
         this.isFirstMove = isFirstMove;
         this.pieceType = pieceType;
@@ -48,7 +50,7 @@ public abstract class Piece {
      * @param move Move object which the piece shall evaluate
      * @return a Piece with the new position
      */
-    public abstract Piece movePiece(Move move);
+    public abstract Piece movePiece(final Move move);
 
     /**
      * Get the alliance of a piece object

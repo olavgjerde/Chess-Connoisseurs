@@ -72,7 +72,7 @@ public class GameHistoryPanel extends JPanel {
      * @return String representation of checkmate or check, blank if none of the situation are present
      */
     private String calculateCheckAndCheckMateHash(Board board) {
-        if (board.currentPlayer().isInCheckMate()) {
+        if (board.currentPlayer().isInCheckmate()) {
             return "#";
         } else if (board.currentPlayer().isInCheck()) {
             return "+";

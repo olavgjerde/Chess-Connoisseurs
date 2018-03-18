@@ -32,9 +32,9 @@ public abstract class Tile {
      */
     private static Map<Coordinate, EmptyTile> createAllEmptyTiles() {
         final Map<Coordinate, EmptyTile> emptyTileMap = new HashMap<>();
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                emptyTileMap.put(new Coordinate(i,j), new EmptyTile(new Coordinate(i,j)));
+        for (int i = 0; i < BoardUtils.getHeight(); i++) {
+            for (int j = 0; j < BoardUtils.getWidth(); j++) {
+                emptyTileMap.put(new Coordinate(j,i), new EmptyTile(new Coordinate(j,i)));
             }
         }
         return Collections.unmodifiableMap(emptyTileMap);
@@ -86,8 +86,8 @@ public abstract class Tile {
     /**
      * Class represents a tile which has no content
      */
-    private static final class EmptyTile extends Tile {
-        private EmptyTile(final Coordinate coord) {
+    static final class EmptyTile extends Tile {
+        EmptyTile(final Coordinate coord) {
             super(coord);
         }
 
@@ -110,11 +110,11 @@ public abstract class Tile {
     /**
      * Class represents a tile which has some content; a given type of piece
      */
-    private static final class OccupiedTile extends Tile {
+    static final class OccupiedTile extends Tile {
         // piece contained in the tile
         private final Piece pieceAtTile;
 
-        private OccupiedTile(final Coordinate tileCoord, Piece pieceAtTile) {
+        OccupiedTile(final Coordinate tileCoord, Piece pieceAtTile) {
             super(tileCoord);
             this.pieceAtTile = pieceAtTile;
         }

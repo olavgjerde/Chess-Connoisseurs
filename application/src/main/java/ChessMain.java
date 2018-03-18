@@ -67,7 +67,6 @@ public class ChessMain extends Application {
 
     //mostly going to be used for debugging
     private void testMethod() {
-        System.out.println();
     }
 
     //this method runs before the start method

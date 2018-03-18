@@ -256,7 +256,9 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return "";
+            return BoardUtils.getAlgebraicNotationFromCoordinate(this.movedPiece.getPieceCoordinate()) + "-" +
+                   BoardUtils.getAlgebraicNotationFromCoordinate(this.destinationCoordinate) + "=" +
+                   this.promotedPawn.getPromotionPiece();
         }
 
         @Override
@@ -380,6 +382,9 @@ public abstract class Move {
         }
     }
 
+    /**
+     * Extends the CastleMove with a change toString method
+     */
     public static final class KingSideCastleMove extends CastleMove {
 
         public KingSideCastleMove(Board board, Piece movePiece, Coordinate destination, Rook castleRook,
@@ -398,6 +403,9 @@ public abstract class Move {
         }
     }
 
+    /**
+     * Extends the CastleMove with a change toString method
+     */
     public static final class QueenSideCastleMove extends CastleMove {
         public QueenSideCastleMove(Board board, Piece movePiece, Coordinate destination, Rook castleRook,
                                    Coordinate castleRookStart, Coordinate castleRookDestination) {
@@ -545,7 +553,7 @@ public abstract class Move {
         public static Move createMove(Board board, Coordinate currentCoordinate, Coordinate destinationCoordinate) {
             for (Move move : board.getAllLegalMoves()) {
                 if (move.getCurrentCoordinate().equals(currentCoordinate) &&
-                        move.getDestinationCoordinate().equals(destinationCoordinate)) {
+                    move.getDestinationCoordinate().equals(destinationCoordinate)) {
                     return move;
                 }
             }

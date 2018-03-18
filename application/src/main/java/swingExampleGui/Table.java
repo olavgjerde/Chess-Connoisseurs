@@ -282,6 +282,7 @@ public class Table {
         private void highlightPossibleMoves(Board board) {
             for (Move move: pieceLegalMoves(board)) {
                 if (move.getDestinationCoordinate().equals(this.coordinateId)) {
+                    // this tile is one of the possible move coordinates, highlight it
                     setBackground(Color.GREEN);
                 }
             }
@@ -294,7 +295,13 @@ public class Table {
          */
         private Collection<Move> pieceLegalMoves(Board board) {
             if (humanMovedPiece != null && humanMovedPiece.getPieceAlliance() == board.currentPlayer().getAlliance()) {
-                return board.currentPlayer().getLegalMovesForPiece(humanMovedPiece);
+                List<Move> temp = new ArrayList<>(board.currentPlayer().getLegalMovesForPiece(humanMovedPiece));
+                List<Move> movesToHighlight = new ArrayList<>();
+                for (Move move : temp) {
+                    if(board.currentPlayer().makeMove(move).getMoveStatus().isDone())
+                        movesToHighlight.add(move);
+                }
+                return Collections.unmodifiableList(movesToHighlight);
             }
             return Collections.emptyList();
         }

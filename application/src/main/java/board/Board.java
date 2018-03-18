@@ -127,7 +127,7 @@ public class Board {
      * Adds all of the black and white player's moves to one list
      * @return an Iterable list of all the moves
      */
-    public Iterable<Move> getAllLegalMoves() {
+    public Collection<Move> getAllLegalMoves() {
         final List<Move> allMoves = new ArrayList<>();
         allMoves.addAll(this.getWhitePlayer().getLegalMoves());
         allMoves.addAll(this.getBlackPlayer().getLegalMoves());
@@ -233,8 +233,17 @@ public class Board {
          * @param alliance who makes the next move
          * @return Builder with this setting
          */
-        public void setMoveMaker(Alliance alliance) {
+        public Builder setMoveMaker(Alliance alliance) {
             this.nextMoveMaker = alliance;
+            return this;
+        }
+
+        /**
+         * Sets the pawn that is now open for an 'en passant' attack
+         * @param enPassantPawn the pawn that made a pawn jump
+         */
+        public void setEnPassantPawn(Pawn enPassantPawn) {
+            this.enPassantPawn = enPassantPawn;
         }
 
         /**
@@ -245,12 +254,5 @@ public class Board {
             return new Board(this);
         }
 
-        /**
-         * Sets the pawn that is now open for an 'en passant' attack
-         * @param enPassantPawn the pawn that made a pawn jump
-         */
-        public void setEnPassantPawn(Pawn enPassantPawn) {
-            this.enPassantPawn = enPassantPawn;
-        }
     }
 }

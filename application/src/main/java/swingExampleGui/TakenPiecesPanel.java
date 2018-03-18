@@ -36,9 +36,9 @@ public class TakenPiecesPanel extends JPanel {
         this.setBackground(PANEL_COLOR);
         this.setBorder(PANEL_BORDER);
 
-        this.northPanel = new JPanel(new GridLayout(BoardUtils.getHeight(), 2));
+        this.northPanel = new JPanel(new GridLayout(BoardUtils.getHeight()/2, 2));
         this.northPanel.setBackground(PANEL_COLOR);
-        this.southPanel = new JPanel(new GridLayout(BoardUtils.getHeight(), 2));
+        this.southPanel = new JPanel(new GridLayout(BoardUtils.getHeight()/2, 2));
         this.southPanel.setBackground(PANEL_COLOR);
         this.add(this.northPanel, BorderLayout.NORTH);
         this.add(this.southPanel, BorderLayout.SOUTH);
@@ -62,8 +62,7 @@ public class TakenPiecesPanel extends JPanel {
                 final Piece takenPiece = move.getAttackedPiece();
                 if (takenPiece.getPieceAlliance() == Alliance.WHITE) whiteTakenPieces.add(takenPiece);
                 else if (takenPiece.getPieceAlliance() == Alliance.BLACK) blackTakenPieces.add(takenPiece);
-                else
-                    throw new RuntimeException("Something went wrong when adding taken pieces to the TakenPiecesPanel");
+                else throw new RuntimeException("Something went wrong when adding taken pieces to the TakenPiecesPanel");
             }
         }
         // sort pieces according to their set value

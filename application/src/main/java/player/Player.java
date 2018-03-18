@@ -87,7 +87,7 @@ public abstract class Player {
                 return (King) piece;
             }
         }
-        throw new RuntimeException("This is not a valid board");
+        return null;
     }
 
     /**
@@ -140,7 +140,7 @@ public abstract class Player {
      * Check if the player is in checkmate
      * @return true if in checkmate, false otherwise
      */
-    public boolean isInCheckMate() {
+    public boolean isInCheckmate() {
         return isInCheck && !hasEscapesMoves();
     }
 
@@ -149,7 +149,7 @@ public abstract class Player {
      * @return true if the player is not in check, but does not have any escape moves,
      * false otherwise
      */
-    public boolean isInStaleMate() {
+    public boolean isInStalemate() {
         return !isInCheck && !hasEscapesMoves();
     }
 

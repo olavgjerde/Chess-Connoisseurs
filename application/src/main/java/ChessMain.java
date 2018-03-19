@@ -1,6 +1,7 @@
 import board.*;
 import AI.*;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -297,7 +298,7 @@ public class ChessMain extends Application {
         draw(board);
 
         //will make an AI move after player move, if the next player is an AI palyer
-        makeAIMove();
+        Platform.runLater(() -> makeAIMove());
     }
 
     private void makeAIMove(){

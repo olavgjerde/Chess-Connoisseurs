@@ -3,20 +3,20 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import pieces.Piece;
 import player.MoveTransition;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 public class ChessMain extends Application {
@@ -28,6 +28,9 @@ public class ChessMain extends Application {
     private Board board;
     private Coordinate selectedTile;
 
+    private boolean isWhiteAI;
+    private boolean isBlackAI;
+
     @Override
     public void start(Stage mainStage) throws Exception{
 
@@ -38,23 +41,20 @@ public class ChessMain extends Application {
 
         board = Board.createStandardBoard();
 
-        //Top bar - HBox
+        //Top bar - HBox - root
         HBox topBar = new HBox();
         topBar.setPadding(new Insets(5,5,5,5));
         topBar.setSpacing(5);
         root.setTop(topBar);
 
-        //Center - GridPane
+        //Center - GridPane - root
         grid.setPadding(new Insets(5,5,5,5));
 
-        //Button
+        //Button - in Top Bar - root
         Button testButton = new Button();
-        testButton.setText("Test");
+        testButton.setText("Options");
         testButton.setMaxWidth(100);
         topBar.getChildren().addAll(testButton);
-
-        //set button action using lambda
-        testButton.setOnAction(e -> testMethod());
 
         Scene mainScene = new Scene(root, 700, 500);
 
@@ -62,11 +62,72 @@ public class ChessMain extends Application {
         mainStage.setScene(mainScene);
         mainStage.show();
 
+        testButton.setOnAction(e -> createOptionsDialog(mainStage));
+
         draw(board);
     }
 
     //mostly going to be used for debugging
     private void testMethod() {
+    }
+
+    private void createOptionsDialog(Stage stage){
+
+        final Stage dialog = new Stage();
+
+        //Settings box - HBox - settings
+        VBox settingsRoot = new VBox();
+        settingsRoot.setPadding(new Insets(5,15,5,15));
+        settingsRoot.setSpacing(5);
+
+        //Radio buttons for options - settings
+        final ToggleGroup whiteOptions = new ToggleGroup();
+
+        Text whiteOptionsText = new Text("White player:");
+
+        RadioButton whiteOption1 = new RadioButton("Player");
+        whiteOption1.setUserData(false);
+        whiteOption1.setToggleGroup(whiteOptions);
+        whiteOption1.setSelected(true);
+
+        RadioButton whiteOption2 = new RadioButton("AI");
+        whiteOption2.setUserData(true);
+        whiteOption2.setToggleGroup(whiteOptions);
+
+        Text blackOptionsText = new Text("Black player:");
+
+        final ToggleGroup blackOptions = new ToggleGroup();
+
+        RadioButton blackOption1 = new RadioButton("Player");
+        blackOption1.setUserData(false);
+        blackOption1.setToggleGroup(blackOptions);
+        blackOption1.setSelected(true);
+
+        RadioButton blackOption2 = new RadioButton("AI");
+        blackOption2.setUserData(true);
+        blackOption2.setToggleGroup(blackOptions);
+
+        settingsRoot.getChildren().addAll(whiteOptionsText, whiteOption1, whiteOption2, blackOptionsText, blackOption1, blackOption2);
+
+        //Confirm settings button - settings
+        Button confirmSettings = new Button();
+        confirmSettings.setText("Confirm");
+        confirmSettings.setMaxWidth(100);
+        settingsRoot.getChildren().add(confirmSettings);
+
+        confirmSettings.setOnAction(e -> setOptions(whiteOptions, blackOptions, dialog));
+
+        Scene settingsScene = new Scene(settingsRoot, 150, 170);
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setScene(settingsScene);
+        dialog.initOwner(stage);
+        dialog.show();
+    }
+
+    private void setOptions(ToggleGroup whiteOptions, ToggleGroup blackOptions, Stage stage){
+        isWhiteAI = (boolean) whiteOptions.getSelectedToggle().getUserData();
+        isBlackAI = (boolean) blackOptions.getSelectedToggle().getUserData();
+        stage.hide();
     }
 
     //this method runs before the start method

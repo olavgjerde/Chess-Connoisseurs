@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class Score {
     String username;
-    int EloRating = findEloRating(username);
+    //int EloRating = findEloRating(username);
 
 
 
@@ -17,7 +17,7 @@ public class Score {
      * @return the elo-rating for the user as int, set the rating to 1500(placeholder) if name is not found.
      */
     //TODO: Handle exceptions, calculate new rating, fetch username
-    public int findEloRating(String username) {
+    /*public int findEloRating(String username) {
         String[] userElo = new String[2]; //stores username/elo rating in [0]/[1]
         int elo = 1500; //Placeholder number
 
@@ -34,6 +34,6 @@ public class Score {
             }
             return elo;
         }
-    }
+    }*/
 
 }

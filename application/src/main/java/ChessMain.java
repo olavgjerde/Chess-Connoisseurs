@@ -3,9 +3,7 @@ import AI.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -16,6 +14,7 @@ import javafx.stage.Stage;
 import pieces.Alliance;
 import pieces.Piece;
 import player.MoveTransition;
+import player.Score;
 import player.basicAI.MiniMax;
 import player.basicAI.MoveStrategy;
 
@@ -54,11 +53,6 @@ public class ChessMain extends Application {
         //Center - GridPane - root
         grid.setPadding(new Insets(5,5,5,5));
 
-        //Button - in Top Bar - root
-        Button testButton = new Button();
-        testButton.setText("Options");
-        testButton.setMaxWidth(100);
-        topBar.getChildren().addAll(testButton);
 
         Scene mainScene = new Scene(root, 700, 500);
 
@@ -66,13 +60,22 @@ public class ChessMain extends Application {
         mainStage.setScene(mainScene);
         mainStage.show();
 
-        testButton.setOnAction(e -> createOptionsDialog(mainStage));
 
+        createOptionsDialog(mainStage);
         draw(board);
     }
 
     //mostly going to be used for debugging
     private void testMethod() {
+    }
+    private void createPlayerNameField(String p1, String p2){
+        Label whitePlayer = new Label(p1 + " : scoreplaceholder");
+        Label blackPlayer = new Label(p2 + " : scoreplaceholder");
+
+        grid.add(whitePlayer, 10, 0);
+        grid.add(blackPlayer, 10, 1);
+
+
     }
 
     private void createOptionsDialog(Stage stage){
@@ -90,6 +93,7 @@ public class ChessMain extends Application {
         Text whiteOptionsText = new Text("White player:");
 
         RadioButton whiteOption1 = new RadioButton("Player");
+        TextField whitePlayerName = new TextField("Player1");
         whiteOption1.setUserData(false);
         whiteOption1.setToggleGroup(whiteOptions);
         whiteOption1.setSelected(true);
@@ -99,6 +103,7 @@ public class ChessMain extends Application {
         whiteOption2.setToggleGroup(whiteOptions);
 
         Text blackOptionsText = new Text("Black player:");
+        TextField blackPlayerName = new TextField("Player2");
 
         final ToggleGroup blackOptions = new ToggleGroup();
 
@@ -111,17 +116,21 @@ public class ChessMain extends Application {
         blackOption2.setUserData(true);
         blackOption2.setToggleGroup(blackOptions);
 
-        settingsRoot.getChildren().addAll(whiteOptionsText, whiteOption1, whiteOption2, blackOptionsText, blackOption1, blackOption2);
-
+        settingsRoot.getChildren().addAll(whiteOptionsText,whitePlayerName, whiteOption1, whiteOption2, blackOptionsText, blackPlayerName,blackOption1, blackOption2);
         //Confirm settings button - settings
         Button confirmSettings = new Button();
         confirmSettings.setText("Confirm");
         confirmSettings.setMaxWidth(100);
         settingsRoot.getChildren().add(confirmSettings);
 
-        confirmSettings.setOnAction(e -> setOptions(whiteOptions, blackOptions, dialog));
+        confirmSettings.setOnAction(e -> {
+            setOptions(whiteOptions, blackOptions, dialog);
+            String player1 = whitePlayerName.getText();
+            String player2 = blackPlayerName.getText();
+            createPlayerNameField(player1, player2);
+        });
 
-        Scene settingsScene = new Scene(settingsRoot, 150, 170);
+        Scene settingsScene = new Scene(settingsRoot, 150, 250);
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setScene(settingsScene);
         dialog.initOwner(stage);

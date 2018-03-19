@@ -1,8 +1,7 @@
 package player;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
+
 public class Score {
     String username; //TODO Must fetch username from GUI input
     HashMap<String, Integer> userRating = new HashMap<>(); //Hashmap needs to retrieve usernames and  ratings
@@ -42,7 +41,7 @@ public class Score {
     //TODO: When to read username.txt
 
     public int findEloRating(String username, HashMap<String, Integer> userRating) {
-        try (BufferedReader br = new BufferedReader(new FileReader("username.txt"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("highscore.txt"))) {
             String line = br.readLine();
             String[] temp;
             while(line != null){

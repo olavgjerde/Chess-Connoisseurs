@@ -1,4 +1,5 @@
 import board.*;
+import AI.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -12,8 +13,11 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import pieces.Alliance;
 import pieces.Piece;
 import player.MoveTransition;
+import player.basicAI.MiniMax;
+import player.basicAI.MoveStrategy;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -282,6 +286,27 @@ public class ChessMain extends Application {
             board = newBoard.getTransitionBoard();
 
         draw(board);
+
+        //will make an AI move after player move, if the next player is an AI palyer
+        makeAIMove();
+    }
+
+    private void makeAIMove(){
+        if((board.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) || board.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI){
+            final MoveStrategy moveStrategy = new MiniMax(3);
+            final Move AIMove = moveStrategy.execute(board);
+            final MoveTransition newBoard = board.currentPlayer().makeMove(AIMove);
+
+            selectedTile = null;
+
+            if (newBoard.getMoveStatus().isDone())
+                board = newBoard.getTransitionBoard();
+
+            draw(board);
+            //TODO: possibly add a delay here
+            //will call itself recursively in case both players are set to be AI
+            makeAIMove();
+        }
     }
 
     public static void main(String[] args) {launch(args);}

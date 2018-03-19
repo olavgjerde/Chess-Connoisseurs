@@ -4,19 +4,22 @@ import board.*;
 import com.google.common.collect.Lists;
 import pieces.Piece;
 import player.MoveTransition;
+import player.basicAI.MiniMax;
+import player.basicAI.MoveStrategy;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import static javax.swing.SwingUtilities.*;
 
@@ -24,33 +27,32 @@ import static javax.swing.SwingUtilities.*;
  * TODO: *THIS SHALL BE REPLACED BY AN UPDATED JAVAFX VARIANT*
  * GUI class to represent the chessboard.
  */
-public class Table {
+public class Table extends Observable {
+    // visual dimensions
+    private final static Dimension OUTER_FRAME_DIMENSION = new Dimension(900, 900);
+    private static final Dimension BOARD_PANEL_DIMENSION = new Dimension(500, 450);
+    private static final Dimension TILE_PANEL_DIMENSION = new Dimension(20, 20);
+    private static final Table INSTANCE = new Table();
+    // todo: correct this path
+    private static String pieceImagesPath = "application/src/main/resources/images/";
     // base structures
     private final JFrame gameFrame;
     private final GameHistoryPanel gameHistoryPanel;
     private final TakenPiecesPanel takenPiecesPanel;
     private final BoardPanel boardPanel;
-    private Board chessBoard;
     private final MoveLog moveLog;
-
+    private final GameSetup gameSetup;
+    public boolean highLightLegalMoves;
+    private Board chessBoard;
     // movement
     private Tile sourceTile;
     private Tile destinationTile;
     private Piece humanMovedPiece;
-
+    private Move computerMove;
     // options
     private BoardDirection boardDirection;
-    public boolean highLightLegalMoves;
 
-    // visual dimensions
-    private final static Dimension OUTER_FRAME_DIMENSION = new Dimension(900,900);
-    private static final Dimension BOARD_PANEL_DIMENSION = new Dimension(500, 450);
-    private static final Dimension TILE_PANEL_DIMENSION = new Dimension(20, 20);
-
-    // todo: correct this path
-    private static String pieceImagesPath = "application/src/main/resources/images/";
-
-    public Table() {
+    private Table() {
         // main frame
         this.gameFrame = new JFrame("Chess");
         this.gameFrame.setSize(OUTER_FRAME_DIMENSION);
@@ -59,6 +61,10 @@ public class Table {
         this.takenPiecesPanel = new TakenPiecesPanel();
         // add a log of movements
         this.moveLog = new MoveLog();
+        // add ai observer
+        this.addObserver(new TableGameAIWatcher());
+        // set game setup
+        this.gameSetup = new GameSetup(this.gameFrame, true);
         // add menu
         final JMenuBar tableMenuBar = populateTableMenuBar();
         this.gameFrame.setJMenuBar(tableMenuBar);
@@ -76,19 +82,75 @@ public class Table {
         this.gameFrame.setVisible(true);
     }
 
+    public static Table get() {
+        return INSTANCE;
+    }
+
+    private GameSetup getGameSetup() {
+        return this.gameSetup;
+    }
+
+    private void setupUpdate(GameSetup gameSetup) {
+        setChanged();
+        notifyObservers(gameSetup);
+    }
+
+    private Board getGameBoard() {
+        return this.chessBoard;
+    }
+
+    private MoveLog getMoveLog() {
+        return this.moveLog;
+    }
+
+    private GameHistoryPanel getGameHistoryPanel() {
+        return this.gameHistoryPanel;
+    }
+
+    private TakenPiecesPanel getTakenPiecesPanel() {
+        return this.takenPiecesPanel;
+    }
+
+    private BoardPanel getBoardPanel() {
+        return this.boardPanel;
+    }
+
+    public void show() {
+        Table.get().getMoveLog().clear();
+        Table.get().getGameHistoryPanel().redoPanel(chessBoard, Table.get().getMoveLog());
+        Table.get().getTakenPiecesPanel().redoPanel(Table.get().getMoveLog());
+        Table.get().getBoardPanel().drawBoard(Table.get().getGameBoard());
+    }
+
+    private void moveMadeUpdate(PlayerType playerType) {
+        setChanged();
+        notifyObservers(playerType);
+    }
+
+    private void updateComputerMove(Move bestMove) {
+        this.computerMove = bestMove;
+    }
+
+    private void updateGameBoard(MoveTransition moveTransition) {
+        this.chessBoard = moveTransition.getTransitionBoard();
+    }
+
     /**
      * Creates the top menu bar for the window frame
+     *
      * @return JMenuBar with menu items
      */
     private JMenuBar populateTableMenuBar() {
         final JMenuBar tableMenuBar = new JMenuBar();
         tableMenuBar.add(createFileMenu());
         tableMenuBar.add(createPreferenceMenu());
+        tableMenuBar.add(createOptionsMenu());
         return tableMenuBar;
     }
 
     /**
      * Creates a menu item 'File' which contains several options
+     *
      * @return JMenu with several JMenuItems
      */
     private JMenu createFileMenu() {
@@ -107,6 +169,7 @@ public class Table {
 
     /**
      * Creates a menu item 'Preference' which contains several options
+     *
      * @return JMenu with several JMenuItems
      */
     private JMenu createPreferenceMenu() {
@@ -126,6 +189,159 @@ public class Table {
         preferenceMenu.add(highLighting);
 
         return preferenceMenu;
+    }
+
+    /**
+     * Creates a menu item 'Options' which contains several choices
+     *
+     * @return JMenu
+     */
+    private JMenuItem createOptionsMenu() {
+        final JMenu optionsMenu = new JMenu("Options");
+
+        final JMenuItem setupGame = new JMenuItem("Setup Game");
+        setupGame.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                swingExampleGui.Table.get().getGameSetup().promptUser();
+                swingExampleGui.Table.get().setupUpdate(Table.get().getGameSetup());
+            }
+        });
+        optionsMenu.add(setupGame);
+        return optionsMenu;
+    }
+
+    /**
+     * BoardDirection enums represent in which orientation the board shall be viewed.
+     * This helps the GUI flip the board.
+     */
+    public enum BoardDirection {
+        NORMAL {
+            @Override
+            List<TilePanel> traverse(List<TilePanel> boardTiles) {
+                return boardTiles;
+            }
+
+            @Override
+            BoardDirection opposite() {
+                return FLIPPED;
+            }
+        },
+        FLIPPED {
+            @Override
+            List<TilePanel> traverse(List<TilePanel> boardTiles) {
+                return Lists.reverse(boardTiles);
+            }
+
+            @Override
+            BoardDirection opposite() {
+                return NORMAL;
+            }
+        };
+
+        abstract List<TilePanel> traverse(List<TilePanel> boardTiles);
+
+        abstract BoardDirection opposite();
+    }
+
+    /**
+     * Enum for specifying human or computer player
+     */
+    public enum PlayerType {
+        HUMAN,
+        COMPUTER
+    }
+
+    private static class TableGameAIWatcher implements Observer {
+
+        @Override
+        public void update(Observable o, Object arg) {
+            if (Table.get().getGameSetup().isAIPlayer(Table.get().getGameBoard().currentPlayer()) &&
+                    !Table.get().getGameBoard().currentPlayer().isInCheckmate() &&
+                    !Table.get().getGameBoard().currentPlayer().isInStalemate()) {
+                // create the ai thread and execute ai work
+                final AIThinkBox thinkBox = new AIThinkBox();
+                thinkBox.execute();
+            }
+
+            if (Table.get().getGameBoard().currentPlayer().isInCheckmate()) {
+                System.out.println("GAME OVER: " + Table.get().getGameBoard().currentPlayer() + " is in checkmate!");
+            }
+
+            if (Table.get().getGameBoard().currentPlayer().isInStalemate()) {
+                System.out.println("GAME OVER: " + Table.get().getGameBoard().currentPlayer() + " is in stalemate!");
+            }
+        }
+    }
+
+    /**
+     * We need this to do work in the GUI without block the GUI actions
+     */
+    private static class AIThinkBox extends SwingWorker<Move, String> {
+
+        private AIThinkBox() {
+        }
+
+        /**
+         * Here the actual analysis by the AI happens
+         *
+         * @return the best move the AI could find
+         */
+        @Override
+        protected Move doInBackground() {
+            final MoveStrategy strategy = new MiniMax(Table.get().getGameSetup().getSearchDepth());
+            return strategy.execute(Table.get().getGameBoard());
+        }
+
+        @Override
+        protected void done() {
+            try {
+                final Move bestMove = get();
+                Table.get().updateComputerMove(bestMove);
+                Table.get().updateGameBoard(Table.get().getGameBoard().currentPlayer().makeMove(bestMove));
+                Table.get().getMoveLog().addMove(bestMove);
+                Table.get().getTakenPiecesPanel().redoPanel(Table.get().getMoveLog());
+                Table.get().getGameHistoryPanel().redoPanel(Table.get().getGameBoard(), Table.get().getMoveLog());
+                Table.get().getBoardPanel().drawBoard(Table.get().getGameBoard());
+                Table.get().moveMadeUpdate(PlayerType.COMPUTER);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * This class wraps methods for list so that we can
+     * represent the moves that happen on a board.
+     */
+    static class MoveLog {
+        private final List<Move> moves;
+
+        private MoveLog() {
+            this.moves = new ArrayList<>();
+        }
+
+        public List<Move> getMoves() {
+            return this.moves;
+        }
+
+        public void addMove(Move move) {
+            this.moves.add(move);
+        }
+
+        public int size() {
+            return this.moves.size();
+        }
+
+        public void clear() {
+            this.moves.clear();
+        }
+
+        public boolean removeMove(Move move) {
+            return this.moves.remove(move);
+        }
     }
 
     /**
@@ -151,6 +367,7 @@ public class Table {
 
         /**
          * Redraw/repaint a given BoardPanel
+         *
          * @param board which contains the board to redraw
          */
         public void drawBoard(Board board) {
@@ -216,24 +433,38 @@ public class Table {
                         }
                     }
                     invokeLater(() -> {
+                        gameHistoryPanel.redoPanel(chessBoard, moveLog);
+                        takenPiecesPanel.redoPanel(moveLog);
+                        if (gameSetup.isAIPlayer(chessBoard.currentPlayer())) {
+                            Table.get().moveMadeUpdate(PlayerType.HUMAN);
+                        }
                         boardPanel.drawBoard(chessBoard);
                     });
                 }
+
                 // not used by gui
                 @Override
-                public void mousePressed(MouseEvent e) { }
+                public void mousePressed(MouseEvent e) {
+                }
+
                 @Override
-                public void mouseReleased(MouseEvent e) { }
+                public void mouseReleased(MouseEvent e) {
+                }
+
                 @Override
-                public void mouseEntered(MouseEvent e) { }
+                public void mouseEntered(MouseEvent e) {
+                }
+
                 @Override
-                public void mouseExited(MouseEvent e) { }
+                public void mouseExited(MouseEvent e) {
+                }
             });
             validate();
         }
 
         /**
          * Set image and background color for a piece
+         *
          * @param board where the tiles are located
          */
         public void drawTile(Board board) {
@@ -247,6 +478,7 @@ public class Table {
         /**
          * TODO: WARNING THIS MAY BE SLOW -> FETCH IMAGE FROM DISK FOR EVERY REDRAW (= for every board change)
          * Set image on tile given what piece the tile contains.
+         *
          * @param board which contain the tiles and pieces
          */
         private void assignTilePieceImage(Board board) {
@@ -268,19 +500,20 @@ public class Table {
          * Assign a color to the tiles based on its coordinates
          */
         private void assignTileColor() {
-           if ((coordinateId.getY() % 2) == (coordinateId.getX() % 2)) {
-               setBackground(Color.decode("#411410"));
-           } else {
-               setBackground(Color.decode("#832821"));
-           }
+            if ((coordinateId.getY() % 2) == (coordinateId.getX() % 2)) {
+                setBackground(Color.decode("#411410"));
+            } else {
+                setBackground(Color.decode("#832821"));
+            }
         }
 
         /**
          * Highlights legal moves on the board
+         *
          * @param board which contains the pieces the player might move
          */
         private void highlightPossibleMoves(Board board) {
-            for (Move move: pieceLegalMoves(board)) {
+            for (Move move : pieceLegalMoves(board)) {
                 if (move.getDestinationCoordinate().equals(this.coordinateId)) {
                     // this tile is one of the possible move coordinates, highlight it
                     setBackground(Color.GREEN);
@@ -290,6 +523,7 @@ public class Table {
 
         /**
          * Find the legal moves for a given piece
+         *
          * @param board on which the piece resides
          * @return a collection of legal moves, empty if none
          */
@@ -298,76 +532,12 @@ public class Table {
                 List<Move> temp = new ArrayList<>(board.currentPlayer().getLegalMovesForPiece(humanMovedPiece));
                 List<Move> movesToHighlight = new ArrayList<>();
                 for (Move move : temp) {
-                    if(board.currentPlayer().makeMove(move).getMoveStatus().isDone())
+                    if (board.currentPlayer().makeMove(move).getMoveStatus().isDone())
                         movesToHighlight.add(move);
                 }
                 return Collections.unmodifiableList(movesToHighlight);
             }
             return Collections.emptyList();
         }
-    }
-
-    /**
-     * This class wraps methods for list so that we can
-     * represent the moves that happen on a board.
-     */
-    static class MoveLog {
-        private final List<Move> moves;
-
-        private MoveLog() {
-            this.moves = new ArrayList<>();
-        }
-
-        public List<Move> getMoves() {
-            return this.moves;
-        }
-
-        public void addMove(Move move) {
-            this.moves.add(move);
-        }
-
-        public int size() {
-            return this.moves.size();
-        }
-
-        public void clear() {
-            this.moves.clear();
-        }
-
-        public boolean removeMove(Move move) {
-           return this.moves.remove(move);
-        }
-    }
-
-    /**
-     * BoardDirection enums represent in which orientation the board shall be viewed.
-     * This helps the GUI flip the board.
-     */
-    public enum BoardDirection {
-        NORMAL {
-            @Override
-            List<TilePanel> traverse(List<TilePanel> boardTiles) {
-                return boardTiles;
-            }
-
-            @Override
-            BoardDirection opposite() {
-                return FLIPPED;
-            }
-        },
-        FLIPPED {
-            @Override
-            List<TilePanel> traverse(List<TilePanel> boardTiles) {
-                return Lists.reverse(boardTiles);
-            }
-
-            @Override
-            BoardDirection opposite() {
-                return NORMAL;
-            }
-        };
-
-        abstract List<TilePanel> traverse(List<TilePanel> boardTiles);
-        abstract BoardDirection opposite();
     }
 }

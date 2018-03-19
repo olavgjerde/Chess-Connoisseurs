@@ -108,13 +108,12 @@ public abstract class Piece {
      * values to each piece.
      */
     public enum PieceType {
-        PAWN("P", 1),
-        KNIGHT("N", 3),
-        BISHOP("B", 3),
-        ROOK("R", 5),
-        QUEEN("Q", 9),
-        //todo: value for king has been chosen arbitrarily, research this
-        KING("K", 18);
+        PAWN("P", 100),
+        KNIGHT("N", 300),
+        BISHOP("B", 300),
+        ROOK("R", 500),
+        QUEEN("Q", 900),
+        KING("K", 10000);
 
         private String pieceName;
         private int pieceValue;

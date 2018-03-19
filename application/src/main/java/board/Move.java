@@ -214,6 +214,25 @@ public abstract class Move {
     }
 
     /**
+     * Captures the logic of a regular pawn move
+     */
+    public static class PawnMove extends Move {
+        public PawnMove(Board board, Piece movePiece, Coordinate destination) {
+            super(board, movePiece, destination);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return this == o || o instanceof PawnMove && super.equals(o);
+        }
+
+        @Override
+        public String toString() {
+            return BoardUtils.getAlgebraicNotationFromCoordinate(destinationCoordinate);
+        }
+    }
+
+    /**
      * Captures the logic of a pawn promotion move
      * This class wraps a regular pawn move and handles the upgrading of the pawn;
      * fetching the piece that it shall be promoted to and setting this at the destination
@@ -257,8 +276,8 @@ public abstract class Move {
         @Override
         public String toString() {
             return BoardUtils.getAlgebraicNotationFromCoordinate(this.movedPiece.getPieceCoordinate()) + "-" +
-                   BoardUtils.getAlgebraicNotationFromCoordinate(this.destinationCoordinate) + "=" +
-                   this.promotedPawn.getPromotionPiece();
+                    BoardUtils.getAlgebraicNotationFromCoordinate(this.destinationCoordinate) + "=" +
+                    this.promotedPawn.getPromotionPiece();
         }
 
         @Override
@@ -274,25 +293,6 @@ public abstract class Move {
         @Override
         public int hashCode() {
             return Objects.hash(super.hashCode(), decoratedMove, promotedPawn);
-        }
-    }
-
-    /**
-     * Captures the logic of a regular pawn move
-     */
-    public static class PawnMove extends Move {
-        public PawnMove(Board board, Piece movePiece, Coordinate destination) {
-            super(board, movePiece, destination);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return this == o || o instanceof PawnMove && super.equals(o);
-        }
-
-        @Override
-        public String toString() {
-            return BoardUtils.getAlgebraicNotationFromCoordinate(destinationCoordinate);
         }
     }
 

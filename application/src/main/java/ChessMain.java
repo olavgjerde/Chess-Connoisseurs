@@ -18,14 +18,12 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import pieces.Alliance;
 import pieces.Piece;
 import player.MoveTransition;
-import player.Player;
 import player.Score;
 import player.basicAI.MiniMax;
 import player.basicAI.MoveStrategy;
@@ -62,7 +60,7 @@ public class ChessMain extends Application {
 
     //this method runs before the start method
     @Override
-    public void init() throws Exception{
+    public void init() {
         selectedTile = null;
         highlightEnabled = true;
 
@@ -75,7 +73,7 @@ public class ChessMain extends Application {
     }
 
     @Override
-    public void start(Stage mainStage) throws Exception{
+    public void start(Stage mainStage) {
 
         this.mainStage = mainStage;
 
@@ -97,11 +95,15 @@ public class ChessMain extends Application {
         //Center - GridPane - root
         grid.setPadding(new Insets(5));
         grid.setAlignment(Pos.CENTER);
+        grid.setStyle("-fx-background-color: radial-gradient(radius 180%, darkslategray, derive(darkslategray, -30%), derive(darkslategray, 30%));");
+        grid.setVgap(4);
+        grid.setHgap(4);
         root.setLeft(grid);
 
         //Right - VBox - root
         status.setPadding(new Insets(20));
         status.setAlignment(Pos.TOP_CENTER);
+        status.setStyle("-fx-border-width: 3; -fx-border-color: black");
         root.setCenter(status);
 
         //Menu bar

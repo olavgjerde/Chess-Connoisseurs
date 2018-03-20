@@ -8,9 +8,7 @@
     <artifactId>chess-application</artifactId>
     <version>1.0</version>
 
-    <!-- uncomment when gui is ready:
     <packaging>jar</packaging>
-    -->
 
     <build>
         <plugins>
@@ -32,7 +30,6 @@
                 </dependencies>
             </plugin>
 
-            <!-- uncomment when gui is ready
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -40,12 +37,12 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>DemoGUI</mainClass>
+                            <mainClass>ChessMain</mainClass>
                         </manifest>
                     </archive>
                </configuration>
             </plugin>
-            -->
+
         </plugins>
     </build>
 

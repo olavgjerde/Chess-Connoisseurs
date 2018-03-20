@@ -61,7 +61,10 @@ public class DemoGUI extends Application {
     // ai settings
     private boolean isWhiteAI;
     private boolean isBlackAI;
-    private int aiDepth = 3;
+    private int aiDepth = 2;
+
+    private ArrayList<Board> boardHistory = new ArrayList<>();
+    private int equalBoardStateCounter = 0;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -334,6 +337,7 @@ public class DemoGUI extends Application {
                 if (boardChange.getMoveStatus().isDone()) {
                     // move was allowed
                     chessBoard = boardChange.getTransitionBoard();
+                    checkForDraw();
                     drawGridPane(chessBoard);
                 }
                 // reset selection
@@ -368,6 +372,7 @@ public class DemoGUI extends Application {
             final MoveStrategy moveStrategy = new MiniMax(aiDepth);
             final Move AIMove = moveStrategy.execute(chessBoard);
             chessBoard = chessBoard.currentPlayer().makeMove(AIMove).getTransitionBoard();
+            checkForDraw();
             drawGridPane(chessBoard);
 
             Platform.runLater(new Runnable() {
@@ -380,5 +385,33 @@ public class DemoGUI extends Application {
 
     }
 
+    /**
+     * check if a single board state is repeated within the last 5 turns to check if its a draw
+     * @return true if its a draw, false if otherwise
+     */
+    private boolean checkForDraw(){
+        if (!boardHistory.isEmpty())
+            for (Board b : boardHistory){
+                if (chessBoard.toString().equals(b.toString())) {
+                    equalBoardStateCounter++;
+                    break;
+                }
+            }
+        if (equalBoardStateCounter >= 3){
+            System.out.println("DRAW");
+            return true;
+        }
+
+        if (boardHistory.size() < 5)
+            boardHistory.add(chessBoard);
+        else {
+            for (int i=1; i<boardHistory.size(); i++){
+                boardHistory.set(i-1, boardHistory.get(i));
+            }
+            boardHistory.add(chessBoard);
+        }
+
+        return false;
+    }
 
 }

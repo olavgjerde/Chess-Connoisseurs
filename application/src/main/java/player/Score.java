@@ -42,10 +42,11 @@ public class Score {
      * @param username
      */
     public void addUsername(String username){
+        PrintWriter out = null;
         try {
-            PrintWriter out = new PrintWriter("highscore.txt");
+            out = new PrintWriter("highscore.txt");
         } catch (FileNotFoundException e) {
-            System.out.println("FileNotFound");; }
+            System.out.println("FileNotFound"); }
 
         if(!userRating.containsKey(username)){
             try (BufferedReader br = new BufferedReader(new FileReader("highscore.txt"))) {

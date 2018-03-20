@@ -1,6 +1,8 @@
 import board.*;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -14,10 +16,7 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -31,14 +30,19 @@ import player.MoveTransition;
 import player.basicAI.MiniMax;
 import player.basicAI.MoveStrategy;
 
-import java.awt.*;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DemoGUI extends Application {
     Board chessBoard;
+
     BorderPane borderPane;
     GridPane chessBoardPane;
     VBox statusPane;
     Scene mainScene;
+    Stage primaryStage;
 
     GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
     private int screenWidth = gd.getDisplayMode().getWidth();
@@ -50,6 +54,10 @@ public class DemoGUI extends Application {
     private Tile sourceTile, destinationTile;
     private Piece userMovedPiece;
 
+    // player stats
+    private String whitePlayerName = "", blackPlayerName = "";
+    private int whitePlayerScore = 0, blackPlayerScore = 0;
+
     // ai settings
     private boolean isWhiteAI;
     private boolean isBlackAI;
@@ -58,45 +66,67 @@ public class DemoGUI extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         // set basic layout
-        borderPane = new BorderPane();
-        chessBoardPane = new GridPane();
-        statusPane = new VBox();
+        this.borderPane = new BorderPane();
+        this.chessBoardPane = new GridPane();
+        this.statusPane = new VBox();
+        this.primaryStage = primaryStage;
         // chessboard pane styling
         chessBoardPane.setPadding(new Insets(5,5,5,5));
         chessBoardPane.setVgap(6);
         chessBoardPane.setHgap(6);
+        chessBoardPane.setAlignment(Pos.CENTER);
+        chessBoardPane.setStyle("-fx-background-color: black;");
         // status pane styling
         statusPane.setPadding(new Insets(20,5,5,5));
         statusPane.setStyle("-fx-background-color: white;");
         statusPane.setAlignment(Pos.TOP_CENTER);
-        // border pane
-        borderPane.setStyle("-fx-background-color: black;");
-        borderPane.setLeft(chessBoardPane);
+        // menu creation
+        MenuBar menuBar = populateMenuBar();
+        // border pane settings
         borderPane.setCenter(statusPane);
+        borderPane.setLeft(chessBoardPane);
+        borderPane.setTop(menuBar);
+
+        // set primary stage to mainScene
+        mainScene = new Scene(borderPane, screenWidth = screenWidth / 2, screenHeight = screenHeight / 2);
+        // listeners to let the chessboard adapt
+        mainScene.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneWidth, Number newSceneWidth) {
+                screenWidth = newSceneWidth.intValue();
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        drawGridPane(chessBoard);
+                    }
+                });
+            }
+        });
+        mainScene.heightProperty().addListener(new ChangeListener<Number>() {
+           @Override
+           public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneHeight, Number newSceneHeight) {
+               screenHeight = newSceneHeight.intValue();
+               Platform.runLater(new Runnable() {
+                   @Override
+                   public void run() {
+                       drawGridPane(chessBoard);
+                   }
+               });
+           }
+        });
 
         // create standard board
         chessBoard = Board.createStandardBoard();
 
-        // set highlightEnabled
-        this.highlightEnabled = true;
+        // draw the gui representation of the board
+        drawGridPane(chessBoard);
 
-        // add menu bar
-        MenuBar menuBar = populateMenuBar();
-        borderPane.setTop(menuBar);
-
-        // set primary stage to mainScene
-        mainScene = new Scene(borderPane, screenWidth / 1.6, screenHeight / 1.3);
         primaryStage.setTitle("Connoisseur Chess");
         primaryStage.setScene(mainScene);
         primaryStage.show();
 
         createOptionsDialog(primaryStage);
 
-        // draw the gui representation of the board
-        drawGridPane(chessBoard, highlightEnabled);
-        // draw the status pane
-        drawStatusPane(chessBoard);
-
+        // if both the whiteai and blackai is set -> set them off
         if (isWhiteAI && isBlackAI) makeAIMove();
     }
 
@@ -117,9 +147,19 @@ public class DemoGUI extends Application {
     private Menu createOptionMenu() {
         Menu optionsMenu = new Menu("Options");
         MenuItem aiSettings = new MenuItem("AI Settings");
-        aiSettings.setOnAction(event -> System.out.println("Change difficulty feature"));
+        aiSettings.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                System.out.println("OPEN AI WINDOW");
+            }
+        });
         CheckMenuItem toggleHighlight = new CheckMenuItem("Enable highlighting");
-        toggleHighlight.setSelected(this.highlightEnabled = !this.highlightEnabled);
+        toggleHighlight.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                highlightEnabled = !highlightEnabled;
+            }
+        });
         optionsMenu.getItems().addAll(aiSettings, toggleHighlight);
         return optionsMenu;
     }
@@ -136,8 +176,9 @@ public class DemoGUI extends Application {
         newGame.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                createOptionsDialog(primaryStage);
                 chessBoard = Board.createStandardBoard();
-                drawGridPane(chessBoard, highlightEnabled);
+                drawGridPane(chessBoard);
             }
         });
         MenuItem exit = new MenuItem("Exit");
@@ -160,7 +201,7 @@ public class DemoGUI extends Application {
 
         Text whiteOptionsText = new Text("White player:");
         RadioButton whiteOption1 = new RadioButton("Player");
-        TextField whitePlayerName = new TextField("Player1");
+        TextField whitePlayerName = new TextField("Player 1");
         whiteOption1.setUserData(false);
         whiteOption1.setToggleGroup(whiteOptions);
         whiteOption1.setSelected(true);
@@ -170,7 +211,7 @@ public class DemoGUI extends Application {
         whiteOption2.setToggleGroup(whiteOptions);
 
         Text blackOptionsText = new Text("Black player:");
-        TextField blackPlayerName = new TextField("Player2");
+        TextField blackPlayerName = new TextField("Player 2");
         final ToggleGroup blackOptions = new ToggleGroup();
 
         RadioButton blackOption1 = new RadioButton("Player");
@@ -194,10 +235,13 @@ public class DemoGUI extends Application {
         confirmSettings.setOnAction(e -> {
             isWhiteAI = (boolean) whiteOptions.getSelectedToggle().getUserData();
             isBlackAI = (boolean) blackOptions.getSelectedToggle().getUserData();
-            Label whitePlayer = new Label(whitePlayerName.getText() + " : scoreplaceholder");
-            Label blackPlayer = new Label(blackPlayerName.getText() + " : scoreplaceholder");
-            statusPane.getChildren().addAll(whitePlayer, blackPlayer);
+            if (!isWhiteAI) this.whitePlayerName = whitePlayerName.getText();
+            else this.whitePlayerName = "CPU";
+            if (!isBlackAI) this.blackPlayerName = blackPlayerName.getText();
+            else this.blackPlayerName = "CPU";
             startupDialog.hide();
+            // draw the status pane
+            drawStatusPane(chessBoard);
         });
 
         Scene settingsScene = new Scene(settingsRoot, 200, 250);
@@ -207,32 +251,45 @@ public class DemoGUI extends Application {
         startupDialog.show();
     }
 
+    /**
+     * Window for AI settings
+     * @param stage that the chessboard is represented on
+     */
+    private void createAIWindow(Stage stage) {
+        //todo:
+    }
+
     private void drawStatusPane(Board chessBoard) {
+        statusPane.getChildren().clear();
         Text title = new Text("GAME STATS");
         title.setFont(Font.font("Arial", FontWeight.BOLD, 35));
-        statusPane.getChildren().addAll(title);
+        Label whitePlayer = new Label(whitePlayerName + " : " + whitePlayerScore);
+        Label blackPlayer = new Label(blackPlayerName + " : " + blackPlayerScore);
+        // todo: add movelog to statuspane
+        statusPane.getChildren().addAll(title, whitePlayer, blackPlayer);
     }
 
-    private void redrawStatusPane(Board chessBoard) {
-        //todo: update scores here
-    }
-
-    private void drawGridPane(Board board, boolean highlighting) {
+    private void drawGridPane(Board board) {
+        chessBoardPane.getChildren().clear();
         for (int i = 0; i < BoardUtils.getHeight(); i++) {
             for (int j = 0; j < BoardUtils.getWidth(); j++) {
-                chessBoardPane.add(new TilePane(new Coordinate(j,i), board), j,i);
+                chessBoardPane.add(new ChessTile(new Coordinate(j,i), board), j,i);
             }
         }
     }
 
-    private class TilePane extends StackPane {
-        private final double TILE_SIZE = ((mainScene.getHeight() * mainScene.getWidth()) / 215) /
+    private class ChessTile extends StackPane {
+        private final double TILE_SIZE = (screenHeight + screenWidth) * 2.5 /
                                           (BoardUtils.getWidth() * BoardUtils.getHeight());
+
+
+        //private final double TILE_SIZE = 50;
         private final Coordinate coordinateId;
 
-        private TilePane(Coordinate coordinateId, Board board) {
+        private ChessTile(Coordinate coordinateId, Board board) {
             this.coordinateId = coordinateId;
-            this.getChildren().addAll(new Rectangle(TILE_SIZE, TILE_SIZE, assignTileColor()));
+            Rectangle rectangle = new Rectangle(TILE_SIZE, TILE_SIZE, assignTileColor());
+            this.getChildren().addAll(rectangle);
             if (!board.getTile(coordinateId).isEmpty()) assignTilePieceImage(board.getTile(coordinateId));
             this.setOnMouseClicked(e -> onClickHandler(coordinateId));
         }
@@ -257,7 +314,7 @@ public class DemoGUI extends Application {
             if ((coordinateId.getY() % 2) == (coordinateId.getX() % 2)) {
                 return Color.LIGHTGRAY;
             } else {
-                return Color.LIGHTSLATEGRAY;
+                return Color.DARKSLATEGRAY;
             }
         }
 
@@ -277,7 +334,7 @@ public class DemoGUI extends Application {
                 if (boardChange.getMoveStatus().isDone()) {
                     // move was allowed
                     chessBoard = boardChange.getTransitionBoard();
-                    drawGridPane(chessBoard, highlightEnabled);
+                    drawGridPane(chessBoard);
                 }
                 // reset selection
                 sourceTile = null;
@@ -293,6 +350,17 @@ public class DemoGUI extends Application {
         }
     }
 
+    private List<Coordinate> legalPieceMoves(Tile tile) {
+        List<Move> temp = new ArrayList<>(chessBoard.currentPlayer().getLegalMovesForPiece(tile.getPiece()));
+        List<Coordinate> coordinatesToHighlight = new ArrayList<>();
+        for (Move move : temp) {
+            if(chessBoard.currentPlayer().makeMove(move).getMoveStatus().isDone()) {
+                coordinatesToHighlight.add(move.getDestinationCoordinate());
+            }
+        }
+        return coordinatesToHighlight;
+    }
+
     private void makeAIMove(){
         if((chessBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
             chessBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI){
@@ -300,7 +368,7 @@ public class DemoGUI extends Application {
             final MoveStrategy moveStrategy = new MiniMax(aiDepth);
             final Move AIMove = moveStrategy.execute(chessBoard);
             chessBoard = chessBoard.currentPlayer().makeMove(AIMove).getTransitionBoard();
-            drawGridPane(chessBoard, highlightEnabled);
+            drawGridPane(chessBoard);
 
             Platform.runLater(new Runnable() {
                 @Override

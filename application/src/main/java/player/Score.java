@@ -3,9 +3,7 @@ import java.io.*;
 import java.util.HashMap;
 
 public class Score {
-    String username; //TODO Must fetch username from GUI input
-    HashMap<String, Integer> userRating = new HashMap<>(); //Hashmap needs to retrieve usernames and  ratings
-    int EloRating = findEloRating(username, userRating);
+    private HashMap<String, Integer> userRating = new HashMap<>();
 
     /**
      *  takes the old rating of both players, and the result of the game for both players,
@@ -16,7 +14,7 @@ public class Score {
      * @param Gameresult2 gameresult for player 2
      * @return Array containing updated ratings for both players
      */
-    public int [] MatchRating(int playerRating,int player2Rating,double Gameresult, double Gameresult2){
+    public int [] matchRating(int playerRating,int player2Rating,double Gameresult, double Gameresult2){
         int score [] = new int[2];
         int K = 32;
         int e = playerRating/(playerRating-player2Rating);
@@ -29,32 +27,53 @@ public class Score {
         score[1] = (int)newplayer2Rating;
 
         return score;
-
-
     }
-    /**
-     * Method to check if a username exists in usernames.txt
-     * @param username
-     * @param userRating Hashmap containing usernames and rating.
-     * @return the elo-rating for the user as int, set the rating to 1500(placeholder) if name is not found.
-     */
-    //TODO: When to read username.txt
 
-    public int findEloRating(String username, HashMap<String, Integer> userRating) {
+    //TODO get gameresult
+    public void updateHighscore(String username1, String username2){
+        int score1 = userRating.get(username1);
+        int score2 = userRating.get(username2);
+    }
+
+    public int getScore(String username){return userRating.get(username);}
+
+    /**
+     * Adds a username with 1500 rating to highscore.txt if the username does not already exist
+     * @param username
+     */
+    public void addUsername(String username){
+        PrintWriter out = null;
+        try {
+            out = new PrintWriter("highscore.txt");
+        } catch (FileNotFoundException e) {
+            System.out.println("FileNotFound"); }
+
+        if(!userRating.containsKey(username)){
+            try (BufferedReader br = new BufferedReader(new FileReader("highscore.txt"))) {
+                String line = br.readLine();
+                line = line + username + " 1500\n";
+                out.println(line);
+            }catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * reads highscore.txt to a hashmap containing usernames as key and rating as value
+     * @param highscore
+     */
+    public void readHighscore(String highscore){
         try (BufferedReader br = new BufferedReader(new FileReader("highscore.txt"))) {
             String line = br.readLine();
             String[] temp;
             while(line != null){
-                temp = line.split("/");
-                if(userRating.containsKey(temp[0])){
-                    return userRating.get(username);
-                }else{
-                    userRating.put(username, 1500);
-                }
+                temp = line.split(" ");
+                int rating = Integer.parseInt((temp[1]));
+                userRating.put(temp[0],rating);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return 1500;
     }
 }

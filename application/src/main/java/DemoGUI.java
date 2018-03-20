@@ -67,8 +67,6 @@ public class DemoGUI extends Application {
     private ArrayList<Board> boardHistory = new ArrayList<>();
     private int equalBoardStateCounter = 0;
 
-    private int aiDepth = 3;
-
     // ai difficulties
     private final int EASY_AI = 1;
     private final int INTERMEDIATE_AI = 2;
@@ -317,7 +315,6 @@ public class DemoGUI extends Application {
                 if (boardChange.getMoveStatus().isDone()) {
                     // move was allowed
                     chessBoard = boardChange.getTransitionBoard();
-                    checkForDraw();
                     drawGridPane(chessBoard);
                 }
                 // reset selection
@@ -347,7 +344,6 @@ public class DemoGUI extends Application {
             final MoveStrategy moveStrategy = new MiniMax(aiDepth);
             final Move AIMove = moveStrategy.execute(chessBoard);
             chessBoard = chessBoard.currentPlayer().makeMove(AIMove).getTransitionBoard();
-            checkForDraw();
             drawGridPane(chessBoard);
 
             Platform.runLater(() -> makeAIMove());

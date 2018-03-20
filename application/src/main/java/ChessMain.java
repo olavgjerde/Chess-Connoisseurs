@@ -11,6 +11,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -95,15 +96,15 @@ public class ChessMain extends Application {
         //Center - GridPane - root
         grid.setPadding(new Insets(5));
         grid.setAlignment(Pos.CENTER);
-        grid.setStyle("-fx-background-color: radial-gradient(radius 180%, darkslategray, derive(darkslategray, -30%), derive(darkslategray, 30%));");
-        grid.setVgap(4);
-        grid.setHgap(4);
+        grid.setStyle("-fx-background-color: radial-gradient(radius 180%, darkslategray, derive(black, -30%), derive(darkslategray, 30%));");
+        grid.setVgap(5);
+        grid.setHgap(5);
         root.setLeft(grid);
 
         //Right - VBox - root
         status.setPadding(new Insets(20));
         status.setAlignment(Pos.TOP_CENTER);
-        status.setStyle("-fx-border-width: 3; -fx-border-color: black");
+        status.setStyle("-fx-border-width: 3; -fx-border-color: black;");
         root.setCenter(status);
 
         //Menu bar
@@ -342,6 +343,8 @@ public class ChessMain extends Application {
         StackPane stack = new StackPane();
 
         Rectangle r = new Rectangle(TILE_SIZE,TILE_SIZE);
+        r.setArcHeight(10);
+        r.setArcWidth(10);
 
         if(selected){
             r.setFill(Color.LIGHTGREEN);
@@ -352,6 +355,8 @@ public class ChessMain extends Application {
         } else {
             r.setFill(Color.DARKGRAY);
         }
+        // set blending to background colors
+        r.setBlendMode(BlendMode.HARD_LIGHT);
 
         stack.getChildren().add(r);
 
@@ -360,8 +365,8 @@ public class ChessMain extends Application {
         if(!tile.isEmpty()){
             String url = "/images/" + tile.getPiece().getPieceAlliance().toString().substring(0, 1) + tile.getPiece().toString() + ".png";
             ImageView icon = new ImageView(url);
-            icon.setFitHeight(TILE_SIZE - 10);
-            icon.setFitWidth(TILE_SIZE - 10);
+            icon.setFitHeight(TILE_SIZE - 15);
+            icon.setFitWidth(TILE_SIZE - 15);
             icon.setPreserveRatio(true);
 
             stack.getChildren().add(icon);

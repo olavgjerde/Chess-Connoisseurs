@@ -1,2 +1,5 @@
-username 1500
-username2 1400
+CPU(Hard) 1800
+CPU(Easy) 1200
+Olav 1500
+Player2 1500
+Player1 1500

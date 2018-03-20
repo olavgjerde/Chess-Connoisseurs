@@ -1,20 +1,31 @@
 import board.*;
-import AI.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import pieces.Alliance;
 import pieces.Piece;
 import player.MoveTransition;
+import player.Player;
 import player.Score;
 import player.basicAI.MiniMax;
 import player.basicAI.MoveStrategy;
@@ -25,23 +36,55 @@ import java.util.List;
 
 public class ChessMain extends Application {
 
-    private final int SIZE = 50; //width and height of each tile
-
     private BorderPane root;
     private GridPane grid;
     private Board board;
+    private VBox status;
+    private Stage mainStage;
+
     private Coordinate selectedTile;
+    private boolean highlightEnabled;
 
     private boolean isWhiteAI;
     private boolean isBlackAI;
 
+    private double screenWidth = Screen.getPrimary().getBounds().getWidth();
+    private double screenHeight = Screen.getPrimary().getBounds().getHeight();
+
+    private Score scoreSystem;
+    private String whitePlayerName = "", blackPlayerName= "";
+    private int whitePlayerScore, blackPlayerScore;
+
+    private ArrayList<Board> boardHistory = new ArrayList<>();
+    private int equalBoardStateCounter = 0;
+
+    private int aiDepth;
+
+    //this method runs before the start method
+    @Override
+    public void init() throws Exception{
+        selectedTile = null;
+        highlightEnabled = true;
+
+        //default difficulty
+        aiDepth = 2;
+
+        //read the highscores from the file
+        scoreSystem = new Score();
+        scoreSystem.readHighscore();
+    }
+
     @Override
     public void start(Stage mainStage) throws Exception{
 
+        this.mainStage = mainStage;
+
         root = new BorderPane();
         grid = new GridPane();
+        status = new VBox();
 
-        root.setCenter(grid);
+        //color of the background
+        root.setStyle("-fx-background-color: white;");
 
         board = Board.createStandardBoard();
 
@@ -52,49 +95,100 @@ public class ChessMain extends Application {
         root.setTop(topBar);
 
         //Center - GridPane - root
-        grid.setPadding(new Insets(5,5,5,5));
+        grid.setPadding(new Insets(5));
+        grid.setAlignment(Pos.CENTER);
+        root.setLeft(grid);
 
+        //Right - VBox - root
+        status.setPadding(new Insets(20));
+        status.setAlignment(Pos.TOP_CENTER);
+        root.setCenter(status);
 
-        Scene mainScene = new Scene(root, 700, 500);
+        //Menu bar
+        MenuBar menuBar = populateMenuBar();
+        root.setTop(menuBar);
+
+        //Create main scene
+        Scene mainScene = new Scene(root, screenWidth = screenWidth / 2, screenHeight = screenHeight / 2);
+
+        //Listeners for window size change
+        mainScene.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
+            screenWidth = newSceneWidth.intValue();
+            Platform.runLater(() -> draw(board));
+        });
+        mainScene.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> {
+            screenHeight = newSceneHeight.intValue();
+            Platform.runLater(() -> draw(board));
+        });
+
+        mainStage.setOnCloseRequest(e -> System.exit(0));
 
         mainStage.setTitle("Chess Application");
         mainStage.setScene(mainScene);
         mainStage.show();
 
-
         createOptionsDialog(mainStage);
+
         draw(board);
-    }
-
-    //mostly going to be used for debugging
-    private void testMethod() {
-    }
-    private void createPlayerNameField(String p1, String p2){
-        Label whitePlayer = new Label(p1 + " : scoreplaceholder");
-        Label blackPlayer = new Label(p2 + " : scoreplaceholder");
-
-        grid.add(whitePlayer, 10, 0);
-        grid.add(blackPlayer, 10, 1);
-
-
     }
 
     private void createOptionsDialog(Stage stage){
 
         final Stage dialog = new Stage();
 
-        //Settings box - HBox - settings
+        //Settings box - HBox
         VBox settingsRoot = new VBox();
         settingsRoot.setPadding(new Insets(5,15,5,15));
         settingsRoot.setSpacing(5);
 
-        //Radio buttons for options - settings
+        HBox aiDifficultyPane = new HBox();
+        VBox whiteOptionsPane = new VBox();
+        VBox blackOptionsPane = new VBox();
+
+        //Text
+        Text whiteOptionsText = new Text("White player:");
+        Text blackOptionsText = new Text("Black player:");
+        Text aiDifficulty = new Text("AI Difficulty");
+
+        //Text fields
+        TextField whitePlayerNameField = new TextField("Player1");
+        whitePlayerNameField.setMaxWidth(150);
+
+        TextField blackPlayerNameField = new TextField("Player2");
+        blackPlayerNameField.setMaxWidth(150);
+
+        //Radio buttons for options
+
+        //Options for AI
+        final ToggleGroup aiOptions = new ToggleGroup();
+
+        RadioButton aiOption1 = new RadioButton("Easy");
+        aiOption1.setUserData(1);
+        aiOption1.setToggleGroup(aiOptions);
+        aiOption1.setDisable(true);
+
+        RadioButton aiOption2 = new RadioButton("Medium");
+        aiOption2.setUserData(2);
+        aiOption2.setToggleGroup(aiOptions);
+        aiOption2.setSelected(true);
+        aiOption2.setDisable(true);
+
+        RadioButton aiOption3 = new RadioButton("Hard");
+        aiOption3.setUserData(3);
+        aiOption3.setToggleGroup(aiOptions);
+        aiOption3.setDisable(true);
+
+        //Options for white
         final ToggleGroup whiteOptions = new ToggleGroup();
 
-        Text whiteOptionsText = new Text("White player:");
-
         RadioButton whiteOption1 = new RadioButton("Player");
-        TextField whitePlayerName = new TextField("Player1");
+        whiteOption1.setOnAction(e -> {
+            whitePlayerNameField.setDisable(false);
+            whitePlayerNameField.setText("Player1");
+            aiOption1.setDisable(true);
+            aiOption2.setDisable(true);
+            aiOption3.setDisable(true);
+        });
         whiteOption1.setUserData(false);
         whiteOption1.setToggleGroup(whiteOptions);
         whiteOption1.setSelected(true);
@@ -102,52 +196,134 @@ public class ChessMain extends Application {
         RadioButton whiteOption2 = new RadioButton("AI");
         whiteOption2.setUserData(true);
         whiteOption2.setToggleGroup(whiteOptions);
+        whiteOption2.setOnAction(e -> {
+            whitePlayerNameField.setDisable(true);
+            whitePlayerNameField.setText("CPU1");
+            aiOption1.setDisable(false);
+            aiOption2.setDisable(false);
+            aiOption3.setDisable(false);
+        });
 
-        Text blackOptionsText = new Text("Black player:");
-        TextField blackPlayerName = new TextField("Player2");
-
+        //Options for black
         final ToggleGroup blackOptions = new ToggleGroup();
 
         RadioButton blackOption1 = new RadioButton("Player");
         blackOption1.setUserData(false);
         blackOption1.setToggleGroup(blackOptions);
         blackOption1.setSelected(true);
+        blackOption1.setOnAction(e -> {
+            blackPlayerNameField.setDisable(false);
+            blackPlayerNameField.setText("Player2");
+            aiOption1.setDisable(true);
+            aiOption2.setDisable(true);
+            aiOption3.setDisable(true);
+        });
 
         RadioButton blackOption2 = new RadioButton("AI");
         blackOption2.setUserData(true);
         blackOption2.setToggleGroup(blackOptions);
+        blackOption2.setOnAction(e -> {
+            blackPlayerNameField.setDisable(true);
+            blackPlayerNameField.setText("CPU2");
+            aiOption1.setDisable(false);
+            aiOption2.setDisable(false);
+            aiOption3.setDisable(false);
+        });
 
-        settingsRoot.getChildren().addAll(whiteOptionsText,whitePlayerName, whiteOption1, whiteOption2, blackOptionsText, blackPlayerName,blackOption1, blackOption2);
-        //Confirm settings button - settings
+        //Sub panes
+        whiteOptionsPane.getChildren().addAll(whiteOptionsText, whitePlayerNameField, whiteOption1, whiteOption2);
+        whiteOptionsPane.setPadding(new Insets(0,0,10,0));
+        whiteOptionsPane.setSpacing(5);
+
+        blackOptionsPane.getChildren().addAll(blackOptionsText, blackPlayerNameField, blackOption1, blackOption2);
+        blackOptionsPane.setPadding(new Insets(0,0,10,0));
+        blackOptionsPane.setSpacing(5);
+
+        aiDifficultyPane.getChildren().addAll(aiOption1, aiOption2, aiOption3);
+        aiDifficultyPane.setPadding(new Insets(0,0,10,0));
+        aiDifficultyPane.setSpacing(5);
+
+        //Confirm settings button
         Button confirmSettings = new Button();
         confirmSettings.setText("Confirm");
         confirmSettings.setMaxWidth(100);
-        settingsRoot.getChildren().add(confirmSettings);
 
+        //Add all elements to the pane
+        settingsRoot.getChildren().addAll(whiteOptionsPane, blackOptionsPane);
+        settingsRoot.getChildren().addAll(aiDifficulty, aiDifficultyPane, confirmSettings);
+
+        //Confirm button action
         confirmSettings.setOnAction(e -> {
-            setOptions(whiteOptions, blackOptions, dialog);
-            String player1 = whitePlayerName.getText();
-            String player2 = blackPlayerName.getText();
-            createPlayerNameField(player1, player2);
+            setOptions(whiteOptions, blackOptions, aiOptions, whitePlayerNameField, blackPlayerNameField, dialog);
+            drawStatusPane(board);
         });
 
-        Scene settingsScene = new Scene(settingsRoot, 150, 250);
+        //Makes the exit button on the options box do the same as confirm button
+        dialog.setOnCloseRequest(e -> {
+            setOptions(whiteOptions, blackOptions, aiOptions, whitePlayerNameField, blackPlayerNameField, dialog);
+            drawStatusPane(board);
+        });
+
+        Scene settingsScene = new Scene(settingsRoot, 230, 310);
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setScene(settingsScene);
         dialog.initOwner(stage);
         dialog.show();
     }
 
-    private void setOptions(ToggleGroup whiteOptions, ToggleGroup blackOptions, Stage stage){
+    private void setOptions(ToggleGroup whiteOptions, ToggleGroup blackOptions, ToggleGroup aiOptions, TextField whitePlayerNameField, TextField blackPlayerNameField, Stage stage){
         isWhiteAI = (boolean) whiteOptions.getSelectedToggle().getUserData();
         isBlackAI = (boolean) blackOptions.getSelectedToggle().getUserData();
-        stage.hide();
-    }
+        aiDepth = (int) aiOptions.getSelectedToggle().getUserData();
 
-    //this method runs before the start method
-    @Override
-    public void init() throws Exception{
-        selectedTile = null;
+        String suffix;
+        int rating;
+        switch(aiDepth){
+            case 1: {
+                suffix = "Easy";
+                rating = 1200;
+                break;
+            }
+            case 2:
+                suffix = "Medium";{
+                rating = 1500;
+                break;
+            }
+            case 3: {
+                suffix = "Hard";
+                rating = 1800;
+                break;
+            }
+            default: {
+                suffix = "How did you do this";
+                rating = 9999;
+                break;
+            }
+        }
+
+        if(isWhiteAI){
+            whitePlayerName = "CPU(" + suffix +")";
+            scoreSystem.updateHighscore(whitePlayerName, rating);
+        } else{
+            whitePlayerName = whitePlayerNameField.getText();
+        }
+
+
+        if(isBlackAI) {
+            blackPlayerName = "CPU(" + suffix +")";
+            scoreSystem.updateHighscore(blackPlayerName, rating);
+        }
+        else{
+            blackPlayerName = blackPlayerNameField.getText();
+        }
+
+        scoreSystem.addUsername(whitePlayerName);
+        scoreSystem.addUsername(blackPlayerName);
+
+        whitePlayerScore = scoreSystem.getScore(whitePlayerName);
+        blackPlayerScore = scoreSystem.getScore(blackPlayerName);
+
+        stage.hide();
     }
 
     /**
@@ -159,9 +335,11 @@ public class ChessMain extends Application {
      * @return a visual representation of a tile
      */
     private StackPane makeStack (Tile tile, boolean flip, boolean selected, boolean highlight){
+        final int TILE_SIZE = (int) ((screenHeight + screenWidth) * 2.6 /
+                (BoardUtils.getWidth() * BoardUtils.getHeight()));
         StackPane stack = new StackPane();
 
-        Rectangle r = new Rectangle(SIZE,SIZE);
+        Rectangle r = new Rectangle(TILE_SIZE,TILE_SIZE);
 
         if(selected){
             r.setFill(Color.LIGHTGREEN);
@@ -180,8 +358,8 @@ public class ChessMain extends Application {
         if(!tile.isEmpty()){
             String url = "/images/" + tile.getPiece().getPieceAlliance().toString().substring(0, 1) + tile.getPiece().toString() + ".png";
             ImageView icon = new ImageView(url);
-            icon.setFitHeight((double) SIZE - 10);
-            icon.setFitWidth((double) SIZE - 10);
+            icon.setFitHeight(TILE_SIZE - 10);
+            icon.setFitWidth(TILE_SIZE - 10);
             icon.setPreserveRatio(true);
 
             stack.getChildren().add(icon);
@@ -197,6 +375,7 @@ public class ChessMain extends Application {
      * @param board a board from the Board class
      */
     private void draw(Board board){
+        grid.getChildren().clear();
         //flip is used to keep track on the tile color
         boolean flip = true;
 
@@ -218,49 +397,41 @@ public class ChessMain extends Application {
                 grid.add(tile, i,j);
             }
         }
+
+        drawStatusPane(board);
     }
 
-    private void onClickHandler(Coordinate coord){
+    private void onClickHandler(Coordinate c){
 
-        Piece piece = board.getTile(coord).getPiece();
+        Piece piece = board.getTile(c).getPiece();
 
         if (selectedTile == null){
-            if(!board.getTile(coord).isEmpty()){
+            if(!board.getTile(c).isEmpty()){
                 if(board.currentPlayer().getAlliance() == piece.getPieceAlliance()){
-                    if (piece != null){
-                        selectedTile = coord;
-                        draw(board);
-                    }
+                    selectedTile = c;
+                    draw(board);
+
                 }
             }
         } else {
-            if(board.getTile(coord).isEmpty()){
-                attemptMove(coord);
+            if(board.getTile(c).isEmpty()){
+                attemptMove(c);
             } else if(board.currentPlayer().getAlliance() != piece.getPieceAlliance()){
                 if (piece.getPieceAlliance() != board.getTile(selectedTile).getPiece().getPieceAlliance()){
-                    attemptMove(coord);
+                    attemptMove(c);
                 } else {
                     selectedTile = null;
                     draw(board);
                 }
             } else {
-                selectedTile = coord;
+                selectedTile = c;
                 draw(board);
             }
         }
     }
 
-    private boolean checkSelected(Coordinate c, int x, int y){
-        if (c == null)
-            return false;
-
-        if(board.getTile(c).isEmpty())
-            return false;
-
-        if((c.getX() == x) && (c.getY() == y))
-            return true;
-
-        return false;
+    private boolean checkSelected(Coordinate c, int x, int y) {
+        return c != null && !board.getTile(c).isEmpty() && (c.getX() == x) && (c.getY() == y);
     }
 
     private Collection<Coordinate> listLegalMoves (Coordinate c){
@@ -277,11 +448,6 @@ public class ChessMain extends Application {
             }
         }
 
-        /*Collection<Coordinate> list = new ArrayList<>();
-
-        for (Move m : temp)
-            list.add(m.getDestinationCoordinate());*/
-
         return coordinatesToHighlight;
     }
 
@@ -297,13 +463,16 @@ public class ChessMain extends Application {
 
         draw(board);
 
-        //will make an AI move after player move, if the next player is an AI palyer
-        Platform.runLater(() -> makeAIMove());
+        if(gameIsOver(board)){
+            gameOver();
+        } else {
+            Platform.runLater(this::makeAIMove);
+        }
     }
 
     private void makeAIMove(){
         if((board.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) || board.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI){
-            final MoveStrategy moveStrategy = new MiniMax(3);
+            final MoveStrategy moveStrategy = new MiniMax(2);
             final Move AIMove = moveStrategy.execute(board);
             final MoveTransition newBoard = board.currentPlayer().makeMove(AIMove);
 
@@ -313,10 +482,217 @@ public class ChessMain extends Application {
                 board = newBoard.getTransitionBoard();
 
             draw(board);
-            //TODO: possibly add a delay here
-            //will call itself recursively in case both players are set to be AI
-            makeAIMove();
+
+            if(gameIsOver(board)){
+                gameOver();
+            } else {
+                Platform.runLater(this::makeAIMove);
+            }
         }
+    }
+
+    /**
+     * Populate the menu-bar with different segments and options
+     * @return populated MenuBar
+     */
+    private MenuBar populateMenuBar() {
+        MenuBar menuBar = new MenuBar();
+        menuBar.getMenus().addAll(createFileMenu(), createOptionMenu());
+        return menuBar;
+    }
+
+    /**
+     * Create an options menu
+     * @return return populated options menu
+     */
+    private Menu createOptionMenu() {
+        Menu optionsMenu = new Menu("Options");
+
+        CheckMenuItem toggleHighlight = new CheckMenuItem("Enable highlighting");
+        toggleHighlight.setOnAction(event -> highlightEnabled = !highlightEnabled);
+        toggleHighlight.setSelected(true);
+
+        optionsMenu.getItems().addAll(toggleHighlight);
+        return optionsMenu;
+    }
+
+    /**
+     * Create a file menu
+     * @return return populated file menu
+     */
+    private Menu createFileMenu() {
+        Menu fileMenu = new Menu("File");
+        MenuItem login = new MenuItem("Login");
+        login.setOnAction(event -> System.out.println("login feature here ->"));
+
+        MenuItem newGame = new MenuItem("New game");
+        newGame.setOnAction(event -> {
+            createOptionsDialog(mainStage);
+            board = Board.createStandardBoard();
+
+            //Clear info about previous board states
+            boardHistory.clear();
+            equalBoardStateCounter = 0;
+
+            draw(board);
+        });
+
+        MenuItem save = new MenuItem("Save");
+        save.setOnAction(event -> {
+            // todo save game
+        });
+
+        MenuItem exit = new MenuItem("Exit");
+        exit.setOnAction(event -> System.exit(0));
+
+        fileMenu.getItems().addAll(login, newGame, save, exit);
+        return fileMenu;
+    }
+
+    private void drawStatusPane(Board chessBoard) {
+        status.getChildren().clear();
+        Text title = new Text("GAME STATS");
+        title.setFont(Font.font("Arial", FontWeight.BOLD, 35));
+        Label whitePlayer = new Label(whitePlayerName + " : " + whitePlayerScore);
+        Label blackPlayer = new Label(blackPlayerName + " : " + blackPlayerScore);
+        Label currentPlayerCheck = new Label(chessBoard.currentPlayer().getAlliance() + " check-status: " + chessBoard.currentPlayer().isInCheck());
+        // todo: add movelog to statuspane
+        status.getChildren().addAll(title, whitePlayer, blackPlayer, currentPlayerCheck);
+    }
+
+    /**
+     * check if a single board state is repeated within the last 5 turns to check if its a draw
+     * @return true if its a draw, false if otherwise
+     */
+    private boolean checkForDrawByRepetition(){
+        if (!boardHistory.isEmpty())
+            for (Board b : boardHistory){
+                if (board.toString().equals(b.toString())) {
+                    equalBoardStateCounter++;
+                    break;
+                }
+            }
+        if (equalBoardStateCounter >= 3){
+            return true;
+        }
+
+        if (boardHistory.size() < 5)
+            boardHistory.add(board);
+        else {
+            for (int i=1; i<boardHistory.size(); i++){
+                boardHistory.set(i-1, boardHistory.get(i));
+            }
+            boardHistory.add(board);
+        }
+
+        return false;
+    }
+
+    private boolean gameIsOver(Board board){
+        boolean checkmate = board.currentPlayer().isInCheckmate();
+        boolean stalemate = board.currentPlayer().isInStalemate();
+        boolean repetition = checkForDrawByRepetition();
+        return checkmate || stalemate || repetition;
+    }
+
+    /**
+     * This dialog box pops up when the game ends
+     * @param stage the main stage of the application
+     */
+    private void createGameOverDialog(Stage stage){
+        final Stage dialog = new Stage();
+
+        //Text box - HBox
+        VBox gameOverRoot = new VBox();
+        gameOverRoot.setPadding(new Insets(5,15,5,15));
+        gameOverRoot.setSpacing(5);
+        gameOverRoot.setAlignment(Pos.TOP_CENTER);
+
+        //Text
+        Text go = new Text("Game Over");
+        go.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        Text t1 = new Text("Your updates scores are: ");
+        Text t2 = new Text(whitePlayerName + ": " + whitePlayerScore);
+        Text t3 = new Text(blackPlayerName + ": " + blackPlayerScore);
+        gameOverRoot.getChildren().addAll(go, t1, t2, t3);
+
+        //Button container
+        HBox buttonContainer = new HBox();
+        buttonContainer.setAlignment(Pos.BOTTOM_CENTER);
+        buttonContainer.setSpacing(10);
+        buttonContainer.setPadding(new Insets(10,0,0,0));
+
+        //Button1
+        Button newGame = new Button("New Game!");
+        newGame.setAlignment(Pos.BASELINE_LEFT);
+        buttonContainer.getChildren().add(newGame);
+
+        //Button2
+        Button quit = new Button("Quit :(");
+        buttonContainer.getChildren().add(quit);
+        quit.setAlignment(Pos.BASELINE_RIGHT);
+        gameOverRoot.getChildren().addAll(buttonContainer);
+
+        newGame.setOnAction(e -> {
+            createOptionsDialog(mainStage);
+            board = Board.createStandardBoard();
+
+            //Clear info about previous board states
+            boardHistory.clear();
+            equalBoardStateCounter = 0;
+
+            draw(board);
+            dialog.hide();
+        });
+
+        quit.setOnAction(e -> System.exit(0));
+
+        dialog.setOnCloseRequest(e -> {
+            createOptionsDialog(mainStage);
+            board = Board.createStandardBoard();
+
+            //Clear info about previous board states
+            boardHistory.clear();
+            equalBoardStateCounter = 0;
+
+            draw(board);
+            dialog.hide();
+        });
+
+        Scene gameOverScene = new Scene(gameOverRoot, 200, 150);
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setScene(gameOverScene);
+        dialog.initOwner(stage);
+        dialog.show();
+    }
+
+    /**
+     * When the game is over the scores are calculated and updated here
+     */
+    private void gameOver(){
+        int[] scores;
+        if(board.currentPlayer().isInStalemate() || checkForDrawByRepetition()){
+            scores = scoreSystem.matchRating(whitePlayerName, blackPlayerName, 0.5, 0.5);
+            scoreSystem.updateHighscore(whitePlayerName, scores[0]);
+            scoreSystem.updateHighscore(blackPlayerName, scores[1]);
+            whitePlayerScore = scores[0];
+            blackPlayerScore = scores[1];
+        } else if(board.currentPlayer().getAlliance() == Alliance.BLACK){
+            scores = scoreSystem.matchRating(whitePlayerName, blackPlayerName, 1, 0);
+            scoreSystem.updateHighscore(whitePlayerName, scores[0]);
+            scoreSystem.updateHighscore(blackPlayerName, scores[1]);
+            whitePlayerScore = scores[0];
+            blackPlayerScore = scores[1];
+        } else {
+            scores = scoreSystem.matchRating(whitePlayerName, blackPlayerName, 0, 1);
+            scoreSystem.updateHighscore(whitePlayerName, scores[0]);
+            scoreSystem.updateHighscore(blackPlayerName, scores[1]);
+            whitePlayerScore = scores[0];
+            blackPlayerScore = scores[1];
+        }
+
+        drawStatusPane(board);
+        createGameOverDialog(mainStage);
     }
 
     public static void main(String[] args) {launch(args);}

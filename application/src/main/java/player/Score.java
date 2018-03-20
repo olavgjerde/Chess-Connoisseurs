@@ -8,72 +8,98 @@ public class Score {
     /**
      *  takes the old rating of both players, and the result of the game for both players,
      1 for win, 0.5 for draw and 0 for loss
-     * @param playerRating rating for player1
-     * @param player2Rating rating for player2
-     * @param Gameresult gameresult for player 1
-     * @param Gameresult2 gameresult for player 2
+     * @param username1 player1
+     * @param username2 player2
+     * @param gameResult1 gameresult for player 1
+     * @param gameResult2 gameresult for player 2
      * @return Array containing updated ratings for both players
      */
-    public int [] matchRating(int playerRating,int player2Rating,double Gameresult, double Gameresult2){
+    public int [] matchRating(String username1, String username2, double gameResult1, double gameResult2){
+
         int score [] = new int[2];
+        double player1Rating = userRating.get(username1);
+        double player2Rating = userRating.get(username2);
+
         int K = 32;
-        int e = playerRating/(playerRating-player2Rating);
-        int e2 = player2Rating/(player2Rating-playerRating);
 
-        double newplayerRating = playerRating+(K*(Gameresult-e));
-        score[0] = (int)newplayerRating;
+        double R1 = Math.pow(10, (player1Rating/400));
+        double R2 = Math.pow(10, (player2Rating/400));
 
-        double newplayer2Rating = player2Rating+(K*(Gameresult2-e2));
-        score[1] = (int)newplayer2Rating;
+        double E1 = R1/(R1+R2);
+        double E2 = R2/(R1+R2);
+
+        double S1 = gameResult1;
+        double S2 = gameResult2;
+
+        double newPlayer1Rating = player1Rating + K*(S1 - E1);
+        double newPlayer2Rating = player2Rating + K*(S2 - E2);
+
+        score[0] = (int) newPlayer1Rating;
+        score[1] = (int) newPlayer2Rating;
 
         return score;
     }
 
-    //TODO get gameresult
-    public void updateHighscore(String username1, String username2){
-        int score1 = userRating.get(username1);
-        int score2 = userRating.get(username2);
+    /**
+     * Updates a users highscore
+     * @param username name of the user
+     * @param newScore what to set the new score to
+     */
+    public void updateHighscore(String username, int newScore){
+        userRating.put(username, newScore);
+        writeHighscore();
     }
 
-    public int getScore(String username){return userRating.get(username);}
+    /**
+     * Returns a users rating
+     * @param username
+     */
+    public int getScore(String username){
+        return userRating.get(username);
+    }
 
     /**
      * Adds a username with 1500 rating to highscore.txt if the username does not already exist
      * @param username
      */
     public void addUsername(String username){
-        PrintWriter out = null;
-        try {
-            out = new PrintWriter("highscore.txt");
-        } catch (FileNotFoundException e) {
-            System.out.println("FileNotFound"); }
-
         if(!userRating.containsKey(username)){
-            try (BufferedReader br = new BufferedReader(new FileReader("highscore.txt"))) {
-                String line = br.readLine();
-                line = line + username + " 1500\n";
-                out.println(line);
-            }catch (IOException e) {
-                e.printStackTrace();
-            }
+            userRating.put(username, 1500);
+            writeHighscore();
         }
     }
 
     /**
-     * reads highscore.txt to a hashmap containing usernames as key and rating as value
-     * @param highscore
+     * Reads highscore.txt to a hashmap containing usernames as key and rating as value
      */
-    public void readHighscore(String highscore){
-        try (BufferedReader br = new BufferedReader(new FileReader("highscore.txt"))) {
-            String line = br.readLine();
+    public void readHighscore(){
+        try (BufferedReader br = new BufferedReader(new FileReader("application/src/main/resources/highscore.txt"))) {
+            String line;
             String[] temp;
-            while(line != null){
+            while((line = br.readLine()) != null){
                 temp = line.split(" ");
                 int rating = Integer.parseInt((temp[1]));
                 userRating.put(temp[0],rating);
             }
+            br.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Uses the hashMap userRating to write out the highscore.txt
+     */
+    private void writeHighscore(){
+        try {
+            PrintWriter out = new PrintWriter(new File("application/src/main/resources/highscore.txt"));
+            for (String s : userRating.keySet()) {
+                String line = s + " " + userRating.get(s) + "\n";
+                out.write(line);
+            }
+            out.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("FileNotFound");
         }
     }
 }

@@ -24,6 +24,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import pieces.Alliance;
 import pieces.Piece;
 import player.MoveTransition;
@@ -61,7 +62,7 @@ public class DemoGUI extends Application {
     // ai settings
     private boolean isWhiteAI;
     private boolean isBlackAI;
-    private int aiDepth = 2;
+    private int aiDepth = 3;
 
     //5 previous boards
     private ArrayList<Board> boardHistory = new ArrayList<>();
@@ -113,6 +114,12 @@ public class DemoGUI extends Application {
 
         // draw the gui representation of the board
         drawGridPane(chessBoard);
+
+        // handle window close
+        primaryStage.setOnCloseRequest(WindowEvent -> {
+                Platform.exit();
+                System.exit(0);
+        });
 
         primaryStage.setTitle("Connoisseur Chess");
         primaryStage.setScene(mainScene);
@@ -173,7 +180,10 @@ public class DemoGUI extends Application {
         });
 
         MenuItem exit = new MenuItem("Exit");
-        exit.setOnAction(event -> System.exit(0));
+        exit.setOnAction(event -> {
+            System.exit(0);
+            Platform.exit();
+        });
 
         fileMenu.getItems().addAll(login, newGame, save, exit);
         return fileMenu;
@@ -280,7 +290,7 @@ public class DemoGUI extends Application {
          * @param tile to draw
          */
         private void assignTilePieceImage(Tile tile) {
-            String url = "/imageFullResBackup/" + tile.getPiece().getPieceAlliance().toString().substring(0, 1) + tile.getPiece().toString() + ".png";
+            String url = "/images/" + tile.getPiece().getPieceAlliance().toString().substring(0, 1) + tile.getPiece().toString() + ".png";
             ImageView icon = new ImageView(url);
             icon.setFitHeight(TILE_SIZE - 20);
             icon.setFitWidth(TILE_SIZE - 20);

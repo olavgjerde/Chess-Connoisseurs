@@ -1,3 +1,5 @@
+package swingExampleGui;
+
 import swingExampleGui.Table;
 
 /**

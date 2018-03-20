@@ -4,19 +4,24 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
  * Test that the state of the board corresponds to what is allowed when starting on
  * a normal chess board layout
  */
-class BoardStandardLayoutTest {
+class StandardLayoutBoardTest {
     private static Board board;
 
     /**
-     * Construct the standard chess layout
+     * Construct the standard chess layout and,
+     * check that the BoardUtils board dimension are set to 8x8 ->
+     * because these tests are written with the standard chess board layout in mind
      */
     @BeforeAll
     static void setStandardBoard() {
+        assumeTrue(BoardUtils.getWidth() == 8 && BoardUtils.getHeight() == 8,
+                "Board size not in bounds for the standard layout logic");
         board = Board.createStandardBoard();
     }
 

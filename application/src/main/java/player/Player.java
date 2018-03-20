@@ -21,7 +21,7 @@ public abstract class Player {
     protected final Board board;
     final King playerKing;
     private final Collection<Move> legalMoves;
-    private final boolean isInCheck;
+    private boolean isInCheck = false;
 
     /**
      * Constructor for abstract player object
@@ -34,11 +34,13 @@ public abstract class Player {
         this.playerKing = establishKing();
 
         // add castling moves to legal moves
-        final Collection<Move> allMoves = new ArrayList<>();
-        allMoves.addAll(legalMoves);
-        allMoves.addAll(calculateKingCastles(legalMoves, opponentMoves));
+        final Collection<Move> allMoves = new ArrayList<>(legalMoves);
+        // allows the creation of boards without a king -> mostly for testing purposes
+        if (playerKing != null) {
+            allMoves.addAll(calculateKingCastles(legalMoves, opponentMoves));
+            this.isInCheck = !calculateAttacksOnTile(this.playerKing.getPieceCoordinate(), opponentMoves).isEmpty();
+        }
         this.legalMoves = allMoves;
-        this.isInCheck = !calculateAttacksOnTile(this.playerKing.getPieceCoordinate(), opponentMoves).isEmpty();
     }
 
     /**

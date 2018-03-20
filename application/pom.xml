@@ -7,6 +7,11 @@
     <groupId>group5</groupId>
     <artifactId>chess-application</artifactId>
     <version>1.0</version>
+
+    <!-- uncomment when gui is ready:
+    <packaging>jar</packaging>
+    -->
+
     <build>
         <plugins>
             <plugin>
@@ -26,6 +31,21 @@
                     </dependency>
                 </dependencies>
             </plugin>
+
+            <!-- uncomment when gui is ready
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>DemoGUI</mainClass>
+                        </manifest>
+                    </archive>
+               </configuration>
+            </plugin>
+            -->
         </plugins>
     </build>
 

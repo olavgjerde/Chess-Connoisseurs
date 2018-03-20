@@ -62,7 +62,7 @@ public class Score {
      * reads highscore.txt to a hashmap containing usernames as key and rating as value
      * @param highscore
      */
-    public void readUsername(String highscore){
+    public void readHighscore(String highscore){
         try (BufferedReader br = new BufferedReader(new FileReader("highscore.txt"))) {
             String line = br.readLine();
             String[] temp;

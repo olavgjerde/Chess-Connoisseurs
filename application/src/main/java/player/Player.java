@@ -38,7 +38,7 @@ public abstract class Player {
         // allows the creation of boards without a king -> mostly for testing purposes
         if (playerKing != null) {
             allMoves.addAll(calculateKingCastles(legalMoves, opponentMoves));
-            this.isInCheck = !calculateAttacksOnTile(this.playerKing.getPieceCoordinate(), opponentMoves).isEmpty();
+            this.isInCheck = !calculateAttacksOnCoordinate(this.playerKing.getPieceCoordinate(), opponentMoves).isEmpty();
         }
         this.legalMoves = allMoves;
     }
@@ -72,7 +72,7 @@ public abstract class Player {
      * @param moves available for the opponent player
      * @return a list for moves that can attack the given coordinate
      */
-    protected static Collection<Move> calculateAttacksOnTile(Coordinate pieceCoordinate, Collection<Move> moves) {
+    protected static Collection<Move> calculateAttacksOnCoordinate(Coordinate pieceCoordinate, Collection<Move> moves) {
         final List<Move> attackMoves = new ArrayList<>();
         for (Move move :  moves) {
             if (pieceCoordinate.equals(move.getDestinationCoordinate())) {
@@ -201,7 +201,7 @@ public abstract class Player {
         // checks if king exists, allows us to call method during testing without having a king on the board (custom boards)
         if (kingOfPlayerThatMoves != null) {
             final Collection<Move> currentPlayerMoves = transitionBoard.currentPlayer().getLegalMoves();
-            final Collection<Move> attacksOnPlayerKing = Player.calculateAttacksOnTile(kingOfPlayerThatMoves.getPieceCoordinate(), currentPlayerMoves);
+            final Collection<Move> attacksOnPlayerKing = Player.calculateAttacksOnCoordinate(kingOfPlayerThatMoves.getPieceCoordinate(), currentPlayerMoves);
             if (!attacksOnPlayerKing.isEmpty()) {
                 return new MoveTransition(this.board, move, MoveStatus.LEAVES_PLAYER_IN_CHECK);
             }

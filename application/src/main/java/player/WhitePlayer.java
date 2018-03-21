@@ -51,8 +51,8 @@ public class WhitePlayer extends Player {
                 // Check that there are no attacks on tiles in between the king and the rook
                 final Piece rookPiece = this.board.getTile(new Coordinate(BoardUtils.getWidth()-1, BoardUtils.getHeight()-1)).getPiece();
                 if (rookPiece instanceof Rook && rookPiece.isFirstMove() &&
-                    calculateAttacksOnTile(oneStepRight, opponentMoves).isEmpty() &&
-                    calculateAttacksOnTile(twoStepsRight, opponentMoves).isEmpty()) {
+                    calculateAttacksOnCoordinate(oneStepRight, opponentMoves).isEmpty() &&
+                    calculateAttacksOnCoordinate(twoStepsRight, opponentMoves).isEmpty()) {
                     // add this move to list of possible castling moves
                     kingCastles.add(new KingSideCastleMove(this.board, this.playerKing, twoStepsRight,
                                    (Rook) rookPiece, rookPiece.getPieceCoordinate(), oneStepRight));
@@ -70,8 +70,8 @@ public class WhitePlayer extends Player {
                 // Rook may moved through attacked piece (threeStepsLeft)
                 final Piece rookPiece = this.board.getTile(new Coordinate(0, BoardUtils.getHeight() - 1)).getPiece();
                 if (rookPiece instanceof Rook && rookPiece.isFirstMove() &&
-                    calculateAttacksOnTile(oneStepLeft, opponentMoves).isEmpty() &&
-                    calculateAttacksOnTile(twoStepsLeft, opponentMoves).isEmpty()) {
+                    calculateAttacksOnCoordinate(oneStepLeft, opponentMoves).isEmpty() &&
+                    calculateAttacksOnCoordinate(twoStepsLeft, opponentMoves).isEmpty()) {
                     // add this move to list of possible castling moves
                     kingCastles.add(new QueenSideCastleMove(this.board, this.playerKing, twoStepsLeft,
                                    (Rook) rookPiece, rookPiece.getPieceCoordinate(), oneStepLeft));

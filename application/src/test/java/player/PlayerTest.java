@@ -4,7 +4,12 @@ import board.Board;
 import board.BoardUtils;
 import board.Move;
 import org.junit.jupiter.api.Test;
+import pieces.Alliance;
+import pieces.King;
+import pieces.Pawn;
+import pieces.Rook;
 
+import static board.Board.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PlayerTest {
@@ -15,7 +20,7 @@ class PlayerTest {
      */
     @Test
     void playerIsInCheckmate() {
-        Board board = Board.createStandardBoard();
+        Board board = createStandardBoard();
 
         final Move whitePawnToF3 = Move.MoveFactory.createMove(board, BoardUtils.getCoordinateFromAlgebraicNotation("f2"),
                 BoardUtils.getCoordinateFromAlgebraicNotation("f3"));
@@ -42,6 +47,97 @@ class PlayerTest {
         board = trans4.getTransitionBoard();
 
         assertTrue(board.getWhitePlayer().isInCheckmate());
+    }
+
+    /**
+     * Check that the player is not allowed to move into check (aka attacking-zone of enemy piece)
+     */
+    @Test
+    void doesNotMoveIntoCheck() {
+        Builder builder = new Builder();
+        King whiteKing = new King(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
+        Pawn blackPawn = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e6"), Alliance.BLACK);
+        builder.setPiece(whiteKing);
+        builder.setPiece(blackPawn);
+        builder.setMoveMaker(Alliance.WHITE);
+        Board board = builder.build();
+
+        Move illegalMove = new Move.MajorMove(board, whiteKing, BoardUtils.getCoordinateFromAlgebraicNotation("d5"));
+        assertFalse(board.currentPlayer().makeMove(illegalMove).getMoveStatus().isDone());
+    }
+
+    /**
+     * Check that when there are kings on the board, the player class can return them correctly
+     */
+    @Test
+    void kingsOnBoardAreFound() {
+        Builder builder = new Builder();
+        King whiteKing = new King(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
+        King blackKing = new King(BoardUtils.getCoordinateFromAlgebraicNotation("e6"), Alliance.BLACK);
+        builder.setPiece(whiteKing);
+        builder.setPiece(blackKing);
+        builder.setMoveMaker(Alliance.WHITE);
+        Board board = builder.build();
+
+        assertEquals(whiteKing, board.getWhitePlayer().getPlayerKing());
+        assertEquals(blackKing, board.getBlackPlayer().getPlayerKing());
+    }
+
+    /**
+     * Check that the calculateAttacksOnCoordinate method in player is able to find the possible attacks
+     */
+    @Test
+    void attackMovesAreFound() {
+        Builder builder = new Builder();
+        King whiteKing = new King(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
+        Pawn blackPawn = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("d5"), Alliance.BLACK);
+        builder.setPiece(whiteKing);
+        builder.setPiece(blackPawn);
+        builder.setMoveMaker(Alliance.WHITE);
+        Board board = builder.build();
+
+        // there should be one available attack on white king from black pawn
+        assertEquals(1, Player.calculateAttacksOnCoordinate(whiteKing.getPieceCoordinate(), board.getAllLegalMoves()).size());
+    }
+
+    /**
+     * Check that the calculation of castling moves in BlackPlayer returns all possibilities
+     */
+    @Test
+    void blackCastleMovesAreFound() {
+        Builder builder = new Builder();
+        King blackKing = new King(BoardUtils.getCoordinateFromAlgebraicNotation("e8"), Alliance.BLACK);
+        Rook blackRookOne = new Rook(BoardUtils.getCoordinateFromAlgebraicNotation("a8"), Alliance.BLACK);
+        Rook blackRookTwo = new Rook(BoardUtils.getCoordinateFromAlgebraicNotation("h8"), Alliance.BLACK);
+        builder.setPiece(blackKing);
+        builder.setPiece(blackRookOne);
+        builder.setPiece(blackRookTwo);
+        builder.setMoveMaker(Alliance.BLACK);
+        Board board = builder.build();
+
+        assertEquals(2, board.getBlackPlayer().calculateKingCastles(board.getBlackPlayer().getLegalMoves(),
+                                                                             board.getWhitePlayer().getLegalMoves()).size());
+
+    }
+
+    /**
+     * Check that the calculation of castling moves in WhitePlayer returns all possibilities
+     */
+    @Test
+    void whiteCastleMovesAreFound() {
+        Builder builder = new Builder();
+        King whiteKing = new King(BoardUtils.getCoordinateFromAlgebraicNotation("e1"), Alliance.WHITE);
+        Rook whiteRookOne = new Rook(BoardUtils.getCoordinateFromAlgebraicNotation("a1"), Alliance.WHITE);
+        Rook whiteRookTwo = new Rook(BoardUtils.getCoordinateFromAlgebraicNotation("h1"), Alliance.WHITE);
+        builder.setPiece(whiteKing);
+        builder.setPiece(whiteRookOne);
+        builder.setPiece(whiteRookTwo);
+        builder.setMoveMaker(Alliance.WHITE);
+        Board board = builder.build();
+
+        assertEquals(2, board.getWhitePlayer().calculateKingCastles(board.getWhitePlayer().getLegalMoves(),
+                board.getBlackPlayer().getLegalMoves()).size());
+
     }
 
 }

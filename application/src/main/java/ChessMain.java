@@ -422,7 +422,12 @@ public class ChessMain extends Application {
 
                 }
             }
-        } else {
+        }
+        else if (selectedTile == c) {
+            selectedTile = null;
+            draw(board);
+        }
+        else {
             if(board.getTile(c).isEmpty()){
                 attemptMove(c);
             } else if(board.currentPlayer().getAlliance() != piece.getPieceAlliance()){

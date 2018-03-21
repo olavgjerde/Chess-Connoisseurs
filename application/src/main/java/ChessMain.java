@@ -26,8 +26,10 @@ import pieces.Alliance;
 import pieces.Piece;
 import player.MoveTransition;
 import player.Score;
+import player.basicAI.BoardEvaluator;
 import player.basicAI.MiniMax;
 import player.basicAI.MoveStrategy;
+import player.basicAI.RegularBoardEvaluator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,6 +45,7 @@ public class ChessMain extends Application {
 
     private Coordinate selectedTile;
     private boolean highlightEnabled;
+    private boolean statusEnabled;
 
     private boolean isWhiteAI;
     private boolean isBlackAI;
@@ -519,7 +522,11 @@ public class ChessMain extends Application {
         toggleHighlight.setOnAction(event -> highlightEnabled = !highlightEnabled);
         toggleHighlight.setSelected(true);
 
-        optionsMenu.getItems().addAll(toggleHighlight);
+        CheckMenuItem toggleBoardStatus = new CheckMenuItem("Show board status");
+        toggleHighlight.setOnAction(event -> statusEnabled = !statusEnabled);
+        toggleHighlight.setSelected(true);
+
+        optionsMenu.getItems().addAll(toggleHighlight,toggleBoardStatus);
         return optionsMenu;
     }
 
@@ -562,9 +569,17 @@ public class ChessMain extends Application {
         title.setFont(Font.font("Arial", FontWeight.BOLD, 35));
         Label whitePlayer = new Label(whitePlayerName + " : " + whitePlayerScore);
         Label blackPlayer = new Label(blackPlayerName + " : " + blackPlayerScore);
+
+        //show the evaluation of the current board relative to the current player, can help you know how well you are doing
+        //TODO: make only display this if statusEnabled == true
+        BoardEvaluator boardEvaluator = new RegularBoardEvaluator();
+        Label boardStatus = new Label(chessBoard.currentPlayer().getAlliance() + " board status: " + boardEvaluator.evaluate(chessBoard, 3));
+        if (chessBoard.currentPlayer().getAlliance() == Alliance.BLACK)
+            boardStatus = new Label(chessBoard.currentPlayer().getAlliance() + " board status: " + boardEvaluator.evaluate(chessBoard, 3) * -1);
+
         Label currentPlayerCheck = new Label(chessBoard.currentPlayer().getAlliance() + " check-status: " + chessBoard.currentPlayer().isInCheck());
         // todo: add movelog to statuspane
-        status.getChildren().addAll(title, whitePlayer, blackPlayer, currentPlayerCheck);
+        status.getChildren().addAll(title, whitePlayer, blackPlayer, boardStatus, currentPlayerCheck);
     }
 
     /**

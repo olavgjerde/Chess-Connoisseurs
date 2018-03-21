@@ -5,13 +5,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
 import javafx.scene.effect.BlendMode;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -105,8 +100,9 @@ public class ChessMain extends Application {
         root.setLeft(grid);
 
         //Right - VBox - root
-        status.setPadding(new Insets(20));
+        status.setPadding(new Insets(30));
         status.setAlignment(Pos.TOP_CENTER);
+        status.setSpacing(10);
         status.setStyle("-fx-border-width: 3; -fx-border-color: black;");
         root.setCenter(status);
 
@@ -152,9 +148,12 @@ public class ChessMain extends Application {
         VBox blackOptionsPane = new VBox();
 
         //Text
-        Text whiteOptionsText = new Text("White player:");
-        Text blackOptionsText = new Text("Black player:");
-        Text aiDifficulty = new Text("AI Difficulty");
+        Text whiteOptionsText = new Text("WHITE PLAYER");
+        whiteOptionsText.setFont(new Font(15));
+        Text blackOptionsText = new Text("BLACK PLAYER");
+        blackOptionsText.setFont(new Font(15));
+        Text aiDifficulty = new Text("AI DIFFICULTY");
+        aiDifficulty.setFont(new Font(13));
 
         //Text fields
         TextField whitePlayerNameField = new TextField("Player1");
@@ -187,7 +186,7 @@ public class ChessMain extends Application {
         //Options for white
         final ToggleGroup whiteOptions = new ToggleGroup();
 
-        RadioButton whiteOption1 = new RadioButton("Player");
+        RadioButton whiteOption1 = new RadioButton("HUMAN");
         whiteOption1.setOnAction(e -> {
             whitePlayerNameField.setDisable(false);
             whitePlayerNameField.setText("Player1");
@@ -213,7 +212,7 @@ public class ChessMain extends Application {
         //Options for black
         final ToggleGroup blackOptions = new ToggleGroup();
 
-        RadioButton blackOption1 = new RadioButton("Player");
+        RadioButton blackOption1 = new RadioButton("HUMAN");
         blackOption1.setUserData(false);
         blackOption1.setToggleGroup(blackOptions);
         blackOption1.setSelected(true);
@@ -551,35 +550,45 @@ public class ChessMain extends Application {
             draw(board);
         });
 
-        MenuItem save = new MenuItem("Save");
-        save.setOnAction(event -> {
-            // todo save game
-        });
-
         MenuItem exit = new MenuItem("Exit");
         exit.setOnAction(event -> System.exit(0));
 
-        fileMenu.getItems().addAll(login, newGame, save, exit);
+        fileMenu.getItems().addAll(login, newGame, exit);
         return fileMenu;
     }
 
     private void drawStatusPane(Board chessBoard) {
         status.getChildren().clear();
+
         Text title = new Text("GAME STATS");
-        title.setFont(Font.font("Arial", FontWeight.BOLD, 35));
-        Label whitePlayer = new Label(whitePlayerName + " : " + whitePlayerScore);
-        Label blackPlayer = new Label(blackPlayerName + " : " + blackPlayerScore);
+        // title styling
+        title.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 40));
+        DropShadow ds = new DropShadow(5, Color.color(0.4f, 0.4f, 0.4f));
+        ds.setOffsetY(4.0f);
+        title.setEffect(ds);
+        // player names and scores
+        Text whitePlayerText = new Text(whitePlayerName + ": " + whitePlayerScore);
+        Text blackPlayerText = new Text(blackPlayerName + ": " + blackPlayerScore);
+        // player names and scores styling
+        whitePlayerText.setFont(new Font(17));
+        blackPlayerText.setFont(new Font(17));
+        whitePlayerText.setUnderline(true);
+        blackPlayerText.setUnderline(true);
 
-        //show the evaluation of the current board relative to the current player, can help you know how well you are doing
-        //TODO: make only display this if statusEnabled == true
+        // show the evaluation of the current board relative to the current player, can help you know how well you are doing
+        // TODO: make only display this if statusEnabled == true
         BoardEvaluator boardEvaluator = new RegularBoardEvaluator();
-        Label boardStatus = new Label(chessBoard.currentPlayer().getAlliance() + " board status: " + boardEvaluator.evaluate(chessBoard, 3));
+        Text boardStatusText = new Text((chessBoard.currentPlayer().getAlliance() + " board status: " + boardEvaluator.evaluate(chessBoard, 3)).toUpperCase());
         if (chessBoard.currentPlayer().getAlliance() == Alliance.BLACK)
-            boardStatus = new Label(chessBoard.currentPlayer().getAlliance() + " board status: " + boardEvaluator.evaluate(chessBoard, 3) * -1);
+            boardStatusText = new Text((chessBoard.currentPlayer().getAlliance() + " board status: " + boardEvaluator.evaluate(chessBoard, 3) * -1).toUpperCase());
 
-        Label currentPlayerCheck = new Label(chessBoard.currentPlayer().getAlliance() + " check-status: " + chessBoard.currentPlayer().isInCheck());
-        // todo: add movelog to statuspane
-        status.getChildren().addAll(title, whitePlayer, blackPlayer, boardStatus, currentPlayerCheck);
+        boardStatusText.setFont(new Font(14));
+
+        // display if the current player is in check
+        Text currentPlayerInCheck = new Text((chessBoard.currentPlayer().getAlliance() + " in check: " + chessBoard.currentPlayer().isInCheck()).toUpperCase());
+        currentPlayerInCheck.setFont(new Font(14));
+
+        status.getChildren().addAll(title, whitePlayerText, blackPlayerText, boardStatusText, currentPlayerInCheck);
     }
 
     /**
@@ -631,11 +640,15 @@ public class ChessMain extends Application {
         gameOverRoot.setAlignment(Pos.TOP_CENTER);
 
         //Text
-        Text go = new Text("Game Over");
+        Text go = new Text("GAME OVER");
         go.setFont(Font.font("Arial", FontWeight.BOLD, 20));
-        Text t1 = new Text("Your updates scores are: ");
+        Text t1 = new Text("Your updated scores are:");
         Text t2 = new Text(whitePlayerName + ": " + whitePlayerScore);
         Text t3 = new Text(blackPlayerName + ": " + blackPlayerScore);
+        t1.setFont(new Font(15));
+        t1.setUnderline(true);
+        t2.setFont(new Font(13));
+        t3.setFont(new Font(13));
         gameOverRoot.getChildren().addAll(go, t1, t2, t3);
 
         //Button container

@@ -32,7 +32,6 @@ import java.util.List;
 
 public class ChessMain extends Application {
 
-    private BorderPane root;
     private GridPane grid;
     private Board board;
     private VBox status;
@@ -76,7 +75,7 @@ public class ChessMain extends Application {
 
         this.mainStage = mainStage;
 
-        root = new BorderPane();
+        BorderPane root = new BorderPane();
         grid = new GridPane();
         status = new VBox();
 
@@ -114,10 +113,12 @@ public class ChessMain extends Application {
         Scene mainScene = new Scene(root, screenWidth = screenWidth / 2, screenHeight = screenHeight / 2);
 
         //Listeners for window size change
+
         mainScene.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
             screenWidth = newSceneWidth.intValue();
             Platform.runLater(() -> draw(board));
         });
+
         mainScene.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> {
             screenHeight = newSceneHeight.intValue();
             Platform.runLater(() -> draw(board));
@@ -134,6 +135,10 @@ public class ChessMain extends Application {
         draw(board);
     }
 
+    /**
+     * Creates an options dialog box for determining what the player wants to do
+     * @param stage the main stage of the application
+     */
     private void createOptionsDialog(Stage stage){
 
         final Stage dialog = new Stage();
@@ -150,8 +155,10 @@ public class ChessMain extends Application {
         //Text
         Text whiteOptionsText = new Text("WHITE PLAYER");
         whiteOptionsText.setFont(new Font(15));
+
         Text blackOptionsText = new Text("BLACK PLAYER");
         blackOptionsText.setFont(new Font(15));
+
         Text aiDifficulty = new Text("AI DIFFICULTY");
         aiDifficulty.setFont(new Font(13));
 
@@ -187,6 +194,9 @@ public class ChessMain extends Application {
         final ToggleGroup whiteOptions = new ToggleGroup();
 
         RadioButton whiteOption1 = new RadioButton("HUMAN");
+        whiteOption1.setToggleGroup(whiteOptions);
+        whiteOption1.setUserData(false);
+        whiteOption1.setSelected(true);
         whiteOption1.setOnAction(e -> {
             whitePlayerNameField.setDisable(false);
             whitePlayerNameField.setText("Player1");
@@ -194,16 +204,13 @@ public class ChessMain extends Application {
             aiOption2.setDisable(true);
             aiOption3.setDisable(true);
         });
-        whiteOption1.setUserData(false);
-        whiteOption1.setToggleGroup(whiteOptions);
-        whiteOption1.setSelected(true);
 
         RadioButton whiteOption2 = new RadioButton("AI");
-        whiteOption2.setUserData(true);
         whiteOption2.setToggleGroup(whiteOptions);
+        whiteOption2.setUserData(true);
         whiteOption2.setOnAction(e -> {
             whitePlayerNameField.setDisable(true);
-            whitePlayerNameField.setText("CPU1");
+            whitePlayerNameField.setText("CPU");
             aiOption1.setDisable(false);
             aiOption2.setDisable(false);
             aiOption3.setDisable(false);
@@ -213,8 +220,8 @@ public class ChessMain extends Application {
         final ToggleGroup blackOptions = new ToggleGroup();
 
         RadioButton blackOption1 = new RadioButton("HUMAN");
-        blackOption1.setUserData(false);
         blackOption1.setToggleGroup(blackOptions);
+        blackOption1.setUserData(false);
         blackOption1.setSelected(true);
         blackOption1.setOnAction(e -> {
             blackPlayerNameField.setDisable(false);
@@ -225,11 +232,11 @@ public class ChessMain extends Application {
         });
 
         RadioButton blackOption2 = new RadioButton("AI");
-        blackOption2.setUserData(true);
         blackOption2.setToggleGroup(blackOptions);
+        blackOption2.setUserData(true);
         blackOption2.setOnAction(e -> {
             blackPlayerNameField.setDisable(true);
-            blackPlayerNameField.setText("CPU2");
+            blackPlayerNameField.setText("CPU");
             aiOption1.setDisable(false);
             aiOption2.setDisable(false);
             aiOption3.setDisable(false);
@@ -276,6 +283,15 @@ public class ChessMain extends Application {
         dialog.show();
     }
 
+    /**
+     * Takes the options set in the options dialog and applies them
+     * @param whiteOptions if white is Player or AI
+     * @param blackOptions if black is Player or AI
+     * @param aiOptions the AI difficulty
+     * @param whitePlayerNameField the name of the white player
+     * @param blackPlayerNameField the name of the black player
+     * @param stage the stage of the options dialog
+     */
     private void setOptions(ToggleGroup whiteOptions, ToggleGroup blackOptions, ToggleGroup aiOptions, TextField whitePlayerNameField, TextField blackPlayerNameField, Stage stage){
         isWhiteAI = (boolean) whiteOptions.getSelectedToggle().getUserData();
         isBlackAI = (boolean) blackOptions.getSelectedToggle().getUserData();
@@ -300,7 +316,7 @@ public class ChessMain extends Application {
                 break;
             }
             default: {
-                suffix = "How did you do this";
+                suffix = "Error";
                 rating = 9999;
                 break;
             }
@@ -329,6 +345,10 @@ public class ChessMain extends Application {
         blackPlayerScore = scoreSystem.getScore(blackPlayerName);
 
         stage.hide();
+
+        //If white is AI make a move for the AI
+        if(isWhiteAI)
+            makeAIMove();
     }
 
     /**
@@ -340,7 +360,7 @@ public class ChessMain extends Application {
      * @return a visual representation of a tile
      */
     private StackPane makeStack (Tile tile, boolean flip, boolean selected, boolean highlight){
-        final int TILE_SIZE = (int) ((screenHeight + screenWidth) * 2.6 /
+        final int TILE_SIZE = (int) ((screenHeight + screenWidth) * 2.4 /
                 (BoardUtils.getWidth() * BoardUtils.getHeight()));
         StackPane stack = new StackPane();
 
@@ -410,6 +430,10 @@ public class ChessMain extends Application {
         drawStatusPane(board);
     }
 
+    /**
+     * Handles what to do when a tile is clicked
+     * @param c the coordinate of the clicked tile
+     */
     private void onClickHandler(Coordinate c){
 
         Piece piece = board.getTile(c).getPiece();
@@ -422,12 +446,10 @@ public class ChessMain extends Application {
 
                 }
             }
-        }
-        else if (selectedTile == c) {
+        } else if (selectedTile == c) {
             selectedTile = null;
             draw(board);
-        }
-        else {
+        } else {
             if(board.getTile(c).isEmpty()){
                 attemptMove(c);
             } else if(board.currentPlayer().getAlliance() != piece.getPieceAlliance()){
@@ -444,10 +466,22 @@ public class ChessMain extends Application {
         }
     }
 
+    /**
+     * Checks if a given coordinate has the following x and y coordinates and is not empty
+     * @param c coordinate to be checked
+     * @param x x coordinate
+     * @param y y coordinate
+     * @return
+     */
     private boolean checkSelected(Coordinate c, int x, int y) {
         return c != null && !board.getTile(c).isEmpty() && (c.getX() == x) && (c.getY() == y);
     }
 
+    /**
+     * Makes a list of all legal moves from the given board coordinate
+     * @param c coordinate on the board
+     * @return a list of legal moves from that board position
+     */
     private Collection<Coordinate> listLegalMoves (Coordinate c){
         if (c == null) return null;
 
@@ -465,6 +499,10 @@ public class ChessMain extends Application {
         return coordinatesToHighlight;
     }
 
+    /**
+     * Attempts to make a move to the given coordinate, from the tile which is selected. If the move is illegal nothing happens.
+     * @param c the coordinate to attempt to move to
+     */
     private void attemptMove (Coordinate c){
 
         final Move move = Move.MoveFactory.createMove(board, selectedTile, c);
@@ -484,6 +522,9 @@ public class ChessMain extends Application {
         }
     }
 
+    /**
+     * Looks at the board anc calculates a move for the AI based on the aiDepth
+     */
     private void makeAIMove(){
         if((board.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) || board.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI){
             final MoveStrategy moveStrategy = new MiniMax(2);
@@ -562,7 +603,11 @@ public class ChessMain extends Application {
         return fileMenu;
     }
 
-    private void drawStatusPane(Board chessBoard) {
+    /**
+     * Draws the game status pane on the right side of the board in the gui
+     * @param board the game board
+     */
+    private void drawStatusPane(Board board) {
         status.getChildren().clear();
 
         Text title = new Text("GAME STATS");
@@ -583,14 +628,14 @@ public class ChessMain extends Application {
         // show the evaluation of the current board relative to the current player, can help you know how well you are doing
         // TODO: make only display this if statusEnabled == true
         BoardEvaluator boardEvaluator = new RegularBoardEvaluator();
-        Text boardStatusText = new Text((chessBoard.currentPlayer().getAlliance() + " board status: " + boardEvaluator.evaluate(chessBoard, 3)).toUpperCase());
-        if (chessBoard.currentPlayer().getAlliance() == Alliance.BLACK)
-            boardStatusText = new Text((chessBoard.currentPlayer().getAlliance() + " board status: " + boardEvaluator.evaluate(chessBoard, 3) * -1).toUpperCase());
+        Text boardStatusText = new Text((board.currentPlayer().getAlliance() + " board status: " + boardEvaluator.evaluate(board, 3)).toUpperCase());
+        if (board.currentPlayer().getAlliance() == Alliance.BLACK)
+            boardStatusText = new Text((board.currentPlayer().getAlliance() + " board status: " + boardEvaluator.evaluate(board, 3) * -1).toUpperCase());
 
         boardStatusText.setFont(new Font(14));
 
         // display if the current player is in check
-        Text currentPlayerInCheck = new Text((chessBoard.currentPlayer().getAlliance() + " in check: " + chessBoard.currentPlayer().isInCheck()).toUpperCase());
+        Text currentPlayerInCheck = new Text((board.currentPlayer().getAlliance() + " in check: " + board.currentPlayer().isInCheck()).toUpperCase());
         currentPlayerInCheck.setFont(new Font(14));
 
         status.getChildren().addAll(title, whitePlayerText, blackPlayerText, boardStatusText, currentPlayerInCheck);
@@ -715,25 +760,19 @@ public class ChessMain extends Application {
      */
     private void gameOver(){
         int[] scores;
+
         if(board.currentPlayer().isInStalemate() || checkForDrawByRepetition()){
             scores = scoreSystem.matchRating(whitePlayerName, blackPlayerName, 0.5, 0.5);
-            scoreSystem.updateHighscore(whitePlayerName, scores[0]);
-            scoreSystem.updateHighscore(blackPlayerName, scores[1]);
-            whitePlayerScore = scores[0];
-            blackPlayerScore = scores[1];
         } else if(board.currentPlayer().getAlliance() == Alliance.BLACK){
             scores = scoreSystem.matchRating(whitePlayerName, blackPlayerName, 1, 0);
-            scoreSystem.updateHighscore(whitePlayerName, scores[0]);
-            scoreSystem.updateHighscore(blackPlayerName, scores[1]);
-            whitePlayerScore = scores[0];
-            blackPlayerScore = scores[1];
         } else {
             scores = scoreSystem.matchRating(whitePlayerName, blackPlayerName, 0, 1);
-            scoreSystem.updateHighscore(whitePlayerName, scores[0]);
-            scoreSystem.updateHighscore(blackPlayerName, scores[1]);
-            whitePlayerScore = scores[0];
-            blackPlayerScore = scores[1];
         }
+
+        scoreSystem.updateHighscore(whitePlayerName, scores[0]);
+        scoreSystem.updateHighscore(blackPlayerName, scores[1]);
+        whitePlayerScore = scores[0];
+        blackPlayerScore = scores[1];
 
         drawStatusPane(board);
         createGameOverDialog(mainStage);

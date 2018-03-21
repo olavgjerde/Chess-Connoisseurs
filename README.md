@@ -18,3 +18,8 @@ Team 1
 + Rune Vatne	(rva013)
 
 + Simen Gad Hasvi	(qax007)
+
+How to run
+----
++ Run "mvn package" in the 'application' folder
++ Launch the compiled .jar file in the 'target' folder

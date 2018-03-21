@@ -73,7 +73,7 @@ public class Score {
      * Reads highscore.txt to a hashmap containing usernames as key and rating as value
      */
     public void readHighscore(){
-        try (BufferedReader br = new BufferedReader(new FileReader("application/src/main/resources/highscore.txt"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("highscore.txt"))) {
             String line;
             String[] temp;
             while((line = br.readLine()) != null){
@@ -83,7 +83,7 @@ public class Score {
             }
             br.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            // mute error on read -> file may not be created yet
         }
     }
 
@@ -92,7 +92,7 @@ public class Score {
      */
     private void writeHighscore(){
         try {
-            PrintWriter out = new PrintWriter(new File("application/src/main/resources/highscore.txt"));
+            PrintWriter out = new PrintWriter(new File("highscore.txt"));
             for (String s : userRating.keySet()) {
                 String line = s + " " + userRating.get(s) + "\n";
                 out.write(line);

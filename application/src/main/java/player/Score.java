@@ -73,6 +73,17 @@ public class Score {
      * Reads highscore.txt to a hashmap containing usernames as key and rating as value
      */
     public void readHighscore(){
+
+        //In case the highscore.txt does not exist
+        File f = new File("highscore.txt");
+        if(!f.exists()) {
+            try {
+                f.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         try (BufferedReader br = new BufferedReader(new FileReader("highscore.txt"))) {
             String line;
             String[] temp;
@@ -83,7 +94,7 @@ public class Score {
             }
             br.close();
         } catch (IOException e) {
-            // mute error on read -> file may not be created yet
+            e.printStackTrace();
         }
     }
 

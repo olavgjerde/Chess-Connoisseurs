@@ -195,12 +195,16 @@ public abstract class Player {
         // Board where the move has taken place. NB!: if the player who made the move has the color white,
         // then currentPlayer() will return black after the transition.
         final Board transitionBoard = move.execute();
+
         // check if move leaves player's king in check
         final King kingOfPlayerThatMoves = transitionBoard.currentPlayer().getOpponent().getPlayerKing();
-        final Collection<Move> currentPlayerMoves = transitionBoard.currentPlayer().getLegalMoves();
-        final Collection<Move> attacksOnPlayerKing = Player.calculateAttacksOnTile(kingOfPlayerThatMoves.getPieceCoordinate(), currentPlayerMoves);
-        if (!attacksOnPlayerKing.isEmpty()) {
-            return new MoveTransition(this.board, move, MoveStatus.LEAVES_PLAYER_IN_CHECK);
+        // checks if king exists, allows us to call method during testing without having a king on the board (custom boards)
+        if (kingOfPlayerThatMoves != null) {
+            final Collection<Move> currentPlayerMoves = transitionBoard.currentPlayer().getLegalMoves();
+            final Collection<Move> attacksOnPlayerKing = Player.calculateAttacksOnTile(kingOfPlayerThatMoves.getPieceCoordinate(), currentPlayerMoves);
+            if (!attacksOnPlayerKing.isEmpty()) {
+                return new MoveTransition(this.board, move, MoveStatus.LEAVES_PLAYER_IN_CHECK);
+            }
         }
         return new MoveTransition(transitionBoard, move, MoveStatus.DONE);
     }

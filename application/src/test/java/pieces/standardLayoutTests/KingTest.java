@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import pieces.Alliance;
 import pieces.King;
+import pieces.Pawn;
 
 import java.util.List;
 
@@ -57,5 +58,43 @@ class KingTest {
                 BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("f4"))));
         assertTrue(kingCalculatedMoves.contains(MoveFactory.createMove(board,
                 BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("f5"))));
+    }
+
+    /**
+     * Check that the king is not allowed to attack an ally
+     */
+    @Test
+    void kingCanNotAttackAlly() {
+        Builder builder = new Builder();
+        King kingInQuestion = new King(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
+        Pawn pawnAlly = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e5"), Alliance.WHITE);
+        builder.setPiece(kingInQuestion);
+        builder.setPiece(pawnAlly);
+        builder.setMoveMaker(Alliance.WHITE);
+        Board board = builder.build();
+
+        Move illegalMove = MoveFactory.createMove(board,
+                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e5"));
+
+        assertFalse(kingInQuestion.calculateLegalMoves(board).contains(illegalMove));
+    }
+
+    /**
+     * Check that the king is not allowed to attack an enemy
+     */
+    @Test
+    void kingCanAttackEnemy() {
+        Builder builder = new Builder();
+        King kingInQuestion = new King(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
+        Pawn pawnEnemy = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e5"), Alliance.BLACK);
+        builder.setPiece(kingInQuestion);
+        builder.setPiece(pawnEnemy);
+        builder.setMoveMaker(Alliance.WHITE);
+        Board board = builder.build();
+
+        Move attackMove = MoveFactory.createMove(board,
+                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e5"));
+
+        assertTrue(kingInQuestion.calculateLegalMoves(board).contains(attackMove));
     }
 }

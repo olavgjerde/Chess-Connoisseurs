@@ -339,7 +339,7 @@ public class ChessMain extends Application {
      * @param highlight a boolean to decide if the tile should be highlighted
      * @return a visual representation of a tile
      */
-    private StackPane makeStack (Tile tile, boolean flip, boolean selected, boolean highlight){
+    private StackPane makeStack (Tile tile, boolean flip, boolean selected, boolean highlight, boolean attackHighlight){
         final int TILE_SIZE = (int) ((screenHeight + screenWidth) * 2.6 /
                 (BoardUtils.getWidth() * BoardUtils.getHeight()));
         StackPane stack = new StackPane();
@@ -352,6 +352,8 @@ public class ChessMain extends Application {
             r.setFill(Color.LIGHTGREEN);
         } else if (highlight){
             r.setFill(Color.LIGHTBLUE);
+        } else if (attackHighlight){
+            r.setFill(Color.rgb(225, 215, 240));
         } else if (flip){
             r.setFill(Color.LIGHTGRAY);
         } else {
@@ -398,11 +400,16 @@ public class ChessMain extends Application {
                 boolean selected = checkSelected(selectedTile, i, j);
 
                 boolean highlight = false;
+                boolean attackHighlight = false;
+                Coordinate c = new Coordinate(i,j);
                 if(legalMoves != null)
-                    if (legalMoves.contains(new Coordinate(i,j)))
-                        highlight = true;
+                    if (legalMoves.contains(c))
+                        if (!board.getTile(c).isEmpty() && board.getTile(c).getPiece().getPieceAlliance() != board.currentPlayer().getAlliance())
+                            attackHighlight = true;
+                        else
+                            highlight = true;
 
-                StackPane tile = makeStack(board.getTile(new Coordinate(i,j)), flip, selected, highlight);
+                StackPane tile = makeStack(board.getTile(new Coordinate(i,j)), flip, selected, highlight, attackHighlight);
                 grid.add(tile, i,j);
             }
         }

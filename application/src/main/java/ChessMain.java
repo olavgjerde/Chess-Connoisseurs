@@ -602,6 +602,11 @@ public class ChessMain extends Application {
      */
     private boolean checkForDrawByRepetition(){
         if (!boardHistory.isEmpty())
+
+            //no moves were made
+            if (boardHistory.get(boardHistory.size()-1).toString().equals(board.toString()))
+                return false;
+
             for (Board b : boardHistory){
                 if (board.toString().equals(b.toString())) {
                     equalBoardStateCounter++;
@@ -620,7 +625,6 @@ public class ChessMain extends Application {
             }
             boardHistory.add(board);
         }
-
         return false;
     }
 

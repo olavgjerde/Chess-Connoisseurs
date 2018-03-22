@@ -2,7 +2,7 @@
 ## Coach
 + Jonathan Prieto-Cubides(jcu043@uib.no)
 
-Team members
+Team members:
 ------
 + Keerthan Kumaranayagam	(kku007)
 + Malin Jakobsen	(xun007)
@@ -12,16 +12,17 @@ Team members
 + Rune Vatne	(rva013)
 + Simen Gad Hasvi	(qax007)
 
-How to run
+How to run:
 ----
 + Run "mvn package" in the 'application' folder
 + Launch the compiled .jar file in the 'target' folder
 
-Extra lincense information
+Extra lincense information:
 ---
 This project is inspired by [Amir Afghani's](https://github.com/amir650) [Black Widow-chess](https://github.com/amir650/BlackWidow-Chess), and therefore alters code available in his application.   
 Works based on Black Widow-chess must use the same license, hence our license is the [GNU Lesser General Public License 2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html).  
 ##### Main changes to, and use of open source inspriation code
+
 + Our code uses JavaFX as its GUI framwork instead of Swing
 + Our code uses coordinate(x,y) representation instead of tile numbering (0-64)
 + All tests are writting from scratch
@@ -31,4 +32,6 @@ Works based on Black Widow-chess must use the same license, hence our license is
 ##### Artwork
 + Chess piece graphics were made by JohnPablok (2018)   
   Available on: [https://opengameart.org/content/chess-pieces-and-board-squares](https://opengameart.org/content/chess-pieces-and-board-squares)  
+
+
   License: [https://creativecommons.org/licenses/by-sa/3.0/](https://creativecommons.org/licenses/by-sa/3.0/)

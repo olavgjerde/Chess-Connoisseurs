@@ -64,7 +64,7 @@ public class ChessMain extends Application {
     public void init() {
         selectedTile = null;
         highlightEnabled = true;
-        statusEnabled = false;
+        statusEnabled = true;
 
         //default difficulty
         aiDepth = 2;
@@ -349,8 +349,8 @@ public class ChessMain extends Application {
         whitePlayerScore = scoreSystem.getScore(whitePlayerName);
         blackPlayerScore = scoreSystem.getScore(blackPlayerName);
 
-        whitePlayerStats = scoreSystem.getStatsVerbose(whitePlayerName);
-        blackPlayerStats = scoreSystem.getStatsVerbose(blackPlayerName);
+        whitePlayerStats = scoreSystem.getStats(whitePlayerName);
+        blackPlayerStats = scoreSystem.getStats(blackPlayerName);
 
         stage.hide();
 

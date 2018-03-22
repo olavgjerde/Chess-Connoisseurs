@@ -64,7 +64,7 @@ public class ChessMain extends Application {
     public void init() {
         selectedTile = null;
         highlightEnabled = true;
-        statusEnabled = true;
+        statusEnabled = false;
 
         //default difficulty
         aiDepth = 2;

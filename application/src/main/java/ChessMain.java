@@ -14,6 +14,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -85,6 +86,7 @@ public class ChessMain extends Application {
         //color of the background
         root.setStyle("-fx-background-color: white;");
 
+        //create standard chessboard
         board = Board.createStandardBoard();
 
         //Top bar - HBox - root
@@ -105,6 +107,8 @@ public class ChessMain extends Application {
         status.setPadding(new Insets(30));
         status.setAlignment(Pos.TOP_CENTER);
         status.setSpacing(10);
+
+        String url = "/images/scifi_main_menu.jpg";
         status.setStyle("-fx-border-width: 3; -fx-border-color: black;");
         root.setCenter(status);
 
@@ -113,20 +117,17 @@ public class ChessMain extends Application {
         root.setTop(menuBar);
 
         //Create main scene
-        Scene mainScene = new Scene(root, screenWidth = screenWidth / 2, screenHeight = screenHeight / 2);
+        Scene mainScene = new Scene(root, screenWidth = screenWidth / 2, screenHeight = screenHeight / 1.75);
 
         //Listeners for window size change
-
         mainScene.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
             screenWidth = newSceneWidth.intValue();
             Platform.runLater(() -> draw(board));
         });
-
         mainScene.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> {
             screenHeight = newSceneHeight.intValue();
             Platform.runLater(() -> draw(board));
         });
-
         mainStage.setOnCloseRequest(e -> System.exit(0));
 
         mainStage.setTitle("Chess Application");
@@ -279,7 +280,7 @@ public class ChessMain extends Application {
             drawStatusPane(board);
         });
 
-        Scene settingsScene = new Scene(settingsRoot, 230, 310);
+        Scene settingsScene = new Scene(settingsRoot, 230, 330);
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setScene(settingsScene);
         dialog.initOwner(stage);
@@ -604,8 +605,6 @@ public class ChessMain extends Application {
      */
     private Menu createFileMenu() {
         Menu fileMenu = new Menu("File");
-        MenuItem login = new MenuItem("Login");
-        login.setOnAction(event -> System.out.println("login feature here ->"));
 
         MenuItem newGame = new MenuItem("New game");
         newGame.setOnAction(event -> {
@@ -625,7 +624,7 @@ public class ChessMain extends Application {
         MenuItem exit = new MenuItem("Exit");
         exit.setOnAction(event -> System.exit(0));
 
-        fileMenu.getItems().addAll(login, newGame, highscores, exit);
+        fileMenu.getItems().addAll(newGame, highscores, exit);
         return fileMenu;
     }
 
@@ -638,7 +637,7 @@ public class ChessMain extends Application {
 
         Text title = new Text("GAME STATS");
         // title styling
-        title.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 40));
+        title.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, 30));
         DropShadow ds = new DropShadow(5, Color.color(0.4f, 0.4f, 0.4f));
         ds.setOffsetY(4.0f);
         title.setEffect(ds);
@@ -646,8 +645,8 @@ public class ChessMain extends Application {
         Text whitePlayerText = new Text(whitePlayerName + ": " + whitePlayerScore + " | " + whitePlayerStats);
         Text blackPlayerText = new Text(blackPlayerName + ": " + blackPlayerScore + " | " + blackPlayerStats);
         // player names and scores styling
-        whitePlayerText.setFont(new Font(17));
-        blackPlayerText.setFont(new Font(17));
+        whitePlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, 17));
+        blackPlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, 17));
         whitePlayerText.setUnderline(true);
         blackPlayerText.setUnderline(true);
 
@@ -660,14 +659,14 @@ public class ChessMain extends Application {
             if (board.currentPlayer().getAlliance() == Alliance.BLACK)
                 boardStatusText = new Text((board.currentPlayer().getAlliance() + " board status: " + boardEvaluator.evaluate(board, 3) * -1).toUpperCase());
 
-            boardStatusText.setFont(new Font(14));
+            boardStatusText.setFont(Font.font("Verdana", FontWeight.NORMAL, 14));
 
             status.getChildren().add(boardStatusText);
         }
 
         // display if the current player is in check
         Text currentPlayerInCheck = new Text((board.currentPlayer().getAlliance() + " in check: " + board.currentPlayer().isInCheck()).toUpperCase());
-        currentPlayerInCheck.setFont(new Font(14));
+        currentPlayerInCheck.setFont(Font.font("Verdana", FontWeight.NORMAL, 14));
 
         status.getChildren().add(currentPlayerInCheck);
     }
@@ -829,9 +828,9 @@ public class ChessMain extends Application {
         hsRoot.setSpacing(5);
         hsRoot.setAlignment(Pos.TOP_CENTER);
 
-        Text title = new Text("Highscores");
-        title.setFont(Font.font("Arial", 40));
-        title.setUnderline(true);
+        Text title = new Text("HIGHSCORES");
+        title.setFont(Font.font("Verdana", FontWeight.BOLD, 24));
+        title.setTextAlignment(TextAlignment.CENTER);
         hsRoot.getChildren().add(title);
 
         HBox list = new HBox();
@@ -857,12 +856,10 @@ public class ChessMain extends Application {
 
         list.getChildren().addAll(names, scores, record);
 
-        ArrayList<String> usernames = scoreSystem.getScoreboard();
+        ArrayList<String> userNames = scoreSystem.getScoreboard();
         int counter = 0;
-        for (String u : usernames){
+        for (String u : userNames){
             counter++;
-            if(counter > 20)
-                break;
             Text nameText = new Text(counter + ": " + u + " ");
             Text scoreText = new Text(scoreSystem.getScore(u) + " |");
             Text recordText = new Text(" " + scoreSystem.getStats(u));
@@ -871,7 +868,7 @@ public class ChessMain extends Application {
             record.getChildren().add(recordText);
         }
 
-        Scene settingsScene = new Scene(hsRoot, 230, 310);
+        Scene settingsScene = new Scene(new ScrollPane(hsRoot), 210, 330);
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setScene(settingsScene);
         dialog.initOwner(mainStage);

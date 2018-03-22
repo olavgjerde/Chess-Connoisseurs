@@ -64,7 +64,7 @@ public class ChessMain extends Application {
     public void init() {
         selectedTile = null;
         highlightEnabled = true;
-        statusEnabled = true;
+        statusEnabled = false;
 
         //default difficulty
         aiDepth = 2;
@@ -331,7 +331,7 @@ public class ChessMain extends Application {
             scoreSystem.addUsername(whitePlayerName);
             scoreSystem.updateHighscore(whitePlayerName, rating);
         } else{
-            whitePlayerName = whitePlayerNameField.getText();
+            whitePlayerName = whitePlayerNameField.getText().trim();
             scoreSystem.addUsername(whitePlayerName);
         }
 

@@ -534,7 +534,7 @@ public class ChessMain extends Application {
      */
     private void makeAIMove(){
         if((board.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) || board.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI){
-            final MoveStrategy moveStrategy = new MiniMax(2);
+            final MoveStrategy moveStrategy = new MiniMax(aiDepth);
             final Move AIMove = moveStrategy.execute(board);
             final MoveTransition newBoard = board.currentPlayer().makeMove(AIMove);
 

@@ -1,5 +1,5 @@
 # Team: group-5 | Time: Tuesdays 12-14
-# Coach: 
+## Coach
 + Jonathan Prieto-Cubides(jcu043@uib.no)
 
 Team members

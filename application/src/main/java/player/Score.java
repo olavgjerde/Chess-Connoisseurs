@@ -1,9 +1,11 @@
 package player;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Score {
     private HashMap<String, Integer> userRating = new HashMap<>();
+    private HashMap<String, Stats> userStats = new HashMap<>();
 
     /**
      *  takes the old rating of both players, and the result of the game for both players,
@@ -28,11 +30,8 @@ public class Score {
         double E1 = R1/(R1+R2);
         double E2 = R2/(R1+R2);
 
-        double S1 = gameResult1;
-        double S2 = gameResult2;
-
-        double newPlayer1Rating = player1Rating + K*(S1 - E1);
-        double newPlayer2Rating = player2Rating + K*(S2 - E2);
+        double newPlayer1Rating = player1Rating + K*(gameResult1 - E1);
+        double newPlayer2Rating = player2Rating + K*(gameResult2 - E2);
 
         score[0] = (int) newPlayer1Rating;
         score[1] = (int) newPlayer2Rating;
@@ -52,19 +51,35 @@ public class Score {
 
     /**
      * Returns a users rating
-     * @param username
+     * @param username the username of the user
+     * @return the score of the given user
      */
     public int getScore(String username){
         return userRating.get(username);
     }
 
     /**
-     * Adds a username with 1500 rating to highscore.txt if the username does not already exist
-     * @param username
+     * Returns a users game statistics
+     * @param username the username of the user
+     * @return a string with wins/draws/losses
+     */
+    public String getStats (String username) {return userStats.get(username).getStats();}
+
+    /**
+     * Returns a users game statistics
+     * @param username the username of the user
+     * @return a string with Wins: w, Draws: d, Losses: l
+     */
+    public String getStatsVerbose (String username){return userStats.get(username).getStatsVerbose();}
+
+    /**
+     * Adds a username with 1500 rating and enmpty stats to highscore.txt if the username does not already exist
+     * @param username name of the user to add
      */
     public void addUsername(String username){
         if(!userRating.containsKey(username)){
             userRating.put(username, 1500);
+            userStats.put(username, new Stats(0,0,0));
             writeHighscore();
         }
     }
@@ -90,7 +105,9 @@ public class Score {
             while((line = br.readLine()) != null){
                 temp = line.split(" ");
                 int rating = Integer.parseInt((temp[1]));
-                userRating.put(temp[0],rating);
+                Stats stats = readStats(temp[2]);
+                userRating.put(temp[0], rating);
+                userStats.put(temp[0], stats);
             }
             br.close();
         } catch (IOException e) {
@@ -105,12 +122,84 @@ public class Score {
         try {
             PrintWriter out = new PrintWriter(new File("highscore.txt"));
             for (String s : userRating.keySet()) {
-                String line = s + " " + userRating.get(s) + "\n";
+                String line = s + " " + userRating.get(s) + " " + userStats.get(s).getStats() + "\n";
                 out.write(line);
             }
             out.close();
         } catch (FileNotFoundException e) {
             System.out.println("FileNotFound");
+        }
+    }
+
+    private Stats readStats(String stats){
+        String[] temp = stats.split("/");
+        int w = Integer.parseInt(temp[0]);
+        int d = Integer.parseInt(temp[1]);
+        int l = Integer.parseInt(temp[2]);
+        return new Stats(w,d,l);
+    }
+
+    public void addWin(String username){
+        userStats.get(username).addWin();
+    }
+
+    public void addDraw(String username){
+        userStats.get(username).addDraw();
+    }
+
+    public void addLoss(String username){
+        userStats.get(username).addLoss();
+    }
+
+    public ArrayList<String> getScoreboard (){
+        ArrayList<String> scoreboard = new ArrayList<>();
+        HashMap<String, Integer> temp = (HashMap<String, Integer>) userRating.clone();
+        while(!temp.isEmpty()){
+            int hi = 0;
+            String u = "";
+            for(String s : temp.keySet()){
+                if(temp.get(s) >= hi) {
+                    hi = temp.get(s);
+                    u = s;
+                }
+            }
+            scoreboard.add(u);
+            temp.remove(u,hi);
+        }
+        return scoreboard;
+    }
+
+    public int size(){
+        return userRating.size();
+    }
+
+    private class Stats {
+        int wins, draws, losses;
+
+        private Stats(int wins, int draws, int losses) {
+            this.wins = wins;
+            this.draws = draws;
+            this.losses = losses;
+        }
+
+        private void addWin() {
+            wins++;
+        }
+
+        private void addDraw() {
+            draws++;
+        }
+
+        private void addLoss() {
+            losses++;
+        }
+
+        private String getStats(){
+            return wins + "/"+ draws + "/" + losses;
+        }
+
+        private String getStatsVerbose(){
+            return "Wins: " + wins + ", Draws: " + draws + ", Losses: " + losses;
         }
     }
 }

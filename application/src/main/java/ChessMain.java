@@ -50,6 +50,8 @@ public class ChessMain extends Application {
     private Score scoreSystem;
     private String whitePlayerName = "", blackPlayerName= "";
     private int whitePlayerScore, blackPlayerScore;
+    private String whitePlayerStats = "";
+    private String blackPlayerStats = "";
 
     private ArrayList<Board> boardHistory = new ArrayList<>();
     private int equalBoardStateCounter = 0;
@@ -61,6 +63,7 @@ public class ChessMain extends Application {
     public void init() {
         selectedTile = null;
         highlightEnabled = true;
+        statusEnabled = true;
 
         //default difficulty
         aiDepth = 2;
@@ -324,25 +327,29 @@ public class ChessMain extends Application {
 
         if(isWhiteAI){
             whitePlayerName = "CPU(" + suffix +")";
+            scoreSystem.addUsername(whitePlayerName);
             scoreSystem.updateHighscore(whitePlayerName, rating);
         } else{
             whitePlayerName = whitePlayerNameField.getText();
+            scoreSystem.addUsername(whitePlayerName);
         }
 
 
         if(isBlackAI) {
             blackPlayerName = "CPU(" + suffix +")";
+            scoreSystem.addUsername(blackPlayerName);
             scoreSystem.updateHighscore(blackPlayerName, rating);
         }
         else{
             blackPlayerName = blackPlayerNameField.getText();
+            scoreSystem.addUsername(blackPlayerName);
         }
-
-        scoreSystem.addUsername(whitePlayerName);
-        scoreSystem.addUsername(blackPlayerName);
 
         whitePlayerScore = scoreSystem.getScore(whitePlayerName);
         blackPlayerScore = scoreSystem.getScore(blackPlayerName);
+
+        whitePlayerStats = scoreSystem.getStatsVerbose(whitePlayerName);
+        blackPlayerStats = scoreSystem.getStatsVerbose(blackPlayerName);
 
         stage.hide();
 
@@ -429,6 +436,12 @@ public class ChessMain extends Application {
                         else
                             highlight = true;
 
+                if(!highlightEnabled){
+                    selected = false;
+                    highlight = false;
+                    attackHighlight = false;
+                }
+
                 StackPane tile = makeStack(board.getTile(new Coordinate(i,j)), flip, selected, highlight, attackHighlight);
                 grid.add(tile, i,j);
             }
@@ -478,7 +491,7 @@ public class ChessMain extends Application {
      * @param c coordinate to be checked
      * @param x x coordinate
      * @param y y coordinate
-     * @return
+     * @return true if coordinate has x, y and a piece
      */
     private boolean checkSelected(Coordinate c, int x, int y) {
         return c != null && !board.getTile(c).isEmpty() && (c.getX() == x) && (c.getY() == y);
@@ -571,14 +584,17 @@ public class ChessMain extends Application {
         Menu optionsMenu = new Menu("Options");
 
         CheckMenuItem toggleHighlight = new CheckMenuItem("Enable highlighting");
-        toggleHighlight.setOnAction(event -> highlightEnabled = !highlightEnabled);
+        toggleHighlight.setOnAction(e -> highlightEnabled = !highlightEnabled);
         toggleHighlight.setSelected(true);
 
         CheckMenuItem toggleBoardStatus = new CheckMenuItem("Show board status");
-        toggleHighlight.setOnAction(event -> statusEnabled = !statusEnabled);
-        toggleHighlight.setSelected(true);
+        toggleBoardStatus.setOnAction(event -> {
+            statusEnabled = !statusEnabled;
+            drawStatusPane(board);
+        });
+        toggleBoardStatus.setSelected(true);
 
-        optionsMenu.getItems().addAll(toggleHighlight,toggleBoardStatus);
+        optionsMenu.getItems().addAll(toggleHighlight, toggleBoardStatus);
         return optionsMenu;
     }
 
@@ -603,10 +619,13 @@ public class ChessMain extends Application {
             draw(board);
         });
 
+        MenuItem highscores = new MenuItem("Highscores");
+        highscores.setOnAction(event -> createHighscoreWindow());
+
         MenuItem exit = new MenuItem("Exit");
         exit.setOnAction(event -> System.exit(0));
 
-        fileMenu.getItems().addAll(login, newGame, exit);
+        fileMenu.getItems().addAll(login, newGame, highscores, exit);
         return fileMenu;
     }
 
@@ -624,28 +643,33 @@ public class ChessMain extends Application {
         ds.setOffsetY(4.0f);
         title.setEffect(ds);
         // player names and scores
-        Text whitePlayerText = new Text(whitePlayerName + ": " + whitePlayerScore);
-        Text blackPlayerText = new Text(blackPlayerName + ": " + blackPlayerScore);
+        Text whitePlayerText = new Text(whitePlayerName + ": " + whitePlayerScore + " | " + whitePlayerStats);
+        Text blackPlayerText = new Text(blackPlayerName + ": " + blackPlayerScore + " | " + blackPlayerStats);
         // player names and scores styling
         whitePlayerText.setFont(new Font(17));
         blackPlayerText.setFont(new Font(17));
         whitePlayerText.setUnderline(true);
         blackPlayerText.setUnderline(true);
 
-        // show the evaluation of the current board relative to the current player, can help you know how well you are doing
-        // TODO: make only display this if statusEnabled == true
-        BoardEvaluator boardEvaluator = new RegularBoardEvaluator();
-        Text boardStatusText = new Text((board.currentPlayer().getAlliance() + " board status: " + boardEvaluator.evaluate(board, 3)).toUpperCase());
-        if (board.currentPlayer().getAlliance() == Alliance.BLACK)
-            boardStatusText = new Text((board.currentPlayer().getAlliance() + " board status: " + boardEvaluator.evaluate(board, 3) * -1).toUpperCase());
+        status.getChildren().addAll(title, whitePlayerText, blackPlayerText);
 
-        boardStatusText.setFont(new Font(14));
+        // show the evaluation of the current board relative to the current player, can help you know how well you are doing
+        if(statusEnabled){
+            BoardEvaluator boardEvaluator = new RegularBoardEvaluator();
+            Text boardStatusText = new Text((board.currentPlayer().getAlliance() + " board status: " + boardEvaluator.evaluate(board, 3)).toUpperCase());
+            if (board.currentPlayer().getAlliance() == Alliance.BLACK)
+                boardStatusText = new Text((board.currentPlayer().getAlliance() + " board status: " + boardEvaluator.evaluate(board, 3) * -1).toUpperCase());
+
+            boardStatusText.setFont(new Font(14));
+
+            status.getChildren().add(boardStatusText);
+        }
 
         // display if the current player is in check
         Text currentPlayerInCheck = new Text((board.currentPlayer().getAlliance() + " in check: " + board.currentPlayer().isInCheck()).toUpperCase());
         currentPlayerInCheck.setFont(new Font(14));
 
-        status.getChildren().addAll(title, whitePlayerText, blackPlayerText, boardStatusText, currentPlayerInCheck);
+        status.getChildren().add(currentPlayerInCheck);
     }
 
     /**
@@ -689,9 +713,8 @@ public class ChessMain extends Application {
 
     /**
      * This dialog box pops up when the game ends
-     * @param stage the main stage of the application
      */
-    private void createGameOverDialog(Stage stage){
+    private void createGameOverDialog(){
         final Stage dialog = new Stage();
 
         //Text box - HBox
@@ -758,7 +781,7 @@ public class ChessMain extends Application {
         Scene gameOverScene = new Scene(gameOverRoot, 200, 150);
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setScene(gameOverScene);
-        dialog.initOwner(stage);
+        dialog.initOwner(mainStage);
         dialog.show();
     }
 
@@ -770,19 +793,89 @@ public class ChessMain extends Application {
 
         if(board.currentPlayer().isInStalemate() || checkForDrawByRepetition()){
             scores = scoreSystem.matchRating(whitePlayerName, blackPlayerName, 0.5, 0.5);
+            if(isWhiteAI && isBlackAI){
+                scoreSystem.addDraw(whitePlayerName);
+            } else {
+                scoreSystem.addDraw(whitePlayerName);
+                scoreSystem.addDraw(blackPlayerName);
+            }
         } else if(board.currentPlayer().getAlliance() == Alliance.BLACK){
             scores = scoreSystem.matchRating(whitePlayerName, blackPlayerName, 1, 0);
+            scoreSystem.addWin(whitePlayerName);
+            scoreSystem.addLoss(blackPlayerName);
         } else {
             scores = scoreSystem.matchRating(whitePlayerName, blackPlayerName, 0, 1);
+            scoreSystem.addLoss(whitePlayerName);
+            scoreSystem.addWin(blackPlayerName);
         }
 
         scoreSystem.updateHighscore(whitePlayerName, scores[0]);
         scoreSystem.updateHighscore(blackPlayerName, scores[1]);
+
         whitePlayerScore = scores[0];
         blackPlayerScore = scores[1];
 
+        whitePlayerStats = scoreSystem.getStats(whitePlayerName);
+        blackPlayerStats = scoreSystem.getStats(blackPlayerName);
+
         drawStatusPane(board);
-        createGameOverDialog(mainStage);
+        createGameOverDialog();
+    }
+
+    private void createHighscoreWindow(){
+        final Stage dialog = new Stage();
+
+        VBox hsRoot = new VBox();
+        hsRoot.setSpacing(5);
+        hsRoot.setAlignment(Pos.TOP_CENTER);
+
+        Text title = new Text("Highscores");
+        title.setFont(Font.font("Arial", 40));
+        title.setUnderline(true);
+        hsRoot.getChildren().add(title);
+
+        HBox list = new HBox();
+        list.setAlignment(Pos.TOP_CENTER);
+        list.setSpacing(5);
+        hsRoot.getChildren().add(list);
+
+        VBox names = new VBox();
+        VBox scores = new VBox();
+        VBox record = new VBox();
+
+        Text nameTitle = new Text("Name");
+        Text scoreTitle = new Text("Score");
+        Text recordTitle = new Text("Record");
+
+        nameTitle.setUnderline(true);
+        scoreTitle.setUnderline(true);
+        recordTitle.setUnderline(true);
+
+        names.getChildren().add(nameTitle);
+        scores.getChildren().add(scoreTitle);
+        record.getChildren().add(recordTitle);
+
+        list.getChildren().addAll(names, scores, record);
+
+        ArrayList<String> usernames = scoreSystem.getScoreboard();
+        int counter = 0;
+        for (String u : usernames){
+            counter++;
+            if(counter > 20)
+                break;
+            Text nameText = new Text(counter + ": " + u + " ");
+            Text scoreText = new Text(scoreSystem.getScore(u) + " |");
+            Text recordText = new Text(" " + scoreSystem.getStats(u));
+            names.getChildren().add(nameText);
+            scores.getChildren().add(scoreText);
+            record.getChildren().add(recordText);
+        }
+
+        Scene settingsScene = new Scene(hsRoot, 230, 310);
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setScene(settingsScene);
+        dialog.initOwner(mainStage);
+        dialog.show();
     }
 
     public static void main(String[] args) {launch(args);}

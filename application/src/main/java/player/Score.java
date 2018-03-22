@@ -93,7 +93,7 @@ public class Score {
         File f = new File("highscore.txt");
         if(!f.exists()) {
             try {
-                f.createNewFile();
+                boolean created = f.createNewFile();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -153,7 +153,7 @@ public class Score {
 
     public ArrayList<String> getScoreboard (){
         ArrayList<String> scoreboard = new ArrayList<>();
-        HashMap<String, Integer> temp = (HashMap<String, Integer>) userRating.clone();
+        HashMap<String, Integer> temp = new HashMap<>(userRating);
         while(!temp.isEmpty()){
             int hi = 0;
             String u = "";

@@ -31,12 +31,13 @@ public abstract class Player {
      */
     Player(Board board, Collection<Move> legalMoves, Collection<Move> opponentMoves) {
         this.board = board;
-        this.playerKing = establishKing();
+        King king = establishKing();
+        this.playerKing = king;
 
         // add castling moves to legal moves
         final Collection<Move> allMoves = new ArrayList<>(legalMoves);
         // allows the creation of boards without a king -> mostly for testing purposes
-        if (playerKing != null) {
+        if (king != null) {
             allMoves.addAll(calculateKingCastles(legalMoves, opponentMoves));
             this.isInCheck = !calculateAttacksOnCoordinate(this.playerKing.getPieceCoordinate(), opponentMoves).isEmpty();
         }
@@ -138,7 +139,7 @@ public abstract class Player {
      * @return true if player is in check, false otherwise
      */
     public boolean isInCheck() {
-        return isInCheck;
+        return this.isInCheck;
     }
 
     /**

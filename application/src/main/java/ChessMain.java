@@ -331,7 +331,7 @@ public class ChessMain extends Application {
             scoreSystem.addUsername(whitePlayerName);
             scoreSystem.updateHighscore(whitePlayerName, rating);
         } else{
-            whitePlayerName = whitePlayerNameField.getText();
+            whitePlayerName = whitePlayerNameField.getText().trim();
             scoreSystem.addUsername(whitePlayerName);
         }
 

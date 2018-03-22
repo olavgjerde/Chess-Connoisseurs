@@ -2,6 +2,7 @@
 *bin/
 *.sty
 *.iml
+*.highscore.txr
 
 # Compiled class file
 *.class

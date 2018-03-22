@@ -5,6 +5,10 @@ import board.Move;
 import pieces.Alliance;
 import player.MoveTransition;
 
+/**
+ * A co-recursive implementation of the "MiniMax" algorithm
+ * @see <a href=https://en.wikipedia.org/wiki/Minimax>MiniMax</a>
+ */
 public class MiniMax implements MoveStrategy {
     private final BoardEvaluator boardEvaluator;
     private final int searchDepth;
@@ -16,13 +20,18 @@ public class MiniMax implements MoveStrategy {
 
     @Override
     public String toString() {
-        return "Minimax";
+        return "MinimMax";
     }
 
+    /**
+     * Execute the minimax algorithm for the current player, the method will check the alliance of the player and treat
+     * the white player as the maximizing, and the black player as minimizing.
+     * @param board to generate move for
+     * @return
+     */
     @Override
     public Move execute(Board board) {
         final long startTime = System.currentTimeMillis();
-
         Move bestMove = null;
 
         int highestEncounteredValue = Integer.MIN_VALUE;
@@ -30,7 +39,6 @@ public class MiniMax implements MoveStrategy {
         int currentValue;
 
         System.out.println(board.currentPlayer().getAlliance() + " EVALUATING with depth: " + searchDepth);
-        int numMoves = board.currentPlayer().getLegalMoves().size();
 
         for (Move move : board.currentPlayer().getLegalMoves()) {
             final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
@@ -42,9 +50,11 @@ public class MiniMax implements MoveStrategy {
                 }
 
                 if (board.currentPlayer().getAlliance() == Alliance.WHITE && currentValue >= highestEncounteredValue) {
+                    // maximizing player
                     highestEncounteredValue = currentValue;
                     bestMove = move;
                 } else if (board.currentPlayer().getAlliance() == Alliance.BLACK && currentValue <= lowestEncounteredValue) {
+                    // minimizing player
                     lowestEncounteredValue = currentValue;
                     bestMove = move;
                 }
@@ -57,6 +67,12 @@ public class MiniMax implements MoveStrategy {
         return bestMove;
     }
 
+    /**
+     * Minimizing function
+     * @param board to make move on
+     * @param searchDepth current depth of search
+     * @return lowest board value encountered
+     */
     private int min(Board board, int searchDepth) {
         if (searchDepth == 0 || isEndGame(board)) {
             return this.boardEvaluator.evaluate(board, searchDepth);
@@ -75,6 +91,12 @@ public class MiniMax implements MoveStrategy {
         return lowestEncounteredValue;
     }
 
+    /**
+     * Maximizing function
+     * @param board to make move on
+     * @param searchDepth current depth of search
+     * @return highest board value encountered
+     */
     private int max(Board board, int searchDepth) {
         if (searchDepth == 0 || isEndGame(board)) {
             return this.boardEvaluator.evaluate(board, searchDepth);

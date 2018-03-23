@@ -1,55 +1,54 @@
 \documentclass[12pt]{article}%
-
 \usepackage{blindtext}
 \usepackage{enumitem}
 \usepackage{natbib}
-
 \usepackage{graphicx}
-\usepackage{geometry}
 \usepackage[table,xcdraw]{xcolor}
-\usepackage{tabularx}
- 
-\graphicspath{{images/}}
-
-\title{Team Plan}
-\author{Group 5}
-\date{}
+\usepackage{geometry} 
+ \usepackage{tabularx}
 
 \begin{document}
-\maketitle
 
+\title{Task 1}
+\date{\today}
+\maketitle
 \section{Team information}
+
+
+
+
 \begin{itemize}
-\item Malin Jakobsen (xun007) - Team leader. 
-Responsibility: Maintain house rules and general management of team.
+\item Malin Jakobsen (xun007) - Team leader and documentation maintainer. \\
+Responsibility: Maintain house rules and general management of team. Presentation, coding, documentation mainetance. \\
 	Experience: Have taken part in project management activities before. Have technical
 experience through INF100, INF101, INF102. 
 
-\item Olav Gjerde (ogj005) - Git repo leader. 
+\item Olav Gjerde (ogj005) - Git repo leader and main game lead. \\
 Responsibility: Maintaining the git repo structure, and assisting the other teammates 
-with the use of git and its features.
+with the use of git and its features. Is leader of the main game, have overview over code structure. \\
 Experience: Have technical expertise through INF100, INF101 and INF102. Will be
 taking the role of git repo lead and have 
-\item Keerthan Kumaranayagam (kku007) -  {role}
-Responsibility: {later}
-Experience: INF100, INF101, INF102 and basics within Photoshop. 
-\item Ole Kristian Solheim Gjerløw (ogj003) - {role}
-Responsibility: {later}
+\item Keerthan Kumaranayagam (kku007) -  Coder and documentation\\
+Responsibility: Highscore implementator and retroperspective updater\\
+Experience: INF100, INF101, INF102 and basics within Photoshop.
+\item Ole Kristian Solheim Gjerløw (ogj003) - GUI lead\\
+Responsibility: Lead of the GUI implementation\\
 Experience: INF100, INF101, INF102. Experience with Illustrator/Photoshop if we want to makeour own assets/textures. Some experience with JavaFX.
-\item Renate Nikolajeva (rni006) - {role}
-Responsibility: {later}
+\item Renate Nikolajeva (rni006) - Documentation\\
+Responsibility: Presentation and class diagram\\
 	Experience: Had INF100, INF101, INF102. Have some experience in Photoshop and
 Vegas Pro. 
 
-\item Rune Vatne  (rva013) - {role}
-Responsibility: {later}
+\item Rune Vatne  (rva013) - Coder and documentation\\
+Responsibility: Highscore implementator and sequencediagram creator \\
 	Experience: INF100, INF101, INF102. 
-\item Simen Gad Hasvi  (qax007) - {role}
-Responsibility: Class diagram and project structure.
+\item Simen Gad Hasvi  (qax007) - AI lead\\
+Responsibility: Class diagram, project structure and lead of the AI implementation.\\
 	Experience: Had INF100, INF101 and INF102. No experience with GUI.
 \end{itemize}
         
-More roles will be assigned as the project progresses and as we establish a clear view of what it is that must be done.
+Roles will change for each oblig
+
 
 \section{House rules}
 
@@ -68,34 +67,18 @@ More roles will be assigned as the project progresses and as we establish a clea
 \textit{We will use the git-flow “idea” of a git workflow to structure our repository. This means that instead of just working at the master branch, we will have additional branches such as develop, feature, release and in special cases hotfix. Though we may omit some of these at certains parts of the project if it causes to much confusion for the participants.}
 \vspace{5mm} %5mm vertical space
 
-The master branch will store the release history of the project, and the develop 		branch will serve as an integration branch which we will be able to merge finished 	feature branches into. Each major feature should have its own branch which then can be pushed to the remote repository for further collaboration. The feature branches are branched off of the latest develop branch. \\
-Release branches are forked off of the develop branch after the develop branch has acquired enough features. This will be the “product” that will be shipped when the deadline date hits. Only bug fixes, additional documentation and such may be added to the release branch after is has been established. When it is ready the release branch will be merged into the master branch, representing a new version of the product. \\
+The master branch will store the release history of the project, and the develop 		branch will serve as an integration branch which we will be able to merge finished 	feature branches into. Each major feature should have its own branch which then can be pushed to the remote repository for further collaboration. The feature branches are branched off of the latest develop branch.
+\vspace{5mm} %5mm vertical space
+    Release branches are forked off of the develop branch after the develop branch has acquired enough features. This will be the “product” that will be shipped when the deadline date hits. Only bug fixes, additional documentation and such may be added to the release branch after is has been established. When it is ready the release branch will be merged into the master branch, representing a new version of the product.
 Hotfix branches are used for fixing urgent issues with the released product in the master branch, this means that it is forked off of the master branch. When a given fix is complete this should be merged in master and develop.
-Initial documentation will be produced with google docs for fast collaboration before being translated into latex and pdf formats. After this changes to the documentation happens through the git repository. \\
+\vspace{5mm} %5mm vertical space
+Initial documentation will be produced with google docs for fast collaboration before being translated into latex and pdf formats. After this changes to the documentation happens through the git repository.
 
-\includegraphics[scale=0.8]{image12.png} \\
-\textit{Branch figure from: (Atlassian, 2018)}
-\vspace{5mm}
 
-\noindent
-"1. A develop branch is created from master \\
-2. A release branch is created from develop \\
-3. Feature branches are created from develop \\
-4. When a feature is complete it is merged into the develop branch \\
-5. When the release branch is done it is merged into develop and master \\
-6. If an issue in master is detected a hotfix branch is created from master \\
-7. Once the hotfix is complete it is merged to both develop and master" \\
-\textit{(Atlassian, 2018)} \\
-
-\vspace{50mm}
-\noindent
-Additionally the folder structure will look something like this: \\ \\
-\includegraphics[scale=1]{structure.png}
-\vspace{50mm}
 
 \section{General risk analysis}
 This is a list containing the risks that we found most pressing for this project. The list is subject to change, and may also grow as the project progresses.
-\vspace{5mm}
+
 
 \begin{tabularx}{\linewidth}{ r X X }
 \hline
@@ -113,13 +96,8 @@ Underestimated development time
 & Cut back on features that does contribute directly to the main specification of the product, and reallocate team members to the feature features in question.                 \\ \hline
 \end{tabularx}
 
+\end{document}
 
-\section{Resources}
-\begin{itemize}
-\item Atlassian (2018) Gitflow Workflow | Atlassian Git Tutorial [Internet] \\
-	  Available from: \textless https://www.atlassian.com/git/tutorials/comparing-workflows/
-	  gitflow-workflow\textgreater
-	  [Read 20.february 2018].\\
-	  License:\textless https://creativecommons.org/licenses/by/2.5/au/\textgreater .
-\end{itemize}
+
+
 \end{document}

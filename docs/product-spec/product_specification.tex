@@ -19,33 +19,33 @@
     \section{System Requirements} 
     \subsection{Functional:}
     \begin{outline}
-          \1 Users shall be able to play against another human opponent (multiplayer)
+          \1 Users shall be able to play against another human opponent (multiplayer).
           \1 The system shall appoint rankings to the players of the game, which indicates 
-             that the winner of a game is awarded points which will have to be calculated
-          \1 The system keeps track of the results for each game played
+             that the winner of a game is awarded points which will have to be calculated.
+          \1 The system keeps track of the results for each game played.
           \2 This enables the system to provide an overview of the ranking of the human participants,
              based on on how many games they have won.
-          \1 Users shall be able to play against an AI, which will have 3 levels of difficulty
-          \2 Novice
-          \2 Intermediate
-          \2 Expert
-          \1 Winning against a more intelligent or higher ranked machine player should award more points.
+          \1 Users shall be able to play against an AI, which will have 3 levels of difficulty:
+          \2 Easy
+          \2 Medium
+          \2 Hard
+          \1 Winning against a more intelligent or higher ranked AI should award more points.
      \end{outline}
      
     \subsection{Non-functional:}
     \begin{outline}
-          \1 The system shall be made with 2D graphics
-          \2 It must feature a board layout
-          \2 It must feature player statistics
-          \1 The system shall be implemented on top of a open source graphics engine
-          \2 Implementers may choose from JavaFX, LibGDX, Unity etc.
+          \1 The system shall be made with 2D graphics.
+          \2 It must feature a board layout.
+          \2 It must feature player statistics.
+          \1 The system shall be implemented on top of a open source graphics engine.
+          \2 The game shall be implemented in JavaFX.
           \1 The system shall be programmed in such a way that the ruleset (board size etc.) can easily be changed.
-          \1 System shall be programmed in Java
+          \1 System shall be programmed in Java.
     \end{outline}
     
     \section{User stories}
-        USER STORY 1: As a Chess player i want to play against good chess AI’s 
-        so i can become better at chess. \\
+        USER STORY 1: As a Chess player I want to play against good chess AI’s 
+        so I can become better at chess. \\
         
         \noindent
         USER STORY 2: As a pair of friends, we want to play chess together so we
@@ -53,7 +53,7 @@
         
         \noindent
         USER STORY 3: As a user of the chess game I want my available moves to 
-        be visualized when i pick a given chess-piece. \\
+        be visualized when I pick a given chess-piece. \\
         
         \noindent
         USER STORY 4: As a beginner level chess player I want to learn to play 
@@ -101,55 +101,33 @@
         \includegraphics[width=\linewidth]{play-multiplayer.png}
         
     \section{Domain model (class diagram)}
-    \includegraphics[scale=0.35]{class-diagram.png}
+    \begin{center}
+    \includegraphics[scale=0.38]{class-diagram.png}
+    \end{center}
     
-    \subsection{Short explanation of the class diagram}
+    \subsection{Short explanation of the project structure}
+    	The ChessMain class is in charge of showing the board to the player and update it according to user input.
+	Here we make a Board object that we display to the user with the help of the javafx library.
+	We get user input that we can use to change the board, or alternately we can get input from the AI.
+	Whenever we change the board we also draw the new board for the user to see. 
+	All of this is taken care of in the ChessMain class.
+	The actual game logic is all taken care of in the Board class.
+	It will keep track of the two players as well as all the tiles that can contain a piece.
+	Tile is a way of keeping track of all the pieces in a way that makes is easy to draw in the GUI.
+	The pieces contain all the logic of how they can move,
+	so we can simply call that piece to get its possible moves.
+	The Player contain information necessary to analyze the board for certain events.
+	It is also capable of making a move 
+	which means returning a new board object similar to the one it belongs to just with the move done.
+	Remember all of these are reachable from Board and thus ChessMain.
+    There are several helper classes, factories and enums left out of this graph to make it readable, but this is the overall structure off the entire project.
     
-        ChessMain:\\
-        \begin{outline}
-            The ChessMain class is the class where we begin the game (main method).
-            \1 main() method will call the initialize(). Once game is initialized we
-            will go into an endless loop where we repeatedly asks the GUI/AI for the 
-            next move. If the GUI send a resign signal instead of a move we exit the 
-            loop and call the end() method. Otherwise we send the move to the game 
-            with the game.move() method. This method will return a Boolean value, true means
-            everything is ok, and we can go on to the next round. False means that an
-            illegal move was made, and we make the GUI tell the player this
-            and we let him/her try again until the move is accepted. After a move is made
-            we call the game.checkBoard() method. This will check the board after the move
-            is made to see if someone has won, there is a check, there is a checkmate or a
-            there is a promotion. Here we are only interested in whether someone has won,
-            the game will take care of the rest. If someone has won we call the end() method.
-            \1 Initialize() method will make a MenuGUI object where the player can 
-            provide information about the game he/she is about to play. This information
-            is used to initialize a Game and two player objects or one player and one AI object.
-            Then we can make a GameGUI object with the game as a parameter.
-            \1 end() method will make the GUI display an end screen and calculate
-            the new rankings.
-        \end{outline}
-        
-        \noindent
-        Game:\\
-        \begin{outline}
-            The Game class is where we have our current game. It has a Board 
-            variable that is simply a list of all the pieces, the position
-            of the pieces is stored in the pieces themselves. The ChessMain class
-            will interact with the game via a few methods.
-            \1 Move(Piece piece, Position newPos) will simply make a new Board 
-            with updated pieces. This is mostly just a copy of the previous board
-            except the piece that were moved and pieces that are knocked out.
-            However before we make this new board we have to make sure it’s a
-            legal move by calling the checkMove(Piece piece, Position newPos)
-            method. If it’s not a legal move it returns false and does nothing,
-            otherwise true.
-            \1 checkBoard() will check the current board for certain events 
-            such as: someone has won, there is a check, there is a checkmate or 
-            a there is a promotion. This method will then make a new board if 
-            needed. It will return true if someone has won, false otherwise.
-            \1 getBoard() the GUI will need the board to display it.
-            \1 getLegalMoves(Piece piece) mainly used by the checkMove() method
-            but can also be used by the GUI to display legal moves.
-        \end{outline}
+    \subsection{Additional class overview}
+    Just a full class overview for good measure:
+    \begin{center}
+    \includegraphics[scale=0.3]{extra-class-overview.png}
+    \end{center}
+    
+    
 
-    
 \end{document}

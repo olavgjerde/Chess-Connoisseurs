@@ -663,17 +663,10 @@ public class ChessMainRevamp extends Application {
             userMovedPiece = null;
             drawChessGridPane();
 
-            if (gameIsOver()) {
-                // game ends do calculations
-                gameOverCalculations();
-            } else {
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        makeAIMove();
-                    }
-                });
-            }
+            Platform.runLater(() -> {
+                if (gameIsOver()) gameOverCalculations();
+                else makeAIMove();
+            });
         }
     }
 
@@ -775,11 +768,10 @@ public class ChessMainRevamp extends Application {
 
             drawChessGridPane();
 
-            if(gameIsOver()){
-                gameOverCalculations();
-            } else {
-                Platform.runLater(this::makeAIMove);
-            }
+            Platform.runLater(() -> {
+                if (gameIsOver()) gameOverCalculations();
+                else makeAIMove();
+            });
         }
     }
 

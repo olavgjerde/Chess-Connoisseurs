@@ -192,9 +192,9 @@ public class ChessMainRevamp extends Application {
 
         HBox aiDifficultyPane = new HBox();
         aiDifficultyPane.setAlignment(Pos.CENTER);
-        VBox whiteOptionsPane = new VBox();
+        HBox whiteOptionsPane = new HBox();
         whiteOptionsPane.setAlignment(Pos.CENTER);
-        VBox blackOptionsPane = new VBox();
+        HBox blackOptionsPane = new HBox();
         blackOptionsPane.setAlignment(Pos.CENTER);
 
         //Text
@@ -424,16 +424,16 @@ public class ChessMainRevamp extends Application {
         gameOverRoot.setAlignment(Pos.CENTER);
 
         //Text
-        Text go = new Text("GAME OVER");
-        go.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        Text title = new Text("GAME OVER");
+        title.setFont(Font.font("Arial", FontWeight.BOLD, 30));
         Text t1 = new Text("Your updated scores are:");
         Text t2 = new Text(whitePlayerName + ": " + whitePlayerScore);
         Text t3 = new Text(blackPlayerName + ": " + blackPlayerScore);
-        t1.setFont(new Font(15));
+        t1.setFont(new Font(20));
         t1.setUnderline(true);
-        t2.setFont(new Font(13));
-        t3.setFont(new Font(13));
-        gameOverRoot.getChildren().addAll(go, t1, t2, t3);
+        t2.setFont(new Font(20));
+        t3.setFont(new Font(20));
+        gameOverRoot.getChildren().addAll(title, t1, t2, t3);
 
         //Button container
         HBox buttonContainer = new HBox();
@@ -441,21 +441,27 @@ public class ChessMainRevamp extends Application {
         buttonContainer.setSpacing(10);
         buttonContainer.setPadding(new Insets(10,0,0,0));
 
-        //Button1
-        Button newGame = new Button("New Game!");
-        newGame.setAlignment(Pos.BASELINE_LEFT);
-        buttonContainer.getChildren().add(newGame);
-
         //Button2
-        Button quit = new Button("Quit :(");
-        buttonContainer.getChildren().add(quit);
-        quit.setAlignment(Pos.BASELINE_RIGHT);
+        Button newGame = new Button("NEW GAME!");
+        //Button2
+        Button newRound = new Button("NEXT ROUND");
+        //Button3
+        Button quit = new Button("QUIT :(");
+
+        buttonContainer.getChildren().addAll(newGame, newRound, quit);
         gameOverRoot.getChildren().addAll(buttonContainer);
 
-        newGame.setOnAction(e -> {
+        newGame.setOnAction(event -> {
+            // this option allows user/settings change
             createStartMenuScene();
             chessDataBoard = Board.createStandardBoard();
-
+            boardHistory.clear();
+            equalBoardStateCounter = 0;
+            drawChessGridPane();
+        });
+        newRound.setOnAction(e -> {
+            // this lets the user continue with another round
+            chessDataBoard = Board.createStandardBoard();
             //Clear info about previous board states
             boardHistory.clear();
             equalBoardStateCounter = 0;
@@ -641,9 +647,7 @@ public class ChessMainRevamp extends Application {
         }
 
         /**
-         * Attempts to make a move to the given coordinate, from the tile which is selected. If the move is illegal nothing happens.
-         *
-         * @param destinationCoordinate the coordinate to attempt to move to
+         * Attempts to make a move from the tile (sourceTile) which is selected. If the move is illegal nothing happens.
          */
         private void attemptMove() {
             final Move move = Move.MoveFactory.createMove(chessDataBoard, sourceTile.getTileCoord(), destinationTile.getTileCoord());

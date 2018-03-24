@@ -37,7 +37,7 @@ public class ChessMainRevamp extends Application {
     // scene for main game interaction
     private Scene gameScene;
     // different panes that make up the application
-    private BorderPane gameplayPane;
+    private BorderPane gamePlayPane;
     private GridPane chessGridPane;
     private VBox statusPane;
     // chess board data representation
@@ -79,17 +79,17 @@ public class ChessMainRevamp extends Application {
     @Override
     public void start(Stage primaryStage) {
         this.mainStage = primaryStage;
-        this.gameplayPane = new BorderPane();
+        this.gamePlayPane = new BorderPane();
         this.chessGridPane = new GridPane();
         this.statusPane = new VBox();
         this.chessDataBoard = Board.createStandardBoard();
 
         // add menu bar
         MenuBar menuBar = populateMenuBar();
-        gameplayPane.setTop(menuBar);
+        gamePlayPane.setTop(menuBar);
         // add parts to gameplay pane
-        gameplayPane.setCenter(statusPane);
-        gameplayPane.setLeft(chessGridPane);
+        gamePlayPane.setCenter(chessGridPane);
+        gamePlayPane.setRight(statusPane);
         // style chess grid pane
         chessGridPane.setPadding(new Insets(5));
         chessGridPane.setAlignment(Pos.CENTER);
@@ -102,7 +102,7 @@ public class ChessMainRevamp extends Application {
         statusPane.setSpacing(10);
 
         // construct game scene
-        this.gameScene = new Scene(gameplayPane, screenWidth = screenWidth / 2, screenHeight = screenHeight / 1.75);
+        this.gameScene = new Scene(gamePlayPane, screenWidth = screenWidth / 2, screenHeight = screenHeight / 1.75);
 
         // listeners for window size change
         gameScene.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
@@ -115,7 +115,7 @@ public class ChessMainRevamp extends Application {
         });
         mainStage.setOnCloseRequest(e -> System.exit(0));
 
-        mainStage.setTitle("Chess Application");
+        mainStage.setTitle("Connoisseur Chess");
         createStartMenuScene();
 
         // draw board
@@ -200,17 +200,13 @@ public class ChessMainRevamp extends Application {
         //Text
         Text whiteOptionsText = new Text("WHITE PLAYER");
         whiteOptionsText.setFont(new Font(30));
-
         Text blackOptionsText = new Text("BLACK PLAYER");
         blackOptionsText.setFont(new Font(30));
-
         Text aiDifficulty = new Text("AI DIFFICULTY");
         aiDifficulty.setFont(new Font(18));
-
         //Text fields
         TextField whitePlayerNameField = new TextField("Player1");
         whitePlayerNameField.setMaxWidth(gameScene.getWidth() / 4);
-
         TextField blackPlayerNameField = new TextField("Player2");
         blackPlayerNameField.setMaxWidth(gameScene.getWidth() / 4);
 
@@ -416,7 +412,7 @@ public class ChessMainRevamp extends Application {
     /**
      * Shows the game over scene for the application
      */
-    private void createGameoverScene() {
+    private void createGameOverScene() {
         //Text box - HBox
         VBox gameOverRoot = new VBox();
         gameOverRoot.setPadding(new Insets(5,15,5,15));
@@ -641,7 +637,6 @@ public class ChessMainRevamp extends Application {
                         drawChessGridPane();
                     }
                 }
-
                 if (destinationTile != null) attemptMove();
             }
         }
@@ -663,10 +658,8 @@ public class ChessMainRevamp extends Application {
             userMovedPiece = null;
             drawChessGridPane();
 
-            Platform.runLater(() -> {
-                if (gameIsOver()) gameOverCalculations();
-                else makeAIMove();
-            });
+            if (gameIsOver()) gameOverCalculations();
+            else Platform.runLater(ChessMainRevamp.this::makeAIMove);
         }
     }
 
@@ -748,7 +741,7 @@ public class ChessMainRevamp extends Application {
         blackPlayerStats = scoreSystem.getStats(blackPlayerName);
 
         drawStatusPane();
-        createGameoverScene();
+        createGameOverScene();
     }
 
     /**
@@ -768,10 +761,8 @@ public class ChessMainRevamp extends Application {
 
             drawChessGridPane();
 
-            Platform.runLater(() -> {
-                if (gameIsOver()) gameOverCalculations();
-                else makeAIMove();
-            });
+            if (gameIsOver()) gameOverCalculations();
+            else Platform.runLater(this::makeAIMove);
         }
     }
 

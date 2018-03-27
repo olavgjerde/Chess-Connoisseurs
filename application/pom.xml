@@ -37,7 +37,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>ChessMain</mainClass>
+                            <mainClass>ChessMainRevamp</mainClass>
                         </manifest>
                     </archive>
                </configuration>

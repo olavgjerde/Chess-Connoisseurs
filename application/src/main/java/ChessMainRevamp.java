@@ -83,7 +83,7 @@ public class ChessMainRevamp extends Application {
         this.gamePlayPane = new BorderPane();
         this.chessGridPane = new GridPane();
         this.statusPane = new VBox();
-        this.chessDataBoard = Board.createRandomBoard();
+        this.chessDataBoard = Board.createStandardBoard();
 
         // add menu bar
         MenuBar menuBar = populateMenuBar();

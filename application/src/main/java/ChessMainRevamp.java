@@ -9,8 +9,6 @@ import javafx.scene.effect.BlendMode;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -29,8 +27,6 @@ import player.basicAI.MiniMax;
 import player.basicAI.MoveStrategy;
 import player.basicAI.RegularBoardEvaluator;
 
-import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -93,8 +89,8 @@ public class ChessMainRevamp extends Application {
         MenuBar menuBar = populateMenuBar();
         gamePlayPane.setTop(menuBar);
         // add parts to gameplay pane
-        gamePlayPane.setLeft(chessGridPane);
-        gamePlayPane.setCenter(statusPane);
+        gamePlayPane.setRight(statusPane);
+        gamePlayPane.setCenter(chessGridPane);
         // style chess grid pane
         chessGridPane.setPadding(new Insets(5));
         chessGridPane.setAlignment(Pos.CENTER);
@@ -158,7 +154,7 @@ public class ChessMainRevamp extends Application {
         toggleBoardStatus.setSelected(true);
 
         CheckMenuItem togglePlayerHelp = new CheckMenuItem("Enable player help");
-        toggleBoardStatus.setOnAction(event -> helpEnabled = !helpEnabled);
+        togglePlayerHelp.setOnAction(event -> helpEnabled = !helpEnabled);
         togglePlayerHelp.setSelected(false);
 
         optionsMenu.getItems().addAll(toggleHighlight, toggleBoardStatus, togglePlayerHelp);
@@ -429,66 +425,64 @@ public class ChessMainRevamp extends Application {
     }
 
     /**
-     * Shows the game over scene for the application
+     * Shows the game over pane for the application
      */
-    private void createGameOverScene() {
+    private void createGameOverPane() {
         //Text box - HBox
-        VBox gameOverRoot = new VBox();
-        gameOverRoot.setPadding(new Insets(5,15,5,15));
+        HBox gameOverRoot = new HBox();
+        gameOverRoot.setPadding(new Insets(2,0,2,0));
         gameOverRoot.setSpacing(5);
         gameOverRoot.setAlignment(Pos.CENTER);
 
         //Text
-        Text title = new Text("GAME OVER");
-        title.setFont(Font.font("Arial", FontWeight.BOLD, 30));
-        Text t1 = new Text("Your updated scores are:");
-        Text t2 = new Text(whitePlayerName + ": " + whitePlayerScore);
-        Text t3 = new Text(blackPlayerName + ": " + blackPlayerScore);
-        t1.setFont(new Font(20));
-        t1.setUnderline(true);
-        t2.setFont(new Font(20));
-        t3.setFont(new Font(20));
+        Text title = new Text("GAME OVER - ");
+        title.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        Text t1 = new Text("UPDATED SCORES: ");
+        t1.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        Text t2 = new Text(whitePlayerName + ": " + whitePlayerScore + " /");
+        Text t3 = new Text(blackPlayerName + ": " + blackPlayerScore + " ");
+        t2.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 20));
+        t3.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 20));
         gameOverRoot.getChildren().addAll(title, t1, t2, t3);
 
         //Button container
         HBox buttonContainer = new HBox();
-        buttonContainer.setAlignment(Pos.BOTTOM_CENTER);
+        buttonContainer.setAlignment(Pos.CENTER);
         buttonContainer.setSpacing(10);
-        buttonContainer.setPadding(new Insets(10,0,0,0));
 
         //Button2
-        Button newGame = new Button("NEW GAME!");
+        Button newGame = new Button("NEW GAME");
         //Button2
         Button newRound = new Button("NEXT ROUND");
         //Button3
-        Button quit = new Button("QUIT :(");
+        Button quit = new Button("QUIT");
 
         buttonContainer.getChildren().addAll(newGame, newRound, quit);
         gameOverRoot.getChildren().addAll(buttonContainer);
 
         newGame.setOnAction(event -> {
-            // this option allows user/settings change
+            //This option allows user/settings change
             createStartMenuScene();
             chessDataBoard = Board.createStandardBoard();
             boardHistory.clear();
             equalBoardStateCounter = 0;
+
+            gamePlayPane.setBottom(null);
             drawChessGridPane();
         });
         newRound.setOnAction(e -> {
-            // this lets the user continue with another round
+            //This lets the user continue with another round
             chessDataBoard = Board.createStandardBoard();
             //Clear info about previous board states
             boardHistory.clear();
             equalBoardStateCounter = 0;
 
+            gamePlayPane.setBottom(null);
             drawChessGridPane();
-            mainStage.setScene(gameScene);
         });
 
         quit.setOnAction(e -> System.exit(0));
-
-        Scene gameOverScene = new Scene(gameOverRoot, gameScene.getWidth(), gameScene.getHeight());
-        mainStage.setScene(gameOverScene);
+        gamePlayPane.setBottom(gameOverRoot);
     }
 
     private void drawStatusPane() {
@@ -514,23 +508,22 @@ public class ChessMainRevamp extends Application {
         // show the evaluation of the current board relative to the current player, can help you know how well you are doing
         if(statusEnabled){
             BoardEvaluator boardEvaluator = new RegularBoardEvaluator();
-            Text boardStatusText = new Text((chessDataBoard.currentPlayer().getAlliance() + " board status: " + boardEvaluator.evaluate(chessDataBoard, 3)).toUpperCase());
+            Text boardStatusText = new Text((chessDataBoard.currentPlayer().getAlliance() + " board status: \n" + boardEvaluator.evaluate(chessDataBoard, 3)).toUpperCase());
             if (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK)
-                boardStatusText = new Text((chessDataBoard.currentPlayer().getAlliance() + " board status: " + boardEvaluator.evaluate(chessDataBoard, 3) * -1).toUpperCase());
+                boardStatusText = new Text((chessDataBoard.currentPlayer().getAlliance() + " board status: \n" + boardEvaluator.evaluate(chessDataBoard, 3) * -1).toUpperCase());
 
             boardStatusText.setFont(Font.font("Verdana", FontWeight.NORMAL, 14));
             statusPane.getChildren().add(boardStatusText);
         }
 
         // display if the current player is in check
-        Text currentPlayerInCheck = new Text((chessDataBoard.currentPlayer().getAlliance() + " in check: " + chessDataBoard.currentPlayer().isInCheck()).toUpperCase());
+        Text currentPlayerInCheck = new Text((chessDataBoard.currentPlayer().getAlliance() + " in check: \n" + chessDataBoard.currentPlayer().isInCheck()).toUpperCase());
         currentPlayerInCheck.setFont(Font.font("Verdana", FontWeight.NORMAL, 14));
 
         statusPane.getChildren().add(currentPlayerInCheck);
     }
 
     private void drawChessGridPane() {
-
         chessGridPane.getChildren().clear();
         for (int i = 0; i < BoardUtils.getHeight(); i++) {
             for (int j = 0; j < BoardUtils.getWidth(); j++) {
@@ -762,7 +755,7 @@ public class ChessMainRevamp extends Application {
         blackPlayerStats = scoreSystem.getStats(blackPlayerName);
 
         drawStatusPane();
-        createGameOverScene();
+        createGameOverPane();
     }
 
     /**

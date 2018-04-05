@@ -54,6 +54,7 @@ public class ChessMainRevamp extends Application {
     // information toggles
     private boolean highlightEnabled = true;
     private boolean statusEnabled = true;
+    private boolean helpEnabled = false;
     // player movement
     private Tile sourceTile;
     private Tile destinationTile;
@@ -156,7 +157,11 @@ public class ChessMainRevamp extends Application {
         });
         toggleBoardStatus.setSelected(true);
 
-        optionsMenu.getItems().addAll(toggleHighlight, toggleBoardStatus);
+        CheckMenuItem togglePlayerHelp = new CheckMenuItem("Enable player help");
+        toggleBoardStatus.setOnAction(event -> helpEnabled = !helpEnabled);
+        togglePlayerHelp.setSelected(false);
+
+        optionsMenu.getItems().addAll(toggleHighlight, toggleBoardStatus, togglePlayerHelp);
         return optionsMenu;
     }
 
@@ -542,11 +547,12 @@ public class ChessMainRevamp extends Application {
     private class ChessTile extends StackPane {
         final double TILE_SIZE = ((screenHeight + screenWidth) * 2.6 / (BoardUtils.getWidth() * BoardUtils.getHeight()));
         private final Coordinate coordinateId;
+        private Color colorOfTile;
 
         private ChessTile(Coordinate coordinateId) {
             this.coordinateId = coordinateId;
 
-            Color colorOfTile = assignTileColor();
+            colorOfTile = assignTileColor();
             if (highlightEnabled && sourceTile != null) {
                 // highlight selected tile
                 if (coordinateId.equals(sourceTile.getTileCoord())) colorOfTile = Color.LIGHTGREEN;

@@ -278,8 +278,10 @@ public class Board {
 
         } while (boardBuilder.build().currentPlayer().isInCheckmate() ||
                  boardBuilder.build().currentPlayer().isInStalemate() ||
+                 boardBuilder.build().currentPlayer().isInCheck() ||
                  boardBuilder.build().currentPlayer().getOpponent().isInCheckmate() ||
-                 boardBuilder.build().currentPlayer().getOpponent().isInStalemate());
+                 boardBuilder.build().currentPlayer().getOpponent().isInStalemate() ||
+                 boardBuilder.build().currentPlayer().getOpponent().isInCheck());
 
         return boardBuilder.build();
     }

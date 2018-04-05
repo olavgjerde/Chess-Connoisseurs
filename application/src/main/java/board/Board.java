@@ -215,20 +215,11 @@ public class Board {
             boardBuilder = new Builder();
 
             ThreadLocalRandom randGen = ThreadLocalRandom.current();
-            List<Coordinate> coordinateList = new ArrayList<>();
-
-            // generate king coordinates first
-            Coordinate whiteKingCoordinate = new Coordinate(randGen.nextInt(BoardUtils.getWidth()), randGen.nextInt(BoardUtils.getHeight()));
-            Coordinate blackKingCoordinate = new Coordinate(randGen.nextInt(BoardUtils.getWidth()), randGen.nextInt(BoardUtils.getHeight()));
-            // check that the kings coordinates are separated by more than one tile
-            while (BoardUtils.euclideanDistance(whiteKingCoordinate, blackKingCoordinate) <= 2.0) {
-                whiteKingCoordinate = new Coordinate(randGen.nextInt(BoardUtils.getWidth()), randGen.nextInt(BoardUtils.getHeight()));
-            }
-            coordinateList.add(whiteKingCoordinate);
-            coordinateList.add(blackKingCoordinate);
+            int numOfPieces = (BoardUtils.getHeight() * BoardUtils.getWidth()) / 2;
 
             // generate coordinates for all other pieces than kings
-            for (int i = 0; i < ((BoardUtils.getHeight() * BoardUtils.getWidth()) / 2) - 2; i++) {
+            List<Coordinate> coordinateList = new ArrayList<>();
+            for (int i = 0; i < numOfPieces; i++) {
                 Coordinate generatedCoordinate = new Coordinate(randGen.nextInt(BoardUtils.getWidth()), randGen.nextInt(BoardUtils.getHeight()));
                 // "re-roll" if same coordinate is generated
                 while (coordinateList.contains(generatedCoordinate)) {
@@ -273,13 +264,10 @@ public class Board {
             boardBuilder.setPiece(new Bishop(coordinateIterator.next(), Alliance.WHITE, false));
             boardBuilder.setPiece(new Bishop(coordinateIterator.next(), Alliance.WHITE, false));
             boardBuilder.setPiece(new Queen(coordinateIterator.next(), Alliance.WHITE, false));
-
             boardBuilder.setMoveMaker(Alliance.WHITE);
 
-        } while (boardBuilder.build().currentPlayer().isInCheckmate() ||
-                 boardBuilder.build().currentPlayer().isInStalemate() ||
+        } while (boardBuilder.build().currentPlayer().isInStalemate() ||
                  boardBuilder.build().currentPlayer().isInCheck() ||
-                 boardBuilder.build().currentPlayer().getOpponent().isInCheckmate() ||
                  boardBuilder.build().currentPlayer().getOpponent().isInStalemate() ||
                  boardBuilder.build().currentPlayer().getOpponent().isInCheck());
 

@@ -1,4 +1,4 @@
-/*
+
 import java.sql.*;
 import java.util.Properties;
 
@@ -7,25 +7,22 @@ public class SQL {
     //TODO: fix handling of database
     //Handles database
 
-    public static void viewTable(Connection con, String dbName)
-            throws SQLException {
+
+    //views table 
+    public static void viewTable(Connection con, String highscore_schema) throws SQLException {
 
         Statement stmt = null;
-        String query = "select COF_NAME, SUP_ID, PRICE, " +
-                "SALES, TOTAL " +
-                "from " + dbName + ".COFFEES";
+        String query = "select playerName, score, win, draw, loss " + "from " + highscore_schema;
         try {
             stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
-                String coffeeName = rs.getString("COF_NAME");
-                int supplierID = rs.getInt("SUP_ID");
-                float price = rs.getFloat("PRICE");
-                int sales = rs.getInt("SALES");
-                int total = rs.getInt("TOTAL");
-                System.out.println(coffeeName + "\t" + supplierID +
-                        "\t" + price + "\t" + sales +
-                        "\t" + total);
+                String playerName = rs.getString("playerName");
+                int score = rs.getInt("score");
+                float win = rs.getInt("win");
+                int draw = rs.getInt("draw");
+                int loss = rs.getInt("loss");
+                System.out.println(playerName + "\t" + score + "\t" + win + "\t" + draw + "\t" + loss);
             }
         } catch (SQLException e ) {
             System.out.println(e);
@@ -34,7 +31,7 @@ public class SQL {
         }
     }
 
-    public Connection getConnection() throws SQLException {
+  /*  public Connection getConnection() throws SQLException {
 
         Connection conn = null;
         Properties connectionProps = new Properties();
@@ -56,6 +53,6 @@ public class SQL {
         }
         System.out.println("Connected to database");
         return conn;
-    }
+    }*/
 }
-*/
+

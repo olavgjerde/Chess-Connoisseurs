@@ -88,8 +88,8 @@ public class ChessMainRevamp extends Application {
         MenuBar menuBar = populateMenuBar();
         gamePlayPane.setTop(menuBar);
         // add parts to gameplay pane
-        gamePlayPane.setCenter(chessGridPane);
-        gamePlayPane.setRight(statusPane);
+        gamePlayPane.setLeft(chessGridPane);
+        gamePlayPane.setCenter(statusPane);
         // style chess grid pane
         chessGridPane.setPadding(new Insets(5));
         chessGridPane.setAlignment(Pos.CENTER);
@@ -231,6 +231,11 @@ public class ChessMainRevamp extends Application {
         aiOption3.setToggleGroup(aiOptions);
         aiOption3.setDisable(true);
 
+        RadioButton aiOption4 = new RadioButton("Expert");
+        aiOption4.setUserData(4);
+        aiOption4.setToggleGroup(aiOptions);
+        aiOption4.setDisable(true);
+
         //Options for white
         final ToggleGroup whiteOptions = new ToggleGroup();
 
@@ -244,6 +249,7 @@ public class ChessMainRevamp extends Application {
             aiOption1.setDisable(true);
             aiOption2.setDisable(true);
             aiOption3.setDisable(true);
+            aiOption4.setDisable(true);
         });
 
         RadioButton whiteOption2 = new RadioButton("AI");
@@ -255,6 +261,7 @@ public class ChessMainRevamp extends Application {
             aiOption1.setDisable(false);
             aiOption2.setDisable(false);
             aiOption3.setDisable(false);
+            aiOption4.setDisable(false);
         });
 
         //Options for black
@@ -270,6 +277,7 @@ public class ChessMainRevamp extends Application {
             aiOption1.setDisable(true);
             aiOption2.setDisable(true);
             aiOption3.setDisable(true);
+            aiOption4.setDisable(true);
         });
 
         RadioButton blackOption2 = new RadioButton("AI");
@@ -281,6 +289,7 @@ public class ChessMainRevamp extends Application {
             aiOption1.setDisable(false);
             aiOption2.setDisable(false);
             aiOption3.setDisable(false);
+            aiOption4.setDisable(false);
         });
 
         //Sub panes
@@ -292,7 +301,7 @@ public class ChessMainRevamp extends Application {
         blackOptionsPane.setPadding(new Insets(0,0,10,0));
         blackOptionsPane.setSpacing(5);
 
-        aiDifficultyPane.getChildren().addAll(aiOption1, aiOption2, aiOption3);
+        aiDifficultyPane.getChildren().addAll(aiOption1, aiOption2, aiOption3, aiOption4);
         aiDifficultyPane.setPadding(new Insets(0,0,10,0));
         aiDifficultyPane.setSpacing(5);
 
@@ -317,6 +326,7 @@ public class ChessMainRevamp extends Application {
                 case 1: { suffix = "Easy"; rating = 1200; break; }
                 case 2: { suffix = "Medium"; rating = 1500; break; }
                 case 3: { suffix = "Hard"; rating = 1800; break; }
+                case 4: { suffix = "Expert"; rating = 2000; break; }
                 default: { suffix = "Error"; rating = 9999; break; }
             }
 

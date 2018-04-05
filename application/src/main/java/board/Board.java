@@ -6,6 +6,7 @@ import player.Player;
 import player.WhitePlayer;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * This class represents a chessboard.
@@ -199,6 +200,77 @@ public class Board {
         builder.setPiece(new Pawn(new Coordinate(5,6), Alliance.WHITE));
         builder.setPiece(new Pawn(new Coordinate(6,6), Alliance.WHITE));
         builder.setPiece(new Pawn(new Coordinate(7,6), Alliance.WHITE));
+        builder.setMoveMaker(Alliance.WHITE);
+        return builder.build();
+    }
+
+    /**
+     * Creates a board with the pieces for a regular chess game spread out randomly
+     * @return a Board with a random layout
+     */
+    public static Board createRandomBoard() {
+        final Builder builder = new Builder();
+        ThreadLocalRandom randGen = ThreadLocalRandom.current();
+        List<Coordinate> coordinateList = new ArrayList<>();
+
+        // generate king coordinates first
+        Coordinate whiteKingCoordinate = new Coordinate(randGen.nextInt(BoardUtils.getWidth()), randGen.nextInt(BoardUtils.getHeight()));
+        Coordinate blackKingCoordinate = new Coordinate(randGen.nextInt(BoardUtils.getWidth()), randGen.nextInt(BoardUtils.getHeight()));
+        // check that the kings coordinates are separated by more than one tile
+        while (BoardUtils.euclideanDistance(whiteKingCoordinate, blackKingCoordinate) <= 2.0) {
+            whiteKingCoordinate = new Coordinate(randGen.nextInt(BoardUtils.getWidth()), randGen.nextInt(BoardUtils.getHeight()));
+        }
+        coordinateList.add(whiteKingCoordinate);
+        coordinateList.add(blackKingCoordinate);
+
+        // generate coordinates for all other pieces than kings
+        for (int i = 0; i < ((BoardUtils.getHeight() * BoardUtils.getWidth()) / 2) - 2; i++) {
+            Coordinate generatedCoordinate = new Coordinate(randGen.nextInt(BoardUtils.getWidth()), randGen.nextInt(BoardUtils.getHeight()));
+            // "re-roll" if same coordinate is generated
+            while (coordinateList.contains(generatedCoordinate)) {
+                generatedCoordinate = new Coordinate(randGen.nextInt(BoardUtils.getWidth()), randGen.nextInt(BoardUtils.getHeight()));
+            }
+            coordinateList.add(generatedCoordinate);
+        }
+        Iterator<Coordinate> coordinateIterator = coordinateList.iterator();
+
+        // place kings
+        builder.setPiece(new King(coordinateIterator.next(), Alliance.WHITE, false, false));
+        builder.setPiece(new King(coordinateIterator.next(), Alliance.BLACK, false, false));
+
+        // place pawns
+        for (int i = 0; i < 8; i++) {
+            Coordinate whiteCoordinate = coordinateIterator.next();
+            if (Alliance.WHITE.isPawnPromotionCoordinate(whiteCoordinate)) {
+                builder.setPiece(new Queen(whiteCoordinate, Alliance.WHITE, false));
+            } else {
+                builder.setPiece(new Pawn(whiteCoordinate, Alliance.WHITE, false));
+            }
+            Coordinate blackCoordinate = coordinateIterator.next();
+            if (Alliance.BLACK.isPawnPromotionCoordinate(blackCoordinate)) {
+                builder.setPiece(new Queen(blackCoordinate, Alliance.BLACK, false));
+            } else {
+                builder.setPiece(new Pawn(blackCoordinate, Alliance.BLACK, false));
+            }
+        }
+
+        // place all other major pieces
+        builder.setPiece(new Rook(coordinateIterator.next(), Alliance.BLACK, false));
+        builder.setPiece(new Rook(coordinateIterator.next(), Alliance.BLACK, false));
+        builder.setPiece(new Knight(coordinateIterator.next(), Alliance.BLACK, false));
+        builder.setPiece(new Knight(coordinateIterator.next(), Alliance.BLACK, false));
+        builder.setPiece(new Bishop(coordinateIterator.next(), Alliance.BLACK, false));
+        builder.setPiece(new Bishop(coordinateIterator.next(), Alliance.BLACK, false));
+        builder.setPiece(new Queen(coordinateIterator.next(), Alliance.BLACK, false));
+
+        builder.setPiece(new Rook(coordinateIterator.next(), Alliance.WHITE, false));
+        builder.setPiece(new Rook(coordinateIterator.next(), Alliance.WHITE, false));
+        builder.setPiece(new Knight(coordinateIterator.next(), Alliance.WHITE, false));
+        builder.setPiece(new Knight(coordinateIterator.next(), Alliance.WHITE, false));
+        builder.setPiece(new Bishop(coordinateIterator.next(), Alliance.WHITE, false));
+        builder.setPiece(new Bishop(coordinateIterator.next(), Alliance.WHITE, false));
+        builder.setPiece(new Queen(coordinateIterator.next(), Alliance.WHITE, false));
+
         builder.setMoveMaker(Alliance.WHITE);
         return builder.build();
     }

@@ -9,6 +9,8 @@ import javafx.scene.effect.BlendMode;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -27,6 +29,8 @@ import player.basicAI.MiniMax;
 import player.basicAI.MoveStrategy;
 import player.basicAI.RegularBoardEvaluator;
 
+import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -216,23 +220,23 @@ public class ChessMainRevamp extends Application {
         final ToggleGroup aiOptions = new ToggleGroup();
 
         RadioButton aiOption1 = new RadioButton("Easy");
-        aiOption1.setUserData(1);
+        aiOption1.setUserData(2);
         aiOption1.setToggleGroup(aiOptions);
         aiOption1.setDisable(true);
 
         RadioButton aiOption2 = new RadioButton("Medium");
-        aiOption2.setUserData(2);
+        aiOption2.setUserData(3);
         aiOption2.setToggleGroup(aiOptions);
         aiOption2.setSelected(true);
         aiOption2.setDisable(true);
 
         RadioButton aiOption3 = new RadioButton("Hard");
-        aiOption3.setUserData(3);
+        aiOption3.setUserData(4);
         aiOption3.setToggleGroup(aiOptions);
         aiOption3.setDisable(true);
 
         RadioButton aiOption4 = new RadioButton("Expert");
-        aiOption4.setUserData(4);
+        aiOption4.setUserData(5);
         aiOption4.setToggleGroup(aiOptions);
         aiOption4.setDisable(true);
 
@@ -323,10 +327,10 @@ public class ChessMainRevamp extends Application {
             String suffix;
             int rating;
             switch(aiDepth){
-                case 1: { suffix = "Easy"; rating = 1200; break; }
-                case 2: { suffix = "Medium"; rating = 1500; break; }
-                case 3: { suffix = "Hard"; rating = 1800; break; }
-                case 4: { suffix = "Expert"; rating = 2000; break; }
+                case 2: { suffix = "Easy"; rating = 1200; break; }
+                case 3: { suffix = "Medium"; rating = 1500; break; }
+                case 4: { suffix = "Hard"; rating = 1800; break; }
+                case 5: { suffix = "Expert"; rating = 2000; break; }
                 default: { suffix = "Error"; rating = 9999; break; }
             }
 
@@ -521,6 +525,7 @@ public class ChessMainRevamp extends Application {
     }
 
     private void drawChessGridPane() {
+
         chessGridPane.getChildren().clear();
         for (int i = 0; i < BoardUtils.getHeight(); i++) {
             for (int j = 0; j < BoardUtils.getWidth(); j++) {

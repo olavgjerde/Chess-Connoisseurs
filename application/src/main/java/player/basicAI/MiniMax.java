@@ -5,6 +5,10 @@ import board.Move;
 import pieces.Alliance;
 import player.MoveTransition;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 /**
  * A co-recursive implementation of the "MiniMax" algorithm
  * @see <a href=https://en.wikipedia.org/wiki/Minimax>MiniMax</a>
@@ -44,9 +48,9 @@ public class MiniMax implements MoveStrategy {
             final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
             if (moveTransition.getMoveStatus().isDone()) {
                 if (board.currentPlayer().getAlliance() == Alliance.WHITE) {
-                    currentValue = min(moveTransition.getTransitionBoard(), searchDepth - 1);
+                    currentValue = min(moveTransition.getTransitionBoard(), searchDepth - 1, -Integer.MAX_VALUE, Integer.MAX_VALUE);
                 } else {
-                    currentValue = max(moveTransition.getTransitionBoard(), searchDepth - 1);
+                    currentValue = max(moveTransition.getTransitionBoard(), searchDepth - 1, -Integer.MAX_VALUE, Integer.MAX_VALUE);
                 }
 
                 if (board.currentPlayer().getAlliance() == Alliance.WHITE && currentValue >= highestEncounteredValue) {
@@ -73,7 +77,7 @@ public class MiniMax implements MoveStrategy {
      * @param searchDepth current depth of search
      * @return lowest board value encountered
      */
-    private int min(Board board, int searchDepth) {
+    private int min(Board board, int searchDepth, int alpha, int beta) {
         if (searchDepth == 0 || isEndGame(board)) {
             return this.boardEvaluator.evaluate(board, searchDepth);
         }
@@ -83,12 +87,13 @@ public class MiniMax implements MoveStrategy {
             final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
             if (moveTransition.getMoveStatus().isDone()) {
 
-                /*if (this.boardEvaluator.evaluate(moveTransition.getTransitionBoard(), searchDepth) >= lowestEncounteredValue)
-                    continue;*/
-
-                final int currentValue = max(moveTransition.getTransitionBoard(), searchDepth - 1);
+                final int currentValue = max(moveTransition.getTransitionBoard(), searchDepth - 1, alpha, beta);
 
                 if (currentValue <= lowestEncounteredValue) lowestEncounteredValue = currentValue;
+
+                //alphaBeta
+                beta = Integer.min(alpha, lowestEncounteredValue);
+                if (beta <= alpha) break;
             }
         }
         return lowestEncounteredValue;
@@ -100,7 +105,7 @@ public class MiniMax implements MoveStrategy {
      * @param searchDepth current depth of search
      * @return highest board value encountered
      */
-    private int max(Board board, int searchDepth) {
+    private int max(Board board, int searchDepth, int alpha, int beta) {
         if (searchDepth == 0 || isEndGame(board)) {
             return this.boardEvaluator.evaluate(board, searchDepth);
         }
@@ -111,12 +116,13 @@ public class MiniMax implements MoveStrategy {
 
             if (moveTransition.getMoveStatus().isDone()) {
 
-                /*if (this.boardEvaluator.evaluate(moveTransition.getTransitionBoard(), searchDepth) <= highestEncounteredValue)
-                    continue;*/
-
-                final int currentValue = min(moveTransition.getTransitionBoard(), searchDepth - 1);
+                final int currentValue = min(moveTransition.getTransitionBoard(), searchDepth - 1, alpha, beta);
 
                 if (currentValue >= highestEncounteredValue) highestEncounteredValue = currentValue;
+
+                //alphaBeta
+                alpha = Integer.max(alpha, highestEncounteredValue);
+                if (beta <= alpha) break;
             }
         }
         return highestEncounteredValue;

@@ -153,11 +153,7 @@ public class ChessMainRevamp extends Application {
         });
         toggleBoardStatus.setSelected(true);
 
-        CheckMenuItem togglePlayerHelp = new CheckMenuItem("Enable player help");
-        togglePlayerHelp.setOnAction(event -> helpEnabled = !helpEnabled);
-        togglePlayerHelp.setSelected(false);
-
-        optionsMenu.getItems().addAll(toggleHighlight, toggleBoardStatus, togglePlayerHelp);
+        optionsMenu.getItems().addAll(toggleHighlight, toggleBoardStatus);
         return optionsMenu;
     }
 

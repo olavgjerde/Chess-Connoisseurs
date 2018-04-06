@@ -92,7 +92,6 @@ public class ChessMainRevamp extends Application {
         gamePlayPane.setRight(statusPane);
         gamePlayPane.setCenter(chessGridPane);
         // style chess grid pane
-        chessGridPane.setPadding(new Insets(5));
         chessGridPane.setAlignment(Pos.CENTER);
         chessGridPane.setStyle("-fx-background-color: radial-gradient(radius 180%, darkslategray, derive(black, -30%), derive(darkslategray, 30%));");
         chessGridPane.setVgap(5);
@@ -108,19 +107,16 @@ public class ChessMainRevamp extends Application {
         // listeners for window size change
         gameScene.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
             screenWidth = newSceneWidth.intValue();
-            Platform.runLater(() -> drawChessGridPane());
+            Platform.runLater(this::drawChessGridPane);
         });
         gameScene.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> {
             screenHeight = newSceneHeight.intValue();
-            Platform.runLater(() -> drawChessGridPane());
+            Platform.runLater(this::drawChessGridPane);
         });
         mainStage.setOnCloseRequest(e -> System.exit(0));
 
         mainStage.setTitle("Connoisseur Chess");
         createStartMenuScene();
-
-        // draw board
-        drawChessGridPane();
 
         mainStage.show();
     }
@@ -170,9 +166,7 @@ public class ChessMainRevamp extends Application {
 
         MenuItem newGame = new MenuItem("New game");
         newGame.setOnAction(event -> {
-            chessDataBoard = Board.createStandardBoard();
             createStartMenuScene();
-            drawChessGridPane();
         });
 
         MenuItem highScores = new MenuItem("Highscores");
@@ -192,7 +186,6 @@ public class ChessMainRevamp extends Application {
         //Settings box - HBox
         VBox settingsRoot = new VBox();
         settingsRoot.setAlignment(Pos.CENTER);
-        settingsRoot.setPadding(new Insets(5,15,5,15));
         settingsRoot.setSpacing(5);
 
         HBox aiDifficultyPane = new HBox();
@@ -220,26 +213,15 @@ public class ChessMainRevamp extends Application {
         //Options for AI
         final ToggleGroup aiOptions = new ToggleGroup();
 
-        RadioButton aiOption1 = new RadioButton("Easy");
-        aiOption1.setUserData(2);
-        aiOption1.setToggleGroup(aiOptions);
-        aiOption1.setDisable(true);
-
-        RadioButton aiOption2 = new RadioButton("Medium");
-        aiOption2.setUserData(3);
-        aiOption2.setToggleGroup(aiOptions);
-        aiOption2.setSelected(true);
-        aiOption2.setDisable(true);
-
-        RadioButton aiOption3 = new RadioButton("Hard");
-        aiOption3.setUserData(4);
-        aiOption3.setToggleGroup(aiOptions);
-        aiOption3.setDisable(true);
-
-        RadioButton aiOption4 = new RadioButton("Expert");
-        aiOption4.setUserData(5);
-        aiOption4.setToggleGroup(aiOptions);
-        aiOption4.setDisable(true);
+        String[] levelPrefix = {"Easy", "Medium", "Hard", "Expert"};
+        List<RadioButton> aiOptionList = new ArrayList<>();
+        for (int i = 0; i < levelPrefix.length; i++) {
+            aiOptionList.add(new RadioButton(levelPrefix[i]));
+            if (levelPrefix[i].equals("Medium")) aiOptionList.get(i).setSelected(true);
+            aiOptionList.get(i).setUserData(i+2);
+            aiOptionList.get(i).setDisable(true);
+            aiOptionList.get(i).setToggleGroup(aiOptions);
+        }
 
         //Options for white
         final ToggleGroup whiteOptions = new ToggleGroup();
@@ -251,10 +233,7 @@ public class ChessMainRevamp extends Application {
         whiteOption1.setOnAction(e -> {
             whitePlayerNameField.setDisable(false);
             whitePlayerNameField.setText("Player1");
-            aiOption1.setDisable(true);
-            aiOption2.setDisable(true);
-            aiOption3.setDisable(true);
-            aiOption4.setDisable(true);
+            for (RadioButton x : aiOptionList) x.setDisable(true);
         });
 
         RadioButton whiteOption2 = new RadioButton("AI");
@@ -263,10 +242,7 @@ public class ChessMainRevamp extends Application {
         whiteOption2.setOnAction(e -> {
             whitePlayerNameField.setDisable(true);
             whitePlayerNameField.setText("CPU");
-            aiOption1.setDisable(false);
-            aiOption2.setDisable(false);
-            aiOption3.setDisable(false);
-            aiOption4.setDisable(false);
+            for (RadioButton x : aiOptionList) x.setDisable(false);
         });
 
         //Options for black
@@ -279,10 +255,7 @@ public class ChessMainRevamp extends Application {
         blackOption1.setOnAction(e -> {
             blackPlayerNameField.setDisable(false);
             blackPlayerNameField.setText("Player2");
-            aiOption1.setDisable(true);
-            aiOption2.setDisable(true);
-            aiOption3.setDisable(true);
-            aiOption4.setDisable(true);
+            for (RadioButton x : aiOptionList) x.setDisable(true);
         });
 
         RadioButton blackOption2 = new RadioButton("AI");
@@ -291,10 +264,7 @@ public class ChessMainRevamp extends Application {
         blackOption2.setOnAction(e -> {
             blackPlayerNameField.setDisable(true);
             blackPlayerNameField.setText("CPU");
-            aiOption1.setDisable(false);
-            aiOption2.setDisable(false);
-            aiOption3.setDisable(false);
-            aiOption4.setDisable(false);
+            for (RadioButton x : aiOptionList) x.setDisable(false);
         });
 
         //Sub panes
@@ -306,7 +276,7 @@ public class ChessMainRevamp extends Application {
         blackOptionsPane.setPadding(new Insets(0,0,10,0));
         blackOptionsPane.setSpacing(5);
 
-        aiDifficultyPane.getChildren().addAll(aiOption1, aiOption2, aiOption3, aiOption4);
+        aiDifficultyPane.getChildren().addAll(aiOptionList);
         aiDifficultyPane.setPadding(new Insets(0,0,10,0));
         aiDifficultyPane.setSpacing(5);
 
@@ -349,7 +319,7 @@ public class ChessMainRevamp extends Application {
                 scoreSystem.updateHighscore(blackPlayerName, rating);
             }
             else{
-                blackPlayerName = blackPlayerNameField.getText();
+                blackPlayerName = blackPlayerNameField.getText().trim();
                 scoreSystem.addUsername(blackPlayerName);
             }
 
@@ -358,9 +328,16 @@ public class ChessMainRevamp extends Application {
             whitePlayerStats = scoreSystem.getStats(whitePlayerName);
             blackPlayerStats = scoreSystem.getStats(blackPlayerName);
 
-            // set off ai vs ai match
-            if (isWhiteAI || isBlackAI) makeAIMove();
+            //Removes game over pane if present
+            gamePlayPane.setBottom(null);
+            //Reset board and redraw
+            chessDataBoard = Board.createStandardBoard();
+            boardHistory.clear();
+            equalBoardStateCounter = 0;
+            drawChessGridPane();
             mainStage.setScene(gameScene);
+            //Set off ai vs ai match
+            if (isWhiteAI || isBlackAI) Platform.runLater(this::makeAIMove);
         });
 
         Scene settingsScene = new Scene(settingsRoot, gameScene.getWidth(), gameScene.getHeight());
@@ -430,7 +407,7 @@ public class ChessMainRevamp extends Application {
     private void createGameOverPane() {
         //Text box - HBox
         HBox gameOverRoot = new HBox();
-        gameOverRoot.setPadding(new Insets(2,0,2,0));
+        gameOverRoot.setPadding(new Insets(3,0,2,0));
         gameOverRoot.setSpacing(5);
         gameOverRoot.setAlignment(Pos.CENTER);
 
@@ -450,11 +427,9 @@ public class ChessMainRevamp extends Application {
         buttonContainer.setAlignment(Pos.CENTER);
         buttonContainer.setSpacing(10);
 
-        //Button2
+        //Buttons
         Button newGame = new Button("NEW GAME");
-        //Button2
         Button newRound = new Button("NEXT ROUND");
-        //Button3
         Button quit = new Button("QUIT");
 
         buttonContainer.getChildren().addAll(newGame, newRound, quit);
@@ -463,12 +438,6 @@ public class ChessMainRevamp extends Application {
         newGame.setOnAction(event -> {
             //This option allows user/settings change
             createStartMenuScene();
-            chessDataBoard = Board.createStandardBoard();
-            boardHistory.clear();
-            equalBoardStateCounter = 0;
-
-            gamePlayPane.setBottom(null);
-            drawChessGridPane();
         });
         newRound.setOnAction(e -> {
             //This lets the user continue with another round
@@ -476,11 +445,10 @@ public class ChessMainRevamp extends Application {
             //Clear info about previous board states
             boardHistory.clear();
             equalBoardStateCounter = 0;
-
+            //Removes game over pane
             gamePlayPane.setBottom(null);
             drawChessGridPane();
         });
-
         quit.setOnAction(e -> System.exit(0));
         gamePlayPane.setBottom(gameOverRoot);
     }

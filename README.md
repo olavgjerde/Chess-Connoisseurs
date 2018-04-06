@@ -11,6 +11,7 @@ Team members:
 + Renate Nikolajeva	(rni006)
 + Rune Vatne	(rva013)
 + Simen Gad Hasvi	(qax007)
++ Henrik Borgli (hbo019)
 
 How to run:
 ----

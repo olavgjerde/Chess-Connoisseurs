@@ -6,6 +6,7 @@ import player.Player;
 import player.WhitePlayer;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * This class represents a chessboard.
@@ -201,6 +202,76 @@ public class Board {
         builder.setPiece(new Pawn(new Coordinate(7,6), Alliance.WHITE));
         builder.setMoveMaker(Alliance.WHITE);
         return builder.build();
+    }
+
+    /**
+     * Creates a board with the pieces for a regular chess game spread out randomly
+     * @return a Board with a random layout
+     */
+    public static Board createRandomBoard() {
+        Builder boardBuilder;
+        do {
+            // if while condition checks out -> create new builder on loop start
+            boardBuilder = new Builder();
+
+            ThreadLocalRandom randGen = ThreadLocalRandom.current();
+            int numOfPieces = (BoardUtils.getHeight() * BoardUtils.getWidth()) / 2;
+
+            // generate coordinates for all other pieces than kings
+            List<Coordinate> coordinateList = new ArrayList<>();
+            for (int i = 0; i < numOfPieces; i++) {
+                Coordinate generatedCoordinate = new Coordinate(randGen.nextInt(BoardUtils.getWidth()), randGen.nextInt(BoardUtils.getHeight()));
+                // "re-roll" if same coordinate is generated
+                while (coordinateList.contains(generatedCoordinate)) {
+                    generatedCoordinate = new Coordinate(randGen.nextInt(BoardUtils.getWidth()), randGen.nextInt(BoardUtils.getHeight()));
+                }
+                coordinateList.add(generatedCoordinate);
+            }
+            Iterator<Coordinate> coordinateIterator = coordinateList.iterator();
+
+            // place kings
+            boardBuilder.setPiece(new King(coordinateIterator.next(), Alliance.WHITE, false, false));
+            boardBuilder.setPiece(new King(coordinateIterator.next(), Alliance.BLACK, false, false));
+
+            // place pawns
+            for (int i = 0; i < 8; i++) {
+                Coordinate whiteCoordinate = coordinateIterator.next();
+                if (Alliance.WHITE.isPawnPromotionCoordinate(whiteCoordinate)) {
+                    boardBuilder.setPiece(new Queen(whiteCoordinate, Alliance.WHITE, false));
+                } else {
+                    boardBuilder.setPiece(new Pawn(whiteCoordinate, Alliance.WHITE, false));
+                }
+                Coordinate blackCoordinate = coordinateIterator.next();
+                if (Alliance.BLACK.isPawnPromotionCoordinate(blackCoordinate)) {
+                    boardBuilder.setPiece(new Queen(blackCoordinate, Alliance.BLACK, false));
+                } else {
+                    boardBuilder.setPiece(new Pawn(blackCoordinate, Alliance.BLACK, false));
+                }
+            }
+
+            // place all other major pieces
+            boardBuilder.setPiece(new Rook(coordinateIterator.next(), Alliance.BLACK, false));
+            boardBuilder.setPiece(new Rook(coordinateIterator.next(), Alliance.BLACK, false));
+            boardBuilder.setPiece(new Knight(coordinateIterator.next(), Alliance.BLACK, false));
+            boardBuilder.setPiece(new Knight(coordinateIterator.next(), Alliance.BLACK, false));
+            boardBuilder.setPiece(new Bishop(coordinateIterator.next(), Alliance.BLACK, false));
+            boardBuilder.setPiece(new Bishop(coordinateIterator.next(), Alliance.BLACK, false));
+            boardBuilder.setPiece(new Queen(coordinateIterator.next(), Alliance.BLACK, false));
+            boardBuilder.setPiece(new Rook(coordinateIterator.next(), Alliance.WHITE, false));
+            boardBuilder.setPiece(new Rook(coordinateIterator.next(), Alliance.WHITE, false));
+            boardBuilder.setPiece(new Knight(coordinateIterator.next(), Alliance.WHITE, false));
+            boardBuilder.setPiece(new Knight(coordinateIterator.next(), Alliance.WHITE, false));
+            boardBuilder.setPiece(new Bishop(coordinateIterator.next(), Alliance.WHITE, false));
+            boardBuilder.setPiece(new Bishop(coordinateIterator.next(), Alliance.WHITE, false));
+            boardBuilder.setPiece(new Queen(coordinateIterator.next(), Alliance.WHITE, false));
+            boardBuilder.setMoveMaker(Alliance.WHITE);
+
+        } while (boardBuilder.build().currentPlayer().isInStalemate() ||
+                 boardBuilder.build().currentPlayer().isInCheck() ||
+                 boardBuilder.build().currentPlayer().getOpponent().isInStalemate() ||
+                 boardBuilder.build().currentPlayer().getOpponent().isInCheck());
+
+        return boardBuilder.build();
     }
 
     /**

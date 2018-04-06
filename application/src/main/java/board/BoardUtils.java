@@ -2,8 +2,11 @@ package board;
 
 import java.util.*;
 
+/**
+ * Helper class for the chess engine, contains various methods that define dimensions for the board and layout,
+ * but also methods that help with calculations of movements.
+ */
 public class BoardUtils {
-    //todo: getting this values will not work if class is not initialized - fix this
     private static final Map<Coordinate, String> COORDINATE_TO_ALGEBRAIC = initializeAlgebraicNotation();
     private static final Map<String, Coordinate> ALGEBRAIC_TO_COORDINATE = initializeAlgebraicToCoordinateMap();
 
@@ -82,6 +85,16 @@ public class BoardUtils {
             }
         }
         return stringToCoord;
+    }
+
+    /**
+     * Returns the euclidean distance between two positive coordinates
+     * @param a first coordinate
+     * @param b second coordinate
+     * @return distance between coordinates
+     */
+    public static double euclideanDistance(Coordinate a, Coordinate b) {
+        return Math.sqrt(Math.pow(a.getX() - b.getX(), 2) + Math.pow(a.getY() - b.getY(), 2));
     }
 
 }

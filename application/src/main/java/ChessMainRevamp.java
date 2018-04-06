@@ -1,12 +1,13 @@
 import board.*;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.BlendMode;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -32,43 +33,47 @@ import java.util.Collection;
 import java.util.List;
 
 public class ChessMainRevamp extends Application {
-    // main window stage for application
+    //Main window stage for application
     private Stage mainStage;
-    // scene for main game interaction
+    //Scene for main game interaction
     private Scene gameScene;
-    // different panes that make up the application
+    //Different panes that make up the application
     private BorderPane gamePlayPane;
     private GridPane chessGridPane;
     private VBox statusPane;
-    // chess board data representation
+    //Chess board data representation
     private Board chessDataBoard;
-    // screen dimensions
+    //Screen dimensions
     private double screenWidth = Screen.getPrimary().getBounds().getWidth();
     private double screenHeight = Screen.getPrimary().getBounds().getHeight();
-    // handles user scores
+    //Handles user scores
     private Score scoreSystem;
-    // information toggles
+    //Information toggles
     private boolean highlightEnabled = true;
-    private boolean statusEnabled = true;
-    // player movement
-    private Tile sourceTile;
-    private Tile destinationTile;
+    private boolean boardStatusEnabled = true;
+    private boolean helpEnabled = false;
+    //Player movement
+    private Tile startCoordinate;
+    private Tile destinationCoordinate;
     private Piece userMovedPiece;
-    // player scores
+    //Player scores
     private String whitePlayerName;
     private String whitePlayerStats;
     private int whitePlayerScore;
     private String blackPlayerName;
     private String blackPlayerStats;
     private int blackPlayerScore;
-    // depth of AI search
+    //Depth of AI search
     private int aiDepth;
-    // ai toggles
+    //Ai toggles
     private boolean isWhiteAI;
     private boolean isBlackAI;
-    // keep count of board history (board states)
+    //Keep count of board history (board states)
     private ArrayList<Board> boardHistory = new ArrayList<>();
     private int equalBoardStateCounter = 0;
+    //Hint coordinates
+    private Coordinate hintStartCoordinate;
+    private Coordinate hintDestinationCoordinate;
 
     @Override
     public void init() {
@@ -88,10 +93,9 @@ public class ChessMainRevamp extends Application {
         MenuBar menuBar = populateMenuBar();
         gamePlayPane.setTop(menuBar);
         // add parts to gameplay pane
-        gamePlayPane.setCenter(chessGridPane);
         gamePlayPane.setRight(statusPane);
+        gamePlayPane.setCenter(chessGridPane);
         // style chess grid pane
-        chessGridPane.setPadding(new Insets(5));
         chessGridPane.setAlignment(Pos.CENTER);
         chessGridPane.setStyle("-fx-background-color: radial-gradient(radius 180%, darkslategray, derive(black, -30%), derive(darkslategray, 30%));");
         chessGridPane.setVgap(5);
@@ -107,19 +111,16 @@ public class ChessMainRevamp extends Application {
         // listeners for window size change
         gameScene.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
             screenWidth = newSceneWidth.intValue();
-            Platform.runLater(() -> drawChessGridPane());
+            Platform.runLater(this::drawChessGridPane);
         });
         gameScene.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> {
             screenHeight = newSceneHeight.intValue();
-            Platform.runLater(() -> drawChessGridPane());
+            Platform.runLater(this::drawChessGridPane);
         });
         mainStage.setOnCloseRequest(e -> System.exit(0));
 
         mainStage.setTitle("Connoisseur Chess");
         createStartMenuScene();
-
-        // draw board
-        drawChessGridPane();
 
         mainStage.show();
     }
@@ -147,7 +148,7 @@ public class ChessMainRevamp extends Application {
 
         CheckMenuItem toggleBoardStatus = new CheckMenuItem("Show board status");
         toggleBoardStatus.setOnAction(event -> {
-            statusEnabled = !statusEnabled;
+            boardStatusEnabled = !boardStatusEnabled;
             drawStatusPane();
         });
         toggleBoardStatus.setSelected(true);
@@ -165,9 +166,7 @@ public class ChessMainRevamp extends Application {
 
         MenuItem newGame = new MenuItem("New game");
         newGame.setOnAction(event -> {
-            chessDataBoard = Board.createStandardBoard();
             createStartMenuScene();
-            drawChessGridPane();
         });
 
         MenuItem highScores = new MenuItem("Highscores");
@@ -187,7 +186,6 @@ public class ChessMainRevamp extends Application {
         //Settings box - HBox
         VBox settingsRoot = new VBox();
         settingsRoot.setAlignment(Pos.CENTER);
-        settingsRoot.setPadding(new Insets(5,15,5,15));
         settingsRoot.setSpacing(5);
 
         HBox aiDifficultyPane = new HBox();
@@ -215,21 +213,15 @@ public class ChessMainRevamp extends Application {
         //Options for AI
         final ToggleGroup aiOptions = new ToggleGroup();
 
-        RadioButton aiOption1 = new RadioButton("Easy");
-        aiOption1.setUserData(1);
-        aiOption1.setToggleGroup(aiOptions);
-        aiOption1.setDisable(true);
-
-        RadioButton aiOption2 = new RadioButton("Medium");
-        aiOption2.setUserData(2);
-        aiOption2.setToggleGroup(aiOptions);
-        aiOption2.setSelected(true);
-        aiOption2.setDisable(true);
-
-        RadioButton aiOption3 = new RadioButton("Hard");
-        aiOption3.setUserData(3);
-        aiOption3.setToggleGroup(aiOptions);
-        aiOption3.setDisable(true);
+        String[] levelPrefix = {"Easy", "Medium", "Hard", "Expert"};
+        List<RadioButton> aiOptionList = new ArrayList<>();
+        for (int i = 0; i < levelPrefix.length; i++) {
+            aiOptionList.add(new RadioButton(levelPrefix[i]));
+            if (levelPrefix[i].equals("Medium")) aiOptionList.get(i).setSelected(true);
+            aiOptionList.get(i).setUserData(i+2);
+            aiOptionList.get(i).setDisable(true);
+            aiOptionList.get(i).setToggleGroup(aiOptions);
+        }
 
         //Options for white
         final ToggleGroup whiteOptions = new ToggleGroup();
@@ -241,9 +233,7 @@ public class ChessMainRevamp extends Application {
         whiteOption1.setOnAction(e -> {
             whitePlayerNameField.setDisable(false);
             whitePlayerNameField.setText("Player1");
-            aiOption1.setDisable(true);
-            aiOption2.setDisable(true);
-            aiOption3.setDisable(true);
+            for (RadioButton x : aiOptionList) x.setDisable(true);
         });
 
         RadioButton whiteOption2 = new RadioButton("AI");
@@ -252,9 +242,7 @@ public class ChessMainRevamp extends Application {
         whiteOption2.setOnAction(e -> {
             whitePlayerNameField.setDisable(true);
             whitePlayerNameField.setText("CPU");
-            aiOption1.setDisable(false);
-            aiOption2.setDisable(false);
-            aiOption3.setDisable(false);
+            for (RadioButton x : aiOptionList) x.setDisable(false);
         });
 
         //Options for black
@@ -267,9 +255,7 @@ public class ChessMainRevamp extends Application {
         blackOption1.setOnAction(e -> {
             blackPlayerNameField.setDisable(false);
             blackPlayerNameField.setText("Player2");
-            aiOption1.setDisable(true);
-            aiOption2.setDisable(true);
-            aiOption3.setDisable(true);
+            for (RadioButton x : aiOptionList) x.setDisable(true);
         });
 
         RadioButton blackOption2 = new RadioButton("AI");
@@ -278,9 +264,7 @@ public class ChessMainRevamp extends Application {
         blackOption2.setOnAction(e -> {
             blackPlayerNameField.setDisable(true);
             blackPlayerNameField.setText("CPU");
-            aiOption1.setDisable(false);
-            aiOption2.setDisable(false);
-            aiOption3.setDisable(false);
+            for (RadioButton x : aiOptionList) x.setDisable(false);
         });
 
         //Sub panes
@@ -292,7 +276,7 @@ public class ChessMainRevamp extends Application {
         blackOptionsPane.setPadding(new Insets(0,0,10,0));
         blackOptionsPane.setSpacing(5);
 
-        aiDifficultyPane.getChildren().addAll(aiOption1, aiOption2, aiOption3);
+        aiDifficultyPane.getChildren().addAll(aiOptionList);
         aiDifficultyPane.setPadding(new Insets(0,0,10,0));
         aiDifficultyPane.setSpacing(5);
 
@@ -314,9 +298,10 @@ public class ChessMainRevamp extends Application {
             String suffix;
             int rating;
             switch(aiDepth){
-                case 1: { suffix = "Easy"; rating = 1200; break; }
-                case 2: { suffix = "Medium"; rating = 1500; break; }
-                case 3: { suffix = "Hard"; rating = 1800; break; }
+                case 2: { suffix = "Easy"; rating = 1200; break; }
+                case 3: { suffix = "Medium"; rating = 1500; break; }
+                case 4: { suffix = "Hard"; rating = 1800; break; }
+                case 5: { suffix = "Expert"; rating = 2000; break; }
                 default: { suffix = "Error"; rating = 9999; break; }
             }
 
@@ -334,7 +319,7 @@ public class ChessMainRevamp extends Application {
                 scoreSystem.updateHighscore(blackPlayerName, rating);
             }
             else{
-                blackPlayerName = blackPlayerNameField.getText();
+                blackPlayerName = blackPlayerNameField.getText().trim();
                 scoreSystem.addUsername(blackPlayerName);
             }
 
@@ -343,9 +328,16 @@ public class ChessMainRevamp extends Application {
             whitePlayerStats = scoreSystem.getStats(whitePlayerName);
             blackPlayerStats = scoreSystem.getStats(blackPlayerName);
 
-            // set off ai vs ai match
-            if (isWhiteAI || isBlackAI) makeAIMove();
+            //Removes game over pane if present
+            gamePlayPane.setBottom(null);
+            //Reset board and redraw
+            chessDataBoard = Board.createStandardBoard();
+            boardHistory.clear();
+            equalBoardStateCounter = 0;
+            drawChessGridPane();
             mainStage.setScene(gameScene);
+            //Set off ai vs ai match
+            if (isWhiteAI || isBlackAI) Platform.runLater(this::makeAIMove);
         });
 
         Scene settingsScene = new Scene(settingsRoot, gameScene.getWidth(), gameScene.getHeight());
@@ -410,81 +402,67 @@ public class ChessMainRevamp extends Application {
     }
 
     /**
-     * Shows the game over scene for the application
+     * Shows the game over pane for the application
      */
-    private void createGameOverScene() {
+    private void createGameOverPane() {
         //Text box - HBox
-        VBox gameOverRoot = new VBox();
-        gameOverRoot.setPadding(new Insets(5,15,5,15));
+        HBox gameOverRoot = new HBox();
+        gameOverRoot.setPadding(new Insets(3,0,2,0));
         gameOverRoot.setSpacing(5);
         gameOverRoot.setAlignment(Pos.CENTER);
 
         //Text
-        Text title = new Text("GAME OVER");
-        title.setFont(Font.font("Arial", FontWeight.BOLD, 30));
-        Text t1 = new Text("Your updated scores are:");
-        Text t2 = new Text(whitePlayerName + ": " + whitePlayerScore);
-        Text t3 = new Text(blackPlayerName + ": " + blackPlayerScore);
-        t1.setFont(new Font(20));
-        t1.setUnderline(true);
-        t2.setFont(new Font(20));
-        t3.setFont(new Font(20));
+        Text title = new Text("GAME OVER - ");
+        title.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        Text t1 = new Text("UPDATED SCORES: ");
+        t1.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        Text t2 = new Text(whitePlayerName + ": " + whitePlayerScore + " /");
+        Text t3 = new Text(blackPlayerName + ": " + blackPlayerScore + " ");
+        t2.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 20));
+        t3.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 20));
         gameOverRoot.getChildren().addAll(title, t1, t2, t3);
 
         //Button container
         HBox buttonContainer = new HBox();
-        buttonContainer.setAlignment(Pos.BOTTOM_CENTER);
+        buttonContainer.setAlignment(Pos.CENTER);
         buttonContainer.setSpacing(10);
-        buttonContainer.setPadding(new Insets(10,0,0,0));
 
-        //Button2
-        Button newGame = new Button("NEW GAME!");
-        //Button2
+        //Buttons
+        Button newGame = new Button("NEW GAME");
         Button newRound = new Button("NEXT ROUND");
-        //Button3
-        Button quit = new Button("QUIT :(");
+        Button quit = new Button("QUIT");
 
         buttonContainer.getChildren().addAll(newGame, newRound, quit);
         gameOverRoot.getChildren().addAll(buttonContainer);
 
-        newGame.setOnAction(event -> {
-            // this option allows user/settings change
+        newGame.setOnAction(e -> {
+            //This option allows user/settings change
             createStartMenuScene();
-            chessDataBoard = Board.createStandardBoard();
-            boardHistory.clear();
-            equalBoardStateCounter = 0;
-            drawChessGridPane();
         });
         newRound.setOnAction(e -> {
-            // this lets the user continue with another round
+            //This lets the user continue with another round
             chessDataBoard = Board.createStandardBoard();
             //Clear info about previous board states
             boardHistory.clear();
             equalBoardStateCounter = 0;
-
+            //Removes game over pane
+            gamePlayPane.setBottom(null);
             drawChessGridPane();
-            mainStage.setScene(gameScene);
         });
-
         quit.setOnAction(e -> System.exit(0));
-
-        Scene gameOverScene = new Scene(gameOverRoot, gameScene.getWidth(), gameScene.getHeight());
-        mainStage.setScene(gameOverScene);
+        gamePlayPane.setBottom(gameOverRoot);
     }
 
     private void drawStatusPane() {
         statusPane.getChildren().clear();
 
         Text title = new Text("GAME STATS");
-        // title styling
+        //Title styling
         title.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, 30));
-        DropShadow ds = new DropShadow(5, Color.color(0.4f, 0.4f, 0.4f));
-        ds.setOffsetY(4.0f);
-        title.setEffect(ds);
-        // player names and scores
+        //Player names and scores
         Text whitePlayerText = new Text(whitePlayerName + ": " + whitePlayerScore + " | " + whitePlayerStats);
         Text blackPlayerText = new Text(blackPlayerName + ": " + blackPlayerScore + " | " + blackPlayerStats);
-        // player names and scores styling
+        //Player names and scores styling
         whitePlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, 17));
         blackPlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, 17));
         whitePlayerText.setUnderline(true);
@@ -492,22 +470,47 @@ public class ChessMainRevamp extends Application {
 
         statusPane.getChildren().addAll(title, whitePlayerText, blackPlayerText);
 
-        // show the evaluation of the current board relative to the current player, can help you know how well you are doing
-        if(statusEnabled){
+        //Show the evaluation of the current board relative to the current player, can help you know how well you are doing
+        if(boardStatusEnabled){
             BoardEvaluator boardEvaluator = new RegularBoardEvaluator();
-            Text boardStatusText = new Text((chessDataBoard.currentPlayer().getAlliance() + " board status: " + boardEvaluator.evaluate(chessDataBoard, 3)).toUpperCase());
+            Text boardStatusText = new Text((chessDataBoard.currentPlayer().getAlliance() + " board status: \n" + boardEvaluator.evaluate(chessDataBoard, 3)).toUpperCase());
             if (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK)
-                boardStatusText = new Text((chessDataBoard.currentPlayer().getAlliance() + " board status: " + boardEvaluator.evaluate(chessDataBoard, 3) * -1).toUpperCase());
+                boardStatusText = new Text((chessDataBoard.currentPlayer().getAlliance() + " board status: \n" + boardEvaluator.evaluate(chessDataBoard, 3) * -1).toUpperCase());
 
             boardStatusText.setFont(Font.font("Verdana", FontWeight.NORMAL, 14));
             statusPane.getChildren().add(boardStatusText);
         }
 
-        // display if the current player is in check
-        Text currentPlayerInCheck = new Text((chessDataBoard.currentPlayer().getAlliance() + " in check: " + chessDataBoard.currentPlayer().isInCheck()).toUpperCase());
+        //Display if the current player is in check
+        Text currentPlayerInCheck = new Text((chessDataBoard.currentPlayer().getAlliance() + " in check: \n" + chessDataBoard.currentPlayer().isInCheck()).toUpperCase());
         currentPlayerInCheck.setFont(Font.font("Verdana", FontWeight.NORMAL, 14));
 
-        statusPane.getChildren().add(currentPlayerInCheck);
+        //Hint button for player help
+        Button hintButton = new Button("Hint");
+        hintButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if (!gameIsOver()) {
+                    //Empty any ongoing player move
+                    startCoordinate = null;
+                    destinationCoordinate = null;
+                    userMovedPiece = null;
+                    //Let AI find "best" move
+                    final MoveStrategy moveStrategy = new MiniMax(3);
+                    final Move AIMove = moveStrategy.execute(chessDataBoard);
+                    //Set coordinates found
+                    hintStartCoordinate = AIMove.getCurrentCoordinate();
+                    hintDestinationCoordinate = AIMove.getDestinationCoordinate();
+                    //Redraw to show coordinates found
+                    drawChessGridPane();
+                    //Reset hint variables
+                    hintStartCoordinate = null;
+                    hintDestinationCoordinate = null;
+                }
+            }
+        });
+
+        statusPane.getChildren().addAll(currentPlayerInCheck, hintButton);
     }
 
     private void drawChessGridPane() {
@@ -532,13 +535,13 @@ public class ChessMainRevamp extends Application {
             this.coordinateId = coordinateId;
 
             Color colorOfTile = assignTileColor();
-            if (highlightEnabled && sourceTile != null) {
-                // highlight selected tile
-                if (coordinateId.equals(sourceTile.getTileCoord())) colorOfTile = Color.LIGHTGREEN;
-                // highlight legal moves
-                if (listLegalMoves(sourceTile).contains(coordinateId)) {
+            if (highlightEnabled && startCoordinate != null) {
+                //Highlight selected tile
+                if (coordinateId.equals(startCoordinate.getTileCoord())) colorOfTile = Color.LIGHTGREEN;
+                //Highlight legal moves
+                if (listLegalMoves(startCoordinate).contains(coordinateId)) {
                     colorOfTile = Color.LIGHTBLUE;
-                    // highlight attackmoves
+                    //Highlight attackmoves
                     if (chessDataBoard.getTile(coordinateId).getPiece() != null) {
                         if (chessDataBoard.getTile(coordinateId).getPiece().getPieceAlliance() !=
                             chessDataBoard.currentPlayer().getAlliance()) {
@@ -546,6 +549,10 @@ public class ChessMainRevamp extends Application {
                         }
                     }
                 }
+            } else if (hintStartCoordinate != null && hintDestinationCoordinate != null) {
+                //Highlight hint move
+                if (coordinateId.equals(hintStartCoordinate)) colorOfTile = Color.LIGHTGREEN;
+                else if (coordinateId.equals(hintDestinationCoordinate)) colorOfTile = Color.GREENYELLOW;
             }
 
             Rectangle rectangle = new Rectangle(TILE_SIZE, TILE_SIZE, colorOfTile);
@@ -566,9 +573,9 @@ public class ChessMainRevamp extends Application {
          * @return a list of legal moves avaiable from a given tile
          */
         private Collection<Coordinate> listLegalMoves(Tile tile) {
-            // Collection<Move> temp = board.getTile(c).getPiece().calculateLegalMoves(board);
-            // Note: this is a bit heavy on the system, since we are making every move and checking
-            // the status of it to remove highlighting tiles which sets the player in check
+            //Collection<Move> temp = board.getTile(c).getPiece().calculateLegalMoves(board);
+            //Note: this is a bit heavy on the system, since we are making every move and checking
+            //the status of it to remove highlighting tiles which sets the player in check
             List<Move> temp = new ArrayList<>(chessDataBoard.currentPlayer().getLegalMovesForPiece(tile.getPiece()));
             List<Coordinate> coordinatesToHighlight = new ArrayList<>();
             for (Move move : temp) {
@@ -610,51 +617,51 @@ public class ChessMainRevamp extends Application {
          * @param inputCoordinate Coordinate on the tile that the user triggered
          */
         private void onClickHandler(Coordinate inputCoordinate) {
-            if (sourceTile == null) {
-                // user select
-                sourceTile = chessDataBoard.getTile(inputCoordinate);
-                if (sourceTile.getPiece() != null) {
-                    if (chessDataBoard.currentPlayer().getAlliance() == sourceTile.getPiece().getPieceAlliance()) {
-                        userMovedPiece = sourceTile.getPiece();
+            if (startCoordinate == null) {
+                //User select
+                startCoordinate = chessDataBoard.getTile(inputCoordinate);
+                if (startCoordinate.getPiece() != null) {
+                    if (chessDataBoard.currentPlayer().getAlliance() == startCoordinate.getPiece().getPieceAlliance()) {
+                        userMovedPiece = startCoordinate.getPiece();
                         drawChessGridPane();
                     } else {
-                        sourceTile = null;
+                        startCoordinate = null;
                     }
                 }
-            } else if (sourceTile.equals(chessDataBoard.getTile(inputCoordinate))) {
-                // user deselect
-                sourceTile = null;
+            } else if (startCoordinate.equals(chessDataBoard.getTile(inputCoordinate))) {
+                //User deselect
+                startCoordinate = null;
                 drawChessGridPane();
             } else {
-                // user select 'destination'
-                destinationTile = chessDataBoard.getTile(inputCoordinate);
+                //User select 'destination'
+                destinationCoordinate = chessDataBoard.getTile(inputCoordinate);
 
-                // user selected own piece as destination; let user switch between own pieces on the fly
-                if (destinationTile.getPiece() != null && userMovedPiece != null) {
-                    if (destinationTile.getPiece().getPieceAlliance() == userMovedPiece.getPieceAlliance()) {
-                        sourceTile = destinationTile;
-                        destinationTile = null;
+                //User selected own piece as destination; let user switch between own pieces on the fly
+                if (destinationCoordinate.getPiece() != null && userMovedPiece != null) {
+                    if (destinationCoordinate.getPiece().getPieceAlliance() == userMovedPiece.getPieceAlliance()) {
+                        startCoordinate = destinationCoordinate;
+                        destinationCoordinate = null;
                         drawChessGridPane();
                     }
                 }
-                if (destinationTile != null) attemptMove();
+                if (destinationCoordinate != null) attemptMove();
             }
         }
 
         /**
-         * Attempts to make a move from the tile (sourceTile) which is selected. If the move is illegal nothing happens.
+         * Attempts to make a move from the tile (startCoordinate) which is selected. If the move is illegal nothing happens.
          */
         private void attemptMove() {
-            final Move move = Move.MoveFactory.createMove(chessDataBoard, sourceTile.getTileCoord(), destinationTile.getTileCoord());
+            final Move move = Move.MoveFactory.createMove(chessDataBoard, startCoordinate.getTileCoord(), destinationCoordinate.getTileCoord());
             final MoveTransition newBoard = chessDataBoard.currentPlayer().makeMove(move);
 
             if (newBoard.getMoveStatus().isDone()) {
                 chessDataBoard = newBoard.getTransitionBoard();
             }
 
-            // reset user move related variables
-            sourceTile = null;
-            destinationTile = null;
+            //Reset user move related variables
+            startCoordinate = null;
+            destinationCoordinate = null;
             userMovedPiece = null;
             drawChessGridPane();
 
@@ -680,7 +687,7 @@ public class ChessMainRevamp extends Application {
      */
     private boolean checkForDrawByRepetition(){
         if (!boardHistory.isEmpty()) {
-            //no moves were made
+            //No moves were made
             if (boardHistory.get(boardHistory.size()-1).toString().equals(chessDataBoard.toString())) {
                 return false;
             }
@@ -741,7 +748,7 @@ public class ChessMainRevamp extends Application {
         blackPlayerStats = scoreSystem.getStats(blackPlayerName);
 
         drawStatusPane();
-        createGameOverScene();
+        createGameOverPane();
     }
 
     /**

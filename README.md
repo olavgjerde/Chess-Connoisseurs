@@ -16,7 +16,7 @@ Team members:
 How to run:
 ----
 + Run "mvn package" in the 'application' folder
-+ Launch the compiled .jar file in the 'target' folder
++ Launch the compiled ...-shaded.jar file in the 'target' folder
 
 Extra lincense information:
 ---

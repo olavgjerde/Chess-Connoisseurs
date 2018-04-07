@@ -1,17 +1,23 @@
 package player.basicAI;
 
 import board.Board;
+import board.BoardUtils;
 import board.Move;
+import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.Ordering;
 import pieces.Alliance;
 import player.MoveTransition;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Comparator;
+
+import static board.Move.*;
 
 /**
  * A co-recursive implementation of the "MiniMax" algorithm
+ *
  * @see <a href=https://en.wikipedia.org/wiki/Minimax>MiniMax</a>
+ * @see <a href=https://en.wikipedia.org/wiki/Alpha-beta_pruning>Alpha-beta pruning</a>
  */
 public class MiniMax implements MoveStrategy {
     private final BoardEvaluator boardEvaluator;
@@ -24,19 +30,20 @@ public class MiniMax implements MoveStrategy {
 
     @Override
     public String toString() {
-        return "MinimMax";
+        return "MiniMax";
     }
 
     /**
-     * Execute the minimax algorithm for the current player, the method will check the alliance of the player and treat
+     * Execute the mini-max algorithm for the current player, the method will check the alliance of the player and treat
      * the white player as the maximizing, and the black player as minimizing.
+     *
      * @param board to generate move for
-     * @return
+     * @return best move found
      */
     @Override
     public Move execute(Board board) {
         final long startTime = System.currentTimeMillis();
-        Move bestMove = null;
+        Move bestMove = new NullMove();
 
         int highestEncounteredValue = Integer.MIN_VALUE;
         int lowestEncounteredValue = Integer.MAX_VALUE;
@@ -44,20 +51,20 @@ public class MiniMax implements MoveStrategy {
 
         System.out.println(board.currentPlayer().getAlliance() + " EVALUATING with depth: " + searchDepth);
 
-        for (Move move : board.currentPlayer().getLegalMoves()) {
+        for (Move move : moveSort(board.currentPlayer().getLegalMoves())) {
             final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
             if (moveTransition.getMoveStatus().isDone()) {
                 if (board.currentPlayer().getAlliance() == Alliance.WHITE) {
-                    currentValue = min(moveTransition.getTransitionBoard(), searchDepth - 1, -Integer.MAX_VALUE, Integer.MAX_VALUE);
+                    currentValue = min(moveTransition.getTransitionBoard(), searchDepth - 1, highestEncounteredValue, lowestEncounteredValue);
                 } else {
-                    currentValue = max(moveTransition.getTransitionBoard(), searchDepth - 1, -Integer.MAX_VALUE, Integer.MAX_VALUE);
+                    currentValue = max(moveTransition.getTransitionBoard(), searchDepth - 1, highestEncounteredValue, lowestEncounteredValue);
                 }
 
-                if (board.currentPlayer().getAlliance() == Alliance.WHITE && currentValue >= highestEncounteredValue) {
+                if (board.currentPlayer().getAlliance() == Alliance.WHITE && currentValue > highestEncounteredValue) {
                     // maximizing player
                     highestEncounteredValue = currentValue;
                     bestMove = move;
-                } else if (board.currentPlayer().getAlliance() == Alliance.BLACK && currentValue <= lowestEncounteredValue) {
+                } else if (board.currentPlayer().getAlliance() == Alliance.BLACK && currentValue < lowestEncounteredValue) {
                     // minimizing player
                     lowestEncounteredValue = currentValue;
                     bestMove = move;
@@ -66,70 +73,72 @@ public class MiniMax implements MoveStrategy {
         }
 
         final long timeSpent = System.currentTimeMillis() - startTime;
-        System.out.println("\tTIME TAKEN: " + timeSpent);
+        System.out.println("\tTIME TAKEN: " + timeSpent + "ms");
 
         return bestMove;
     }
 
     /**
      * Minimizing function
+     *
      * @param board to make move on
      * @param searchDepth current depth of search
+     * @param alpha
+     * @param beta
      * @return lowest board value encountered
      */
     private int min(Board board, int searchDepth, int alpha, int beta) {
         if (searchDepth == 0 || isEndGame(board)) {
             return this.boardEvaluator.evaluate(board, searchDepth);
         }
-        int lowestEncounteredValue = Integer.MAX_VALUE;
 
-        for (Move move : board.currentPlayer().getLegalMoves()) {
+        int currentLowestValue = beta;
+        for (Move move : moveSort(board.currentPlayer().getLegalMoves())) {
             final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
+
             if (moveTransition.getMoveStatus().isDone()) {
+                currentLowestValue = Math.min(currentLowestValue,
+                        max(moveTransition.getTransitionBoard(), searchDepth - 1, alpha, currentLowestValue));
 
-                final int currentValue = max(moveTransition.getTransitionBoard(), searchDepth - 1, alpha, beta);
-
-                if (currentValue <= lowestEncounteredValue) lowestEncounteredValue = currentValue;
-
-                //alphaBeta
-                beta = Integer.min(alpha, lowestEncounteredValue);
-                if (beta <= alpha) break;
+                // alpha beta break off
+                if (currentLowestValue <= alpha) break;
             }
         }
-        return lowestEncounteredValue;
+        return currentLowestValue;
     }
 
     /**
      * Maximizing function
+     *
      * @param board to make move on
      * @param searchDepth current depth of search
+     * @param alpha
+     * @param beta
      * @return highest board value encountered
      */
     private int max(Board board, int searchDepth, int alpha, int beta) {
         if (searchDepth == 0 || isEndGame(board)) {
             return this.boardEvaluator.evaluate(board, searchDepth);
         }
-        int highestEncounteredValue = Integer.MIN_VALUE;
 
-        for (Move move : board.currentPlayer().getLegalMoves()) {
+        int currentHighestValue = alpha;
+        for (Move move : moveSort(board.currentPlayer().getLegalMoves())) {
             final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
 
             if (moveTransition.getMoveStatus().isDone()) {
+                currentHighestValue = Math.max(currentHighestValue,
+                        min(moveTransition.getTransitionBoard(), searchDepth - 1, currentHighestValue, beta));
 
-                final int currentValue = min(moveTransition.getTransitionBoard(), searchDepth - 1, alpha, beta);
-
-                if (currentValue >= highestEncounteredValue) highestEncounteredValue = currentValue;
-
-                //alphaBeta
-                alpha = Integer.max(alpha, highestEncounteredValue);
-                if (beta <= alpha) break;
+                // alpha beta break off
+                if (beta <= currentHighestValue) break;
             }
         }
-        return highestEncounteredValue;
+        return currentHighestValue;
     }
 
     /**
      * Check if the current player is in checkmate or in a stalemate
+     *
      * @param board to evaluate
      * @return true if current player is in checkmate or stalemate, false otherwise
      */
@@ -137,4 +146,23 @@ public class MiniMax implements MoveStrategy {
         return board.currentPlayer().isInCheckmate() || board.currentPlayer().isInStalemate();
     }
 
+    /**
+     * Sorts moves contained in a collection
+     * General comparison outline:
+     * Check if move puts a player in check
+     * If it is an attack move
+     * If it is a castling move
+     * The value of the piece moving
+     *
+     * @param moves to sort
+     * @return a immutable collection which contains the moves in sorted order
+     */
+    private static Collection<Move> moveSort(final Collection<Move> moves) {
+        return Ordering.from((Comparator<Move>) (moveA, moveB) -> ComparisonChain.start()
+                .compareTrueFirst(BoardUtils.hasCheckStatus(moveA.getBoard()), BoardUtils.hasCheckStatus(moveB.getBoard()))
+                .compareTrueFirst(moveA.isAttack(), moveB.isAttack())
+                .compareTrueFirst(moveA.isCastlingMove(), moveB.isCastlingMove())
+                .compare(moveB.getMovedPiece().getPieceType().getPieceValue(), moveA.getMovedPiece().getPieceType().getPieceValue())
+                .result()).immutableSortedCopy(moves);
+    }
 }

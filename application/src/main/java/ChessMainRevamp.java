@@ -23,10 +23,7 @@ import pieces.Alliance;
 import pieces.Piece;
 import player.MoveTransition;
 import player.Score;
-import player.basicAI.BoardEvaluator;
-import player.basicAI.MiniMax;
-import player.basicAI.MoveStrategy;
-import player.basicAI.RegularBoardEvaluator;
+import player.basicAI.*;
 
 import java.util.ArrayList;
 import java.util.Collection;

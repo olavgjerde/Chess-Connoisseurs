@@ -1,6 +1,7 @@
 package player.basicAI;
 
 import board.Board;
+import board.Move;
 import pieces.Piece;
 import player.Player;
 
@@ -13,6 +14,10 @@ public final class RegularBoardEvaluator implements BoardEvaluator {
     private static final int CHECKMATE_BONUS = 10000;
     private static final int DEPTH_BONUS = 100;
     private static final int CASTLE_BONUS = 60;
+    // todo: bonus for keep king "castleble" -> private final static int CASTLE_CAPABLE_BONUS = 25;
+    private final static int MOBILITY_MULTIPLIER = 2;
+    private final static int ATTACK_MULTIPLIER = 2;
+    private final static int TWO_BISHOPS_BONUS = 50;
 
     /**
      * Evaluate the current state of the board.
@@ -40,21 +45,23 @@ public final class RegularBoardEvaluator implements BoardEvaluator {
                 mobilityValue(player) +
                 checkValue(player) +
                 checkmateValue(player, depth) +
-                castledValue(player);
+                castledValue(player) +
+                attackValue(player);
     }
 
     /**
      * Calculate the total value for the player's set of pieces
      *
      * @param player to evaluate
-     * @return total value of all pieces
+     * @return total value of all pieces (+ a bonus for having both bishops)
      */
     private int pieceValues(Player player) {
-        int pieceValueScore = 0;
+        int pieceValueScore = 0, numberOfBishops = 0;
         for (Piece piece : player.getActivePieces()) {
             pieceValueScore += piece.getPieceType().getPieceValue();
+            if (piece.getPieceType().toString().equals("B")) numberOfBishops++;
         }
-        return pieceValueScore;
+        return pieceValueScore + (numberOfBishops == 2 ? TWO_BISHOPS_BONUS : 0);
     }
 
     /**
@@ -69,16 +76,6 @@ public final class RegularBoardEvaluator implements BoardEvaluator {
     }
 
     /**
-     * Calculate a bonus score based on the depth of an evaluation
-     *
-     * @param depth of evaluation
-     * @return a higher value if depth is deeper
-     */
-    private static int depthBonus(int depth) {
-        return depth == 0 ? 1 : DEPTH_BONUS * depth;
-    }
-
-    /**
      * Check if the player's opponent is in check, and account a bonus if so.
      *
      * @param player to evaluate
@@ -89,13 +86,56 @@ public final class RegularBoardEvaluator implements BoardEvaluator {
     }
 
     /**
-     * Check how many moves are available to a player
+     * Calculate a bonus score based on the depth of an evaluation
+     *
+     * @param depth of evaluation
+     * @return a higher value if depth is deeper
+     */
+    private static int depthBonus(int depth) {
+        return depth == 0 ? 1 : DEPTH_BONUS * depth;
+    }
+
+    /**
+     * Calculate a score for how "mobile" a given player is on the current board
      *
      * @param player to evaluate
-     * @return how many possible moves the player has
+     * @return the score for mobility
      */
     private static int mobilityValue(Player player) {
-        return player.getLegalMoves().size();
+        return MOBILITY_MULTIPLIER * mobilityRatio(player);
+    }
+
+    /**
+     * Calculate a ratio of "mobility" for a given player depending on his/her legal move size
+     * in relation to the opponents possible moves
+     *
+     * @param player to evaluate
+     * @return ration of a given players move size vs opponents move size
+     */
+    private static int mobilityRatio(final Player player) {
+        return (int)(player.getLegalMoves().size() * 100.0) / player.getOpponent().getLegalMoves().size();
+    }
+
+    /**
+     * Check if the player is able to attack a more or equally valuable piece with a piece of lower value,
+     * and account a bonus if so.
+     *
+     * @param player to evaluate
+     * @return bonus for attacking
+     */
+    private static int attackValue(final Player player) {
+        int attackScore = 0;
+        for (Move move: player.getLegalMoves()) {
+            if (move.isAttack()) {
+                final Piece movingPiece = move.getMovedPiece();
+                final Piece attackedPiece = move.getAttackedPiece();
+                // if the moving piece attacks a more or equally valuable piece, increase score
+                if (movingPiece.getPieceType().getPieceValue() <= attackedPiece.getPieceType().getPieceValue()) {
+                    attackScore++;
+                }
+            }
+        }
+        return attackScore * ATTACK_MULTIPLIER;
     }
 
     /**

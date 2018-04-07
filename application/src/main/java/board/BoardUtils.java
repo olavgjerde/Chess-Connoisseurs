@@ -97,4 +97,12 @@ public class BoardUtils {
         return Math.sqrt(Math.pow(a.getX() - b.getX(), 2) + Math.pow(a.getY() - b.getY(), 2));
     }
 
+    /**
+     * Checks if either of the players on a board is in check
+     * @param board to evaluate
+     * @return true if either of the players is in check
+     */
+    public static boolean hasCheckStatus(Board board) {
+        return board.getWhitePlayer().isInCheck() || board.getBlackPlayer().isInCheck();
+    }
 }

@@ -43,7 +43,6 @@ public final class RegularBoardEvaluator implements BoardEvaluator {
     private int scorePlayer(Player player, int depth) {
         return pieceValues(player) +
                 mobilityValue(player) +
-                checkValue(player) +
                 checkmateValue(player, depth) +
                 castledValue(player) +
                 attackValue(player);
@@ -66,13 +65,14 @@ public final class RegularBoardEvaluator implements BoardEvaluator {
 
     /**
      * Check if the player's opponent is in checkmate, and account a bonus if so.
+     * If not, check if opponent is in check.
      *
      * @param player to evaluate
      * @param depth  of evaluation
-     * @return a bonus for having the other player in checkmate
+     * @return a bonus for having the other player in checkmate, or in check.
      */
     private static int checkmateValue(Player player, int depth) {
-        return player.getOpponent().isInCheckmate() ? CHECKMATE_BONUS * depthBonus(depth) : 0;
+        return player.getOpponent().isInCheckmate() ? CHECKMATE_BONUS * depthBonus(depth) : checkValue(player);
     }
 
     /**

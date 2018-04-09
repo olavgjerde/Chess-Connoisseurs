@@ -1,6 +1,7 @@
 import board.*;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -227,7 +228,7 @@ public class ChessMainRevamp extends Application {
         //Options for white
         final ToggleGroup whiteOptions = new ToggleGroup();
 
-        RadioButton whiteOption1 = new RadioButton("HUMAN");
+        RadioButton whiteOption1 = new RadioButton("Human");
         whiteOption1.setToggleGroup(whiteOptions);
         whiteOption1.setUserData(false);
         whiteOption1.setSelected(true);
@@ -249,7 +250,7 @@ public class ChessMainRevamp extends Application {
         //Options for black
         final ToggleGroup blackOptions = new ToggleGroup();
 
-        RadioButton blackOption1 = new RadioButton("HUMAN");
+        RadioButton blackOption1 = new RadioButton("Human");
         blackOption1.setToggleGroup(blackOptions);
         blackOption1.setUserData(false);
         blackOption1.setSelected(true);
@@ -519,6 +520,13 @@ public class ChessMainRevamp extends Application {
 
         //Hint button for player help
         Button hintButton = new Button("Hint");
+        hintButton.setStyle("-fx-focus-color: darkslategrey; -fx-faint-focus-color: transparent;");
+        hintButton.setMaxWidth(100);
+        //Disable hint when not human players turn
+        if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
+            (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI)) {
+            hintButton.setDisable(true);
+        }
         hintButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -697,8 +705,54 @@ public class ChessMainRevamp extends Application {
             userMovedPiece = null;
             drawChessGridPane();
 
-            if (gameIsOver()) gameOverCalculations();
-            else Platform.runLater(ChessMainRevamp.this::makeAIMove);
+            if (gameIsOver()) {
+                gameOverCalculations();
+            } else {
+                new Thread(new Task() {
+                    @Override
+                    protected Object call() throws Exception {
+                        makeAIMove();
+                        return null;
+                    }
+                }).start();
+            }
+        }
+    }
+
+    /**
+     * Looks at the board anc calculates a move for the AI based on the aiDepth
+     */
+    private void makeAIMove() {
+        if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
+            (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI)) {
+
+            final MoveStrategy moveStrategy = new MiniMax(aiDepth);
+            final Move AIMove = moveStrategy.execute(chessDataBoard);
+            final MoveTransition newBoard = chessDataBoard.currentPlayer().makeMove(AIMove);
+
+            if (newBoard.getMoveStatus().isDone()) {
+                chessDataBoard = newBoard.getTransitionBoard();
+            }
+
+            Platform.runLater(this::drawChessGridPane);
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    if (gameIsOver()) {
+                        gameOverCalculations();
+                    } else {
+                        //Recursive call if AI vs AI is enabled
+                        Task task = new Task() {
+                            @Override
+                            protected Object call() throws Exception {
+                                makeAIMove();
+                                return null;
+                            }
+                        };
+                        new Thread(task).start();
+                    }
+                }
+            });
         }
     }
 
@@ -779,30 +833,7 @@ public class ChessMainRevamp extends Application {
         whitePlayerStats = scoreSystem.getStats(whitePlayerName);
         blackPlayerStats = scoreSystem.getStats(blackPlayerName);
 
-        drawStatusPane();
-        createGameOverPane();
+        Platform.runLater(this::drawStatusPane);
+        Platform.runLater(this::createGameOverPane);
     }
-
-    /**
-     * Looks at the board anc calculates a move for the AI based on the aiDepth
-     */
-    private void makeAIMove() {
-        if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
-             chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI) {
-
-            final MoveStrategy moveStrategy = new MiniMax(aiDepth);
-            final Move AIMove = moveStrategy.execute(chessDataBoard);
-            final MoveTransition newBoard = chessDataBoard.currentPlayer().makeMove(AIMove);
-
-            if (newBoard.getMoveStatus().isDone()) {
-                chessDataBoard = newBoard.getTransitionBoard();
-            }
-
-            drawChessGridPane();
-
-            if (gameIsOver()) gameOverCalculations();
-            else Platform.runLater(this::makeAIMove);
-        }
-    }
-
 }

@@ -329,7 +329,7 @@ public class ChessMainRevamp extends Application {
                 scoreSystem.addUsername(whitePlayerName);
                 scoreSystem.updateHighscore(whitePlayerName, rating);
             } else{
-                whitePlayerName = whitePlayerNameField.getText().trim();
+                whitePlayerName = whitePlayerNameField.getText().replaceAll("\\s","");
                 scoreSystem.addUsername(whitePlayerName);
             }
             if(isBlackAI) {

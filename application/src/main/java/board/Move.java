@@ -35,7 +35,7 @@ public abstract class Move {
         this.movedPiece = null;
         this.isFirstMove = false;
     }
-
+    
     /**
      * @return the piece which is to be moved in a given Move object
      */
@@ -110,7 +110,7 @@ public abstract class Move {
     /**
      * @return Board object which the move is operating on
      */
-    private Board getBoard() {
+    public Board getBoard() {
         return this.board;
     }
 
@@ -169,7 +169,7 @@ public abstract class Move {
      * Represents an illeagal move, with coordinates that does not exist in the bound of a regular board
      */
     public static final class NullMove extends Move {
-        NullMove() {
+        public NullMove() {
             super(null, new Coordinate(-1,-1));
         }
 

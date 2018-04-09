@@ -23,10 +23,7 @@ import pieces.Alliance;
 import pieces.Piece;
 import player.MoveTransition;
 import player.Score;
-import player.basicAI.BoardEvaluator;
-import player.basicAI.MiniMax;
-import player.basicAI.MoveStrategy;
-import player.basicAI.RegularBoardEvaluator;
+import player.basicAI.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -74,6 +71,7 @@ public class ChessMainRevamp extends Application {
     //Hint coordinates
     private Coordinate hintStartCoordinate;
     private Coordinate hintDestinationCoordinate;
+    private boolean boardIsRandom = false;
 
     @Override
     public void init() {
@@ -188,12 +186,14 @@ public class ChessMainRevamp extends Application {
         settingsRoot.setAlignment(Pos.CENTER);
         settingsRoot.setSpacing(5);
 
-        HBox aiDifficultyPane = new HBox();
-        aiDifficultyPane.setAlignment(Pos.CENTER);
         HBox whiteOptionsPane = new HBox();
         whiteOptionsPane.setAlignment(Pos.CENTER);
         HBox blackOptionsPane = new HBox();
         blackOptionsPane.setAlignment(Pos.CENTER);
+        HBox boardStateOptionsPane = new HBox();
+        boardStateOptionsPane.setAlignment(Pos.CENTER);
+        HBox aiDifficultyPane = new HBox();
+        aiDifficultyPane.setAlignment(Pos.CENTER);
 
         //Text
         Text whiteOptionsText = new Text("WHITE PLAYER");
@@ -202,6 +202,7 @@ public class ChessMainRevamp extends Application {
         blackOptionsText.setFont(new Font(30));
         Text aiDifficulty = new Text("AI DIFFICULTY");
         aiDifficulty.setFont(new Font(18));
+
         //Text fields
         TextField whitePlayerNameField = new TextField("Player1");
         whitePlayerNameField.setMaxWidth(gameScene.getWidth() / 4);
@@ -267,6 +268,19 @@ public class ChessMainRevamp extends Application {
             for (RadioButton x : aiOptionList) x.setDisable(false);
         });
 
+        //Options for the starting board state
+        final ToggleGroup boardStateOptions = new ToggleGroup();
+
+        RadioButton boardStateOption1 = new RadioButton("Standard board");
+        boardStateOption1.setToggleGroup(boardStateOptions);
+        boardStateOption1.setUserData(true);
+        boardStateOption1.setSelected(true);
+
+        RadioButton boardStateOption2 = new RadioButton("Random board");
+        boardStateOption2.setToggleGroup(boardStateOptions);
+        boardStateOption2.setUserData(false);
+        boardStateOption2.setSelected(false);
+
         //Sub panes
         whiteOptionsPane.getChildren().addAll(whiteOptionsText, whitePlayerNameField, whiteOption1, whiteOption2);
         whiteOptionsPane.setPadding(new Insets(0,0,10,0));
@@ -275,6 +289,10 @@ public class ChessMainRevamp extends Application {
         blackOptionsPane.getChildren().addAll(blackOptionsText, blackPlayerNameField, blackOption1, blackOption2);
         blackOptionsPane.setPadding(new Insets(0,0,10,0));
         blackOptionsPane.setSpacing(5);
+
+        boardStateOptionsPane.getChildren().addAll(boardStateOption1, boardStateOption2);
+        boardStateOptionsPane.setPadding(new Insets(0,0,10,0));
+        boardStateOptionsPane.setSpacing(5);
 
         aiDifficultyPane.getChildren().addAll(aiOptionList);
         aiDifficultyPane.setPadding(new Insets(0,0,10,0));
@@ -286,7 +304,7 @@ public class ChessMainRevamp extends Application {
         confirmSettings.setMaxWidth(100);
 
         //Add all elements to the pane
-        settingsRoot.getChildren().addAll(whiteOptionsPane, blackOptionsPane);
+        settingsRoot.getChildren().addAll(whiteOptionsPane, blackOptionsPane, boardStateOptionsPane);
         settingsRoot.getChildren().addAll(aiDifficulty, aiDifficultyPane, confirmSettings);
 
         //Confirm button action
@@ -330,12 +348,21 @@ public class ChessMainRevamp extends Application {
 
             //Removes game over pane if present
             gamePlayPane.setBottom(null);
+
             //Reset board and redraw
-            chessDataBoard = Board.createStandardBoard();
+            if((boolean) boardStateOptions.getSelectedToggle().getUserData()){
+                boardIsRandom = false;
+                chessDataBoard = Board.createStandardBoard();
+            } else {
+                boardIsRandom = true;
+                chessDataBoard = Board.createRandomBoard();
+            }
+
             boardHistory.clear();
             equalBoardStateCounter = 0;
             drawChessGridPane();
             mainStage.setScene(gameScene);
+
             //Set off ai vs ai match
             if (isWhiteAI || isBlackAI) Platform.runLater(this::makeAIMove);
         });
@@ -441,7 +468,12 @@ public class ChessMainRevamp extends Application {
         });
         newRound.setOnAction(e -> {
             //This lets the user continue with another round
-            chessDataBoard = Board.createStandardBoard();
+            if(boardIsRandom){
+                chessDataBoard = Board.createRandomBoard();
+            } else {
+                chessDataBoard = Board.createStandardBoard();
+            }
+
             //Clear info about previous board states
             boardHistory.clear();
             equalBoardStateCounter = 0;

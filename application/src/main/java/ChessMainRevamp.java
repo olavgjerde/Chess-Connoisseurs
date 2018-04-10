@@ -50,11 +50,13 @@ public class ChessMainRevamp extends Application {
     //Information toggles
     private boolean highlightEnabled = true;
     private boolean boardStatusEnabled = true;
-    private boolean helpEnabled = false;
     //Player movement
     private Tile startCoordinate;
     private Tile destinationCoordinate;
     private Piece userMovedPiece;
+    //Hint coordinates
+    private Coordinate hintStartCoordinate;
+    private Coordinate hintDestinationCoordinate;
     //Player scores
     private String whitePlayerName;
     private String whitePlayerStats;
@@ -70,9 +72,8 @@ public class ChessMainRevamp extends Application {
     //Keep count of board history (board states)
     private ArrayList<Board> boardHistory = new ArrayList<>();
     private int equalBoardStateCounter = 0;
-    //Hint coordinates
-    private Coordinate hintStartCoordinate;
-    private Coordinate hintDestinationCoordinate;
+
+    //Toggle random board
     private boolean boardIsRandom = false;
 
     @Override
@@ -381,7 +382,6 @@ public class ChessMainRevamp extends Application {
     private void createHighscoreScene() {
         final Stage dialog = new Stage();
 
-
         SQL conn = new SQL();
         try{
             conn.getAllScores();
@@ -452,7 +452,11 @@ public class ChessMainRevamp extends Application {
 
         //Text
         Text title = new Text("GAME OVER - ");
+        if (chessDataBoard.currentPlayer().isInCheckmate()) title = new Text("CHECKMATE - ");
+        else if (chessDataBoard.currentPlayer().isInStalemate()) title = new Text("STALEMATE - ");
+        else if (checkForDrawByRepetition()) title = new Text("DRAW - ");
         title.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+
         Text t1 = new Text("UPDATED SCORES: ");
         t1.setFont(Font.font("Arial", FontWeight.BOLD, 20));
         Text t2 = new Text(whitePlayerName + ": " + whitePlayerScore + " /");
@@ -480,11 +484,8 @@ public class ChessMainRevamp extends Application {
         });
         newRound.setOnAction(e -> {
             //This lets the user continue with another round
-            if(boardIsRandom){
-                chessDataBoard = Board.createRandomBoard();
-            } else {
-                chessDataBoard = Board.createStandardBoard();
-            }
+            if (boardIsRandom) chessDataBoard = Board.createRandomBoard();
+            else chessDataBoard = Board.createStandardBoard();
 
             //Clear info about previous board states
             boardHistory.clear();
@@ -494,6 +495,7 @@ public class ChessMainRevamp extends Application {
             drawChessGridPane();
         });
         quit.setOnAction(e -> System.exit(0));
+
         gamePlayPane.setBottom(gameOverRoot);
     }
 
@@ -533,31 +535,30 @@ public class ChessMainRevamp extends Application {
         Button hintButton = new Button("Hint");
         hintButton.setStyle("-fx-focus-color: darkslategrey; -fx-faint-focus-color: transparent;");
         hintButton.setMaxWidth(100);
-        //Disable hint when not human players turn
+        //Disable hint when not human players turn, or the game has ended
         if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
-            (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI)) {
+            (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI) ||
+            gameIsOver()) {
             hintButton.setDisable(true);
         }
         hintButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                if (!gameIsOver()) {
-                    //Empty any ongoing player move
-                    startCoordinate = null;
-                    destinationCoordinate = null;
-                    userMovedPiece = null;
-                    //Let AI find "best" move
-                    final MoveStrategy moveStrategy = new MiniMax(4);
-                    final Move AIMove = moveStrategy.execute(chessDataBoard);
-                    //Set coordinates found
-                    hintStartCoordinate = AIMove.getCurrentCoordinate();
-                    hintDestinationCoordinate = AIMove.getDestinationCoordinate();
-                    //Redraw to show coordinates found
-                    drawChessGridPane();
-                    //Reset hint variables
-                    hintStartCoordinate = null;
-                    hintDestinationCoordinate = null;
-                }
+                //Empty any ongoing player move
+                startCoordinate = null;
+                destinationCoordinate = null;
+                userMovedPiece = null;
+                //Let AI find "best" move
+                final MoveStrategy moveStrategy = new MiniMax(4);
+                final Move AIMove = moveStrategy.execute(chessDataBoard);
+                //Set coordinates found
+                hintStartCoordinate = AIMove.getCurrentCoordinate();
+                hintDestinationCoordinate = AIMove.getDestinationCoordinate();
+                //Redraw to show coordinates found
+                drawChessGridPane();
+                //Reset hint variables
+                hintStartCoordinate = null;
+                hintDestinationCoordinate = null;
             }
         });
 
@@ -566,9 +567,15 @@ public class ChessMainRevamp extends Application {
 
     private void drawChessGridPane() {
         chessGridPane.getChildren().clear();
-        for (int i = 0; i < BoardUtils.getHeight(); i++) {
-            for (int j = 0; j < BoardUtils.getWidth(); j++) {
-                chessGridPane.add(new ChessTile(new Coordinate(j,i)), j,i);
+        for (int y = 0; y < BoardUtils.getHeight(); y++) {
+            for (int x = 0; x < BoardUtils.getWidth(); x++) {
+                int gridPaneX = x, gridPaneY = y;
+                //Flip board if player plays against white ai
+                if (isWhiteAI && !isBlackAI) {
+                    gridPaneX = BoardUtils.getWidth() - (x + 1);
+                    gridPaneY = BoardUtils.getHeight() - (y + 1);
+                }
+                chessGridPane.add(new ChessTile(new Coordinate(x,y)), gridPaneX, gridPaneY);
             }
         }
         drawStatusPane();

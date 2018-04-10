@@ -1,4 +1,5 @@
 import board.*;
+import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -20,6 +21,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import pieces.Alliance;
 import pieces.Piece;
 import player.MoveTransition;
@@ -72,7 +74,6 @@ public class ChessMainRevamp extends Application {
     //Keep count of board history (board states)
     private ArrayList<Board> boardHistory = new ArrayList<>();
     private int equalBoardStateCounter = 0;
-
     //Toggle random board
     private boolean boardIsRandom = false;
 
@@ -593,11 +594,13 @@ public class ChessMainRevamp extends Application {
             this.coordinateId = coordinateId;
 
             Color colorOfTile = assignTileColor();
+            boolean animateTile = false;
             if (highlightEnabled && startCoordinate != null) {
                 //Highlight selected tile
                 if (coordinateId.equals(startCoordinate.getTileCoord())) colorOfTile = Color.LIGHTGREEN;
                 //Highlight legal moves
                 if (listLegalMoves(startCoordinate).contains(coordinateId)) {
+                    animateTile = true;
                     colorOfTile = Color.LIGHTBLUE;
                     //Highlight attackmoves
                     if (chessDataBoard.getTile(coordinateId).getPiece() != null) {
@@ -610,13 +613,27 @@ public class ChessMainRevamp extends Application {
             } else if (hintStartCoordinate != null && hintDestinationCoordinate != null) {
                 //Highlight hint move
                 if (coordinateId.equals(hintStartCoordinate)) colorOfTile = Color.LIGHTGREEN;
-                else if (coordinateId.equals(hintDestinationCoordinate)) colorOfTile = Color.GREENYELLOW;
+                else if (coordinateId.equals(hintDestinationCoordinate)) {
+                    animateTile = true;
+                    colorOfTile = Color.GREENYELLOW;
+                }
             }
 
             Rectangle rectangle = new Rectangle(TILE_SIZE, TILE_SIZE, colorOfTile);
             rectangle.setBlendMode(BlendMode.HARD_LIGHT);
             rectangle.setArcHeight(10);
             rectangle.setArcWidth(10);
+
+            //Add fade animation to tile
+            if (animateTile) {
+                FadeTransition fade = new FadeTransition(Duration.millis(1300), rectangle);
+                fade.setFromValue(1.0);
+                fade.setToValue(0.6);
+                fade.setCycleCount(Timeline.INDEFINITE);
+                fade.setAutoReverse(true);
+                fade.play();
+            }
+
             this.getChildren().add(rectangle);
 
             if (!chessDataBoard.getTile(coordinateId).isEmpty())

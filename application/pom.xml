@@ -50,6 +50,7 @@
                             <artifactSet>
                                 <includes>
                                     <include>com.google.guava:*</include>
+                                    <include>mysql:*</include>
                                 </includes>
                             </artifactSet>
                         </configuration>
@@ -95,6 +96,11 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>24.1-jre</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>6.0.6</version>
         </dependency>
     </dependencies>
 

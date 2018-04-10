@@ -1,18 +1,60 @@
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.Properties;
 
 public class SQL {
 
+    private static final String HIGHSCORE_TABLE = "highscore";
+    static Connection con;
+    private String jdbcUrl = "jdbc:mysql://localhost:3306/chess?autoReconnect=true&useSSL=false";
+    private String username = "root";
+    private String password = "";
+    static Statement stmt = null;
+
+
     //TODO: fix handling of database
     //Handles database
 
+    public SQL(){
+        try{
+            con = DriverManager.getConnection(jdbcUrl, username, password);
+            System.out.println("Database connected!");
+        } catch (SQLException e) {
+            throw new IllegalStateException("Cannot connect the database!", e);
+        }
+    }
 
-    //views table 
-    public static void viewTable(Connection con, String highscore_schema) throws SQLException {
 
-        Statement stmt = null;
-        String query = "select playerName, score, win, draw, loss " + "from " + highscore_schema;
+
+
+    //returns all scores
+    public static void getAllScores() throws SQLException {
+        String query = "select playerName, score, win, draw, loss " + "from " + HIGHSCORE_TABLE;
+        runQuery(query);
+    }
+
+    public static void getScore(int scoreID) throws SQLException {
+        String query = "select playerName, score, win, draw, loss " + "from " + HIGHSCORE_TABLE +" WHERE ID = " + scoreID;
+        runQuery(query);
+    }
+
+    /**
+     *
+     * @param first_user first client
+     * @param second_user second client
+     * @param result result of the game
+     *               0 - nobody wins, it's a draw
+     *               1 -  the first user wins
+     *               2 - the second user wins
+     */
+    public static void updateHighscore(int first_user, int second_user, int result){
+
+    }
+
+    private static void runQuery(String query){
         try {
             stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(query);
@@ -26,8 +68,6 @@ public class SQL {
             }
         } catch (SQLException e ) {
             System.out.println(e);
-        } finally {
-            if (stmt != null) { stmt.close(); }
         }
     }
 

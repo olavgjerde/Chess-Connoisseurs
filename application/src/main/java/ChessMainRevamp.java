@@ -26,6 +26,7 @@ import player.MoveTransition;
 import player.Score;
 import player.basicAI.*;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -377,6 +378,14 @@ public class ChessMainRevamp extends Application {
      */
     private void createHighscoreScene() {
         final Stage dialog = new Stage();
+
+
+        SQL conn = new SQL();
+        try{
+            conn.getAllScores();
+        } catch (SQLException e ) {
+            System.out.println(e);
+        }
 
         VBox hsRoot = new VBox();
         hsRoot.setSpacing(5);

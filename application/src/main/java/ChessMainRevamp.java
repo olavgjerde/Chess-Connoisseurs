@@ -87,7 +87,6 @@ public class ChessMainRevamp extends Application {
         this.gamePlayPane = new BorderPane();
         this.chessGridPane = new GridPane();
         this.statusPane = new VBox();
-        this.chessDataBoard = Board.createStandardBoard();
 
         // add menu bar
         MenuBar menuBar = populateMenuBar();
@@ -166,6 +165,9 @@ public class ChessMainRevamp extends Application {
 
         MenuItem newGame = new MenuItem("New game");
         newGame.setOnAction(event -> {
+            //Stop AI calculation from running in the background
+            isWhiteAI = false;
+            isBlackAI = false;
             createStartMenuScene();
         });
 
@@ -545,7 +547,7 @@ public class ChessMainRevamp extends Application {
                     destinationCoordinate = null;
                     userMovedPiece = null;
                     //Let AI find "best" move
-                    final MoveStrategy moveStrategy = new MiniMax(3);
+                    final MoveStrategy moveStrategy = new MiniMax(4);
                     final Move AIMove = moveStrategy.execute(chessDataBoard);
                     //Set coordinates found
                     hintStartCoordinate = AIMove.getCurrentCoordinate();

@@ -632,6 +632,14 @@ public class ChessMainRevamp extends Application {
                 fade.setCycleCount(Timeline.INDEFINITE);
                 fade.setAutoReverse(true);
                 fade.play();
+                //Add rotation animation to tile
+                if (hintStartCoordinate != null && hintDestinationCoordinate != null) {
+                    RotateTransition rotate = new RotateTransition(Duration.millis(2300), rectangle);
+                    rotate.setByAngle(180);
+                    rotate.setCycleCount(Timeline.INDEFINITE);
+                    rotate.setAutoReverse(true);
+                    rotate.play();
+                }
             }
 
             this.getChildren().add(rectangle);

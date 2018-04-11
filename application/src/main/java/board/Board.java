@@ -1,6 +1,5 @@
 package board;
 
-import board.Move.NullMove;
 import pieces.*;
 import player.BlackPlayer;
 import player.Player;
@@ -30,8 +29,8 @@ public class Board {
         this.blackPieces = calculateActivePieces(builder, Alliance.BLACK);
         this.enPassantPawn = builder.enPassantPawn;
 
-        final Collection<Move> whiteStandardLegalMoves = calculateLegalMoves(this.whitePieces);
-        final Collection<Move> blackStandardLegalMoves = calculateLegalMoves(this.blackPieces);
+        Collection<Move> whiteStandardLegalMoves = calculateLegalMoves(this.whitePieces);
+        Collection<Move> blackStandardLegalMoves = calculateLegalMoves(this.blackPieces);
         this.whitePlayer = new WhitePlayer(this, whiteStandardLegalMoves, blackStandardLegalMoves);
         this.blackPlayer = new BlackPlayer(this, blackStandardLegalMoves, whiteStandardLegalMoves);
 
@@ -61,7 +60,7 @@ public class Board {
      * @return a list of active pieces of a given alliance
      */
     private static Collection<Piece> calculateActivePieces(Builder builder, Alliance alliance) {
-        final List<Piece> activePieces = new ArrayList<>();
+        final List<Piece> activePieces = new ArrayList<>(BoardUtils.getWidth()*2);
         for (Piece piece : builder.boardConfig.values()) {
             if (piece.getPieceAlliance() == alliance) {
                 activePieces.add(piece);
@@ -80,7 +79,7 @@ public class Board {
         for (Piece piece : pieces) {
             legalMoves.addAll(piece.calculateLegalMoves(this));
         }
-        return Collections.unmodifiableList(legalMoves);
+        return legalMoves;
     }
 
     /**

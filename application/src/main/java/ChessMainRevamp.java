@@ -788,13 +788,15 @@ public class ChessMainRevamp extends Application {
             if (gameIsOver()) {
                 gameOverCalculations();
             } else {
-                new Thread(new Task() {
+                Thread AIThread = new Thread(new Task() {
                     @Override
-                    protected Object call() throws Exception {
+                    protected Object call() {
                         makeAIMove();
                         return null;
                     }
-                }).start();
+                });
+                AIThread.setPriority(Thread.MAX_PRIORITY);
+                AIThread.start();
             }
         }
     }
@@ -818,24 +820,20 @@ public class ChessMainRevamp extends Application {
             }
 
             Platform.runLater(this::drawChessGridPane);
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    if (gameIsOver()) {
-                        gameOverCalculations();
-                    } else {
-                        //Recursive call if AI vs AI is enabled
-                        Task task = new Task() {
-                            @Override
-                            protected Object call() {
-                                makeAIMove();
-                                return null;
-                            }
-                        };
-                        new Thread(task).start();
+            if (gameIsOver()) {
+                gameOverCalculations();
+            } else if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
+                       (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI)){
+                Thread AIThread = new Thread(new Task() {
+                    @Override
+                    protected Object call() {
+                        makeAIMove();
+                        return null;
                     }
-                }
-            });
+                });
+                AIThread.setPriority(Thread.MAX_PRIORITY);
+                AIThread.start();
+            }
         }
     }
 

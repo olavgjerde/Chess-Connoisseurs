@@ -3,6 +3,7 @@ package player;
 import board.Board;
 import board.Coordinate;
 import board.Move;
+import com.google.common.collect.ImmutableList;
 import pieces.Alliance;
 import pieces.King;
 import pieces.Piece;
@@ -35,13 +36,12 @@ public abstract class Player {
         this.playerKing = king;
 
         // add castling moves to legal moves
-        final Collection<Move> allMoves = new ArrayList<>(legalMoves);
         // allows the creation of boards without a king -> mostly for testing purposes
         if (king != null) {
-            allMoves.addAll(calculateKingCastles(legalMoves, opponentMoves));
+            legalMoves.addAll(calculateKingCastles(legalMoves, opponentMoves));
             this.isInCheck = !calculateAttacksOnCoordinate(this.playerKing.getPieceCoordinate(), opponentMoves).isEmpty();
         }
-        this.legalMoves = allMoves;
+        this.legalMoves = Collections.unmodifiableCollection(legalMoves);
     }
 
     /**

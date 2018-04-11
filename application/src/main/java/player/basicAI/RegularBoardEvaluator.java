@@ -14,7 +14,7 @@ public final class RegularBoardEvaluator implements BoardEvaluator {
     private static final int CHECKMATE_BONUS = 10000;
     private static final int DEPTH_BONUS = 100;
     private static final int CASTLE_BONUS = 60;
-    // todo: bonus for keep king "castleble" -> private final static int CASTLE_CAPABLE_BONUS = 25;
+    // todo: bonus for keep king "castle-able" -> private final static int CASTLE_CAPABLE_BONUS = 25;
     private final static int MOBILITY_MULTIPLIER = 2;
     private final static int ATTACK_MULTIPLIER = 2;
     private final static int TWO_BISHOPS_BONUS = 50;
@@ -122,7 +122,7 @@ public final class RegularBoardEvaluator implements BoardEvaluator {
      * @return ration of a given players move size vs opponents move size
      */
     private static int mobilityRatio(final Player player) {
-        return (int)(player.getLegalMoves().size() * 100.0) / player.getOpponent().getLegalMoves().size();
+        return (int)((player.getLegalMoves().size() * 100.0) / player.getOpponent().getLegalMoves().size());
     }
 
     /**

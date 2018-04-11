@@ -11,6 +11,7 @@ import player.MoveTransition;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 
 import static board.Move.*;
 
@@ -34,7 +35,7 @@ public class MiniMax implements MoveStrategy {
 
     @Override
     public String toString() {
-        return "MiniMax";
+        return "Mini-Max/AB+MO+QUIESCENCE";
     }
 
     /**
@@ -51,11 +52,12 @@ public class MiniMax implements MoveStrategy {
 
         int highestEncounteredValue = Integer.MIN_VALUE;
         int lowestEncounteredValue = Integer.MAX_VALUE;
-        int currentValue;
+        int currentValue = 0;
 
         System.out.println(board.currentPlayer().getAlliance() + " EVALUATING with depth: " + searchDepth);
-
-        for (Move move : moveSortExpensive(board.currentPlayer().getLegalMoves())) {
+        Collection<Move> sorted = moveSortExpensive(board.currentPlayer().getLegalMoves());
+        int moveCount = 1;
+        for (Move move : sorted) {
             final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
             //Reset quiescence for every start node
             this.quiescenceCount = 0;
@@ -78,6 +80,10 @@ public class MiniMax implements MoveStrategy {
                     if (moveTransition.getTransitionBoard().getWhitePlayer().isInCheckmate()) break;
                 }
             }
+            /*System.out.println(this.toString() + "(" + searchDepth + ") (" + moveCount++ + "/" + sorted.size() + ") "
+                               + "MOVE ANALYZED: " + move + " "
+                               + "QUIESCENCE COUNT: " + quiescenceCount + " "
+                               + "BEST MOVE: " + bestMove + " [Score: " + currentValue + "]");*/
         }
 
         final long timeSpent = System.currentTimeMillis() - startTime;

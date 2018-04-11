@@ -24,6 +24,7 @@ public class MiniMax implements MoveStrategy {
     private final BoardEvaluator boardEvaluator;
     private final int searchDepth;
     private int quiescenceCount;
+    private int totalQuiescence;
     private static final int MAX_QUIESCENCE = 5000;
 
     public MiniMax(int searchDepth, boolean usePieceSquareBoards) {
@@ -81,7 +82,7 @@ public class MiniMax implements MoveStrategy {
 
         final long timeSpent = System.currentTimeMillis() - startTime;
         System.out.println("\tTIME TAKEN: " + timeSpent + "ms");
-        System.out.println("\tQUIESCENCE COUNT: " + quiescenceCount);
+        System.out.println("\tTOTAL QUIESCENCE COUNT: " + totalQuiescence);
 
         return bestMove;
     }
@@ -173,6 +174,7 @@ public class MiniMax implements MoveStrategy {
             }
             if (activityScore > 3) {
                 this.quiescenceCount++;
+                this.totalQuiescence++;
                 return 2;
             }
         }

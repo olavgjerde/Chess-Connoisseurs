@@ -51,7 +51,7 @@ public class ChessMainRevamp extends Application {
     private Score scoreSystem;
     //Information toggles
     private boolean highlightEnabled = true;
-    private boolean moveHighlightEnabled = true;
+    private boolean moveHighlightEnabled = false;
     private boolean boardStatusEnabled = true;
     //Player movement
     private Tile startCoordinate;
@@ -150,14 +150,14 @@ public class ChessMainRevamp extends Application {
         toggleHighlight.setOnAction(e -> highlightEnabled = !highlightEnabled);
         toggleHighlight.setSelected(true);
 
-        /*
+
         CheckMenuItem toggleMoveHighlight = new CheckMenuItem("Highlight previous move");
         toggleMoveHighlight.setOnAction(event -> {
-            toggleMoveHighlight = !toggleMoveHighlight;
-            drawStatusPane();
+            moveHighlightEnabled = !moveHighlightEnabled;
+            drawChessGridPane();
         });
-        toggleMoveHighlight.setSelected(true);
-        */
+        toggleMoveHighlight.setSelected(false);
+
 
         CheckMenuItem toggleBoardStatus = new CheckMenuItem("Show board status");
         toggleBoardStatus.setOnAction(event -> {
@@ -166,7 +166,7 @@ public class ChessMainRevamp extends Application {
         });
         toggleBoardStatus.setSelected(true);
 
-        optionsMenu.getItems().addAll(toggleHighlight, toggleBoardStatus);
+        optionsMenu.getItems().addAll(toggleHighlight, toggleMoveHighlight, toggleBoardStatus);
         return optionsMenu;
     }
 
@@ -533,7 +533,8 @@ public class ChessMainRevamp extends Application {
         if(boardStatusEnabled){
             BoardEvaluator boardEvaluator = new RegularBoardEvaluator(true);
             if (boardIsRandom) boardEvaluator = new RegularBoardEvaluator(false);
-            Text boardStatusText = new Text((chessDataBoard.currentPlayer().getAlliance() + " board status: \n" + boardEvaluator.evaluate(chessDataBoard, 3)).toUpperCase());
+            Text boardStatusText = new Text((chessDataBoard.currentPlayer().getAlliance() +
+                    " board status: \n" + boardEvaluator.evaluate(chessDataBoard, 3)).toUpperCase());
             if (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK)
                 boardStatusText = new Text((chessDataBoard.currentPlayer().getAlliance() +
                         " board status: \n" + boardEvaluator.evaluate(chessDataBoard, 3) * -1).toUpperCase());
@@ -643,7 +644,7 @@ public class ChessMainRevamp extends Application {
                     colorOfTile = Color.GREENYELLOW;
                 }
                 else if (coordinateId.equals(hintDestinationCoordinate)) colorOfTile = Color.GREENYELLOW;
-            } else if (!moveHistory.isEmpty() && moveHighlightEnabled) {
+            } if (!moveHistory.isEmpty() && moveHighlightEnabled) {
                 //highlight the previous move
                 Move m = moveHistory.get(moveHistory.size()-1);
                 Coordinate to = m.getDestinationCoordinate();
@@ -777,6 +778,7 @@ public class ChessMainRevamp extends Application {
 
             if (newBoard.getMoveStatus().isDone()) {
                 chessDataBoard = newBoard.getTransitionBoard();
+                moveHistory.add(move);
             }
 
             //Reset user move related variables

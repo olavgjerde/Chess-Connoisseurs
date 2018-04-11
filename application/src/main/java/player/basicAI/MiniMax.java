@@ -56,6 +56,8 @@ public class MiniMax implements MoveStrategy {
 
         for (Move move : moveSortExpensive(board.currentPlayer().getLegalMoves())) {
             final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
+            //Reset quiescence for every start node
+            this.quiescenceCount = 0;
             if (moveTransition.getMoveStatus().isDone()) {
                 if (board.currentPlayer().getAlliance() == Alliance.WHITE) {
                     currentValue = min(moveTransition.getTransitionBoard(), searchDepth - 1, highestEncounteredValue, lowestEncounteredValue);

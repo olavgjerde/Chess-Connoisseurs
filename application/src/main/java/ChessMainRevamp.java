@@ -220,11 +220,11 @@ public class ChessMainRevamp extends Application {
         //Options for AI
         final ToggleGroup aiOptions = new ToggleGroup();
 
-        String[] levelPrefix = {"Easy", "Medium", "Hard", "Expert"};
+        String[] levelPrefix = {"Easy", "Intermediate", "Expert", "Experimental"};
         List<RadioButton> aiOptionList = new ArrayList<>();
         for (int i = 0; i < levelPrefix.length; i++) {
             aiOptionList.add(new RadioButton(levelPrefix[i]));
-            if (levelPrefix[i].equals("Medium")) aiOptionList.get(i).setSelected(true);
+            if (levelPrefix[i].equals("Intermediate")) aiOptionList.get(i).setSelected(true);
             aiOptionList.get(i).setUserData(i+2);
             aiOptionList.get(i).setDisable(true);
             aiOptionList.get(i).setToggleGroup(aiOptions);
@@ -323,9 +323,9 @@ public class ChessMainRevamp extends Application {
             int rating;
             switch(aiDepth){
                 case 2: { suffix = "Easy"; rating = 1200; break; }
-                case 3: { suffix = "Medium"; rating = 1500; break; }
-                case 4: { suffix = "Hard"; rating = 1800; break; }
-                case 5: { suffix = "Expert"; rating = 2000; break; }
+                case 3: { suffix = "Intermediate"; rating = 1500; break; }
+                case 4: { suffix = "Expert"; rating = 1800; break; }
+                case 5: { suffix = "Experimental"; rating = 2000; break; }
                 default: { suffix = "Error"; rating = 9999; break; }
             }
 
@@ -383,12 +383,14 @@ public class ChessMainRevamp extends Application {
     private void createHighscoreScene() {
         final Stage dialog = new Stage();
 
+        /*
         SQL conn = new SQL();
         try{
             conn.getAllScores();
         } catch (SQLException e ) {
             System.out.println(e);
         }
+        */
 
         VBox hsRoot = new VBox();
         hsRoot.setSpacing(5);
@@ -519,7 +521,8 @@ public class ChessMainRevamp extends Application {
 
         //Show the evaluation of the current board relative to the current player, can help you know how well you are doing
         if(boardStatusEnabled){
-            BoardEvaluator boardEvaluator = new RegularBoardEvaluator();
+            BoardEvaluator boardEvaluator = new RegularBoardEvaluator(true);
+            if (boardIsRandom) boardEvaluator = new RegularBoardEvaluator(false);
             Text boardStatusText = new Text((chessDataBoard.currentPlayer().getAlliance() + " board status: \n" + boardEvaluator.evaluate(chessDataBoard, 3)).toUpperCase());
             if (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK)
                 boardStatusText = new Text((chessDataBoard.currentPlayer().getAlliance() + " board status: \n" + boardEvaluator.evaluate(chessDataBoard, 3) * -1).toUpperCase());
@@ -550,7 +553,8 @@ public class ChessMainRevamp extends Application {
                 destinationCoordinate = null;
                 userMovedPiece = null;
                 //Let AI find "best" move
-                final MoveStrategy moveStrategy = new MiniMax(4);
+                MoveStrategy moveStrategy = new MiniMax(4, true);
+                if (boardIsRandom) moveStrategy = new MiniMax(4, false);
                 final Move AIMove = moveStrategy.execute(chessDataBoard);
                 //Set coordinates found
                 hintStartCoordinate = AIMove.getCurrentCoordinate();
@@ -769,7 +773,9 @@ public class ChessMainRevamp extends Application {
         if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
             (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI)) {
 
-            final MoveStrategy moveStrategy = new MiniMax(aiDepth);
+            MoveStrategy moveStrategy = new MiniMax(aiDepth, true);
+            if (boardIsRandom) moveStrategy = new MiniMax(aiDepth, false);
+
             final Move AIMove = moveStrategy.execute(chessDataBoard);
             final MoveTransition newBoard = chessDataBoard.currentPlayer().makeMove(AIMove);
 
@@ -787,7 +793,7 @@ public class ChessMainRevamp extends Application {
                         //Recursive call if AI vs AI is enabled
                         Task task = new Task() {
                             @Override
-                            protected Object call() throws Exception {
+                            protected Object call() {
                                 makeAIMove();
                                 return null;
                             }

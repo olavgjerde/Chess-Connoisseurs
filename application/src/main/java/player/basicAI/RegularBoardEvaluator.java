@@ -2,7 +2,7 @@ package player.basicAI;
 
 import board.Board;
 import board.Move;
-import pieces.Piece;
+import pieces.*;
 import player.Player;
 
 /**
@@ -19,6 +19,13 @@ public final class RegularBoardEvaluator implements BoardEvaluator {
     private final static int ATTACK_MULTIPLIER = 2;
     private final static int TWO_BISHOPS_BONUS = 50;
 
+    private final boolean usePieceSquareBoards;
+    private boolean isPieceSquareEndGame = false;
+
+    public RegularBoardEvaluator(boolean usePieceSquareBoards) {
+        this.usePieceSquareBoards = usePieceSquareBoards;
+    }
+
     /**
      * Evaluate the current state of the board.
      * If white has an advantage the value will be positive,
@@ -30,6 +37,7 @@ public final class RegularBoardEvaluator implements BoardEvaluator {
      */
     @Override
     public int evaluate(Board board, int depth) {
+        if (usePieceSquareBoards) calculatePieceSquareEndGame(board);
         return scorePlayer(board.getWhitePlayer(), depth) - scorePlayer(board.getBlackPlayer(), depth);
     }
 
@@ -58,6 +66,7 @@ public final class RegularBoardEvaluator implements BoardEvaluator {
         int pieceValueScore = 0, numberOfBishops = 0;
         for (Piece piece : player.getActivePieces()) {
             pieceValueScore += piece.getPieceType().getPieceValue();
+            if (usePieceSquareBoards) pieceValueScore += piece.locationValue(isPieceSquareEndGame);
             if (piece.getPieceType().toString().equals("B")) numberOfBishops++;
         }
         return pieceValueScore + (numberOfBishops == 2 ? TWO_BISHOPS_BONUS : 0);
@@ -146,6 +155,47 @@ public final class RegularBoardEvaluator implements BoardEvaluator {
      */
     private int castledValue(Player player) {
         return player.isCastled() ? CASTLE_BONUS : 0;
+    }
+
+    /**
+     * Check if the end game has been reached
+     * This corresponds to:
+     * "1.Both sides have no queens or
+     *  2.Every side which has a queen has additionally no other pieces or one minorpiece maximum."
+     *  See link for more information -> King section.
+     * @see <a href="https://chessprogramming.wikispaces.com/Simplified%20evaluation%20function">Simplified evaluation function</a>
+     * @param board
+     */
+    private void calculatePieceSquareEndGame(Board board) {
+        int whiteQueenCount = 0, blackQueenCount = 0,
+                whiteBishopCount = 0, blackBishopCount = 0,
+                whiteKnightCount = 0, blackKnightCount = 0,
+                whiteOtherCount = 0, blackOtherCount = 0;
+
+        for (Piece piece : board.getWhitePieces()) {
+            if (piece instanceof Queen) whiteQueenCount++;
+            else if (piece instanceof Bishop) whiteBishopCount++;
+            else if (piece instanceof Knight) whiteKnightCount++;
+            else whiteOtherCount++;
+        }
+        for (Piece piece : board.getBlackPieces()) {
+            if (piece instanceof Queen) blackQueenCount++;
+            else if (piece instanceof Bishop) blackBishopCount++;
+            else if (piece instanceof Knight) blackKnightCount++;
+            else blackOtherCount++;
+        }
+
+        if (whiteQueenCount == 0 && blackQueenCount == 0) {
+            isPieceSquareEndGame = true;
+        } else if ((whiteQueenCount == 1 && blackQueenCount == 0) &&
+                ((whiteBishopCount == 1 && whiteKnightCount == 0) || (whiteKnightCount == 1 && whiteBishopCount == 0)) &&
+                whiteOtherCount == 0) {
+            isPieceSquareEndGame = true;
+        } else if ((blackQueenCount == 1 && whiteQueenCount == 0) &&
+                ((blackBishopCount == 1 && blackKnightCount == 0) || (blackKnightCount == 1 && blackBishopCount == 0)) &&
+                blackOtherCount == 0) {
+            isPieceSquareEndGame = true;
+        }
     }
 }
 

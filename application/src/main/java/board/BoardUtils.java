@@ -1,5 +1,7 @@
 package board;
 
+import board.Move.NullMove;
+
 import java.util.*;
 
 /**
@@ -9,6 +11,7 @@ import java.util.*;
 public class BoardUtils {
     private static final Map<Coordinate, String> COORDINATE_TO_ALGEBRAIC = initializeAlgebraicNotation();
     private static final Map<String, Coordinate> ALGEBRAIC_TO_COORDINATE = initializeAlgebraicToCoordinateMap();
+    private static final Map<Coordinate, Integer> COORDINATE_TO_INTEGER = initializeIntegerToCoordinateMap();
 
     private BoardUtils() {
     }
@@ -54,6 +57,16 @@ public class BoardUtils {
     }
 
     /**
+     * Get the integer representation of a coordinate
+     *
+     * @param coordinate to fetch integer representation for
+     * @return integer representation
+     */
+    public static int getIntegerRepresentationFromCoordinate(Coordinate coordinate) {
+        return COORDINATE_TO_INTEGER.get(coordinate);
+    }
+
+    /**
      * Maps possible coordinates to their algebraic notation format
      *
      * @return Map with key Coordinate and value String
@@ -88,6 +101,22 @@ public class BoardUtils {
     }
 
     /**
+     * Maps all coordinates on the board to a integer representation (8x8 = 0-64 ints)
+     *
+     * @return Map with key Coordinate and value Integer
+     */
+    private static Map<Coordinate, Integer> initializeIntegerToCoordinateMap() {
+        Map<Coordinate, Integer> coordToInteger = new HashMap<>();
+        int integerRepresentation = 0;
+        for (int i = 0; i < BoardUtils.getHeight(); i++) {
+            for (int j = 0; j < BoardUtils.getWidth(); j++) {
+                coordToInteger.put(new Coordinate(j,i), integerRepresentation++);
+            }
+        }
+        return coordToInteger;
+    }
+
+    /**
      * Returns the euclidean distance between two positive coordinates
      * @param a first coordinate
      * @param b second coordinate
@@ -98,11 +127,20 @@ public class BoardUtils {
     }
 
     /**
-     * Checks if either of the players on a board is in check
-     * @param board to evaluate
-     * @return true if either of the players is in check
+     * Retrieve the last moves (n) that has happened on a board
+     * @param board to get moves from
+     * @param n how many moves to retrieve
+     * @return a list of the moves retrieved
      */
-    public static boolean hasCheckStatus(Board board) {
-        return board.getWhitePlayer().isInCheck() || board.getBlackPlayer().isInCheck();
+    public static List<Move> retrieveLastNMoves(Board board, int n) {
+        final List<Move> moveHistory = new ArrayList<>();
+        Move currentMove = board.getTransitionMove();
+        int i = 0;
+        while(currentMove != null && i < n) {
+            moveHistory.add(currentMove);
+            currentMove = currentMove.getBoard().getTransitionMove();
+            i++;
+        }
+        return Collections.unmodifiableList(moveHistory);
     }
 }

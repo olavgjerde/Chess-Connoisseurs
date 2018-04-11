@@ -1,5 +1,6 @@
 package board;
 
+import board.Move.NullMove;
 import pieces.*;
 import player.BlackPlayer;
 import player.Player;
@@ -21,6 +22,7 @@ public class Board {
     private final BlackPlayer blackPlayer;
     private final Player currentPlayer;
     private final Pawn enPassantPawn;
+    private final Move transitionMove;
 
     public Board(Builder builder) {
         this.gameBoard = createGameBoard(builder);
@@ -34,6 +36,7 @@ public class Board {
         this.blackPlayer = new BlackPlayer(this, blackStandardLegalMoves, whiteStandardLegalMoves);
 
         this.currentPlayer = builder.nextMoveMaker.choosePlayerByAlliance(this.whitePlayer, this.blackPlayer);
+        this.transitionMove = builder.transitionMove;
     }
 
     /**
@@ -140,6 +143,13 @@ public class Board {
      */
     public Player currentPlayer() {
         return this.currentPlayer;
+    }
+
+    /**
+     * @return the move that changed this board into its current state
+     */
+    public Move getTransitionMove() {
+        return transitionMove;
     }
 
     /**
@@ -281,6 +291,7 @@ public class Board {
         Map<Coordinate, Piece> boardConfig;
         Alliance nextMoveMaker;
         Pawn enPassantPawn;
+        Move transitionMove = null;
 
         /**
          * Construct a Builder object with an empty map.
@@ -315,6 +326,15 @@ public class Board {
          */
         public void setEnPassantPawn(Pawn enPassantPawn) {
             this.enPassantPawn = enPassantPawn;
+        }
+
+        /**
+         * Set the move that made a change to the board
+         * @param transitionMove the move that changes the board
+         */
+        public Builder setMoveTransition(final Move transitionMove) {
+            this.transitionMove = transitionMove;
+            return this;
         }
 
         /**

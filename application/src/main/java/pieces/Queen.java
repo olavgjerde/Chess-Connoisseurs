@@ -71,6 +71,11 @@ public class Queen extends Piece {
     }
 
     @Override
+    public int locationValue(boolean isEndGame) {
+        return this.pieceAlliance.queenSquareValue(this.pieceCoordinate);
+    }
+
+    @Override
     public String toString() {
         return PieceType.QUEEN.toString();
     }

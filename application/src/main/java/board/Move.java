@@ -92,9 +92,7 @@ public abstract class Move {
         final Builder builder = new Builder();
         // place all of the current player's pieces that has not been moved
         for (Piece piece : this.board.currentPlayer().getActivePieces()) {
-            if (!this.movedPiece.equals(piece)) {
-                builder.setPiece(piece);
-            }
+            if (!this.movedPiece.equals(piece)) builder.setPiece(piece);
         }
         // place all of the opponent player's pieces that has not been moved
         for (Piece piece : this.board.currentPlayer().getOpponent().getActivePieces()) {
@@ -104,6 +102,8 @@ public abstract class Move {
         builder.setPiece(this.movedPiece.movePiece(this));
         // the next move shall be made by the opponent
         builder.setMoveMaker(this.board.currentPlayer().getOpponent().getAlliance());
+        // this move changed the board
+        builder.setMoveTransition(this);
         return builder.build();
     }
 
@@ -152,7 +152,8 @@ public abstract class Move {
             public boolean isDone() {
                 return false;
             }
-        }, LEAVES_PLAYER_IN_CHECK {
+        },
+        LEAVES_PLAYER_IN_CHECK {
             @Override
             public boolean isDone() {
                 return false;
@@ -186,20 +187,6 @@ public abstract class Move {
     public static final class MajorMove extends Move {
         public MajorMove(Board board, Piece movePiece, Coordinate destination) {
             super(board, movePiece, destination);
-        }
-
-        @Override
-        public Board execute() {
-            final Builder builder = new Builder();
-            for (Piece piece : this.board.currentPlayer().getActivePieces()) {
-                if (!this.movedPiece.equals(piece)) builder.setPiece(piece);
-            }
-            for (Piece piece : this.board.currentPlayer().getOpponent().getActivePieces()) {
-                builder.setPiece(piece);
-            }
-            builder.setPiece(this.movedPiece.movePiece(this));
-            builder.setMoveMaker(this.board.currentPlayer().getOpponent().getAlliance());
-            return builder.build();
         }
 
         @Override
@@ -260,6 +247,7 @@ public abstract class Move {
             }
             builder.setPiece(this.promotedPawn.getPromotionPiece().movePiece(this));
             builder.setMoveMaker(pawnMovedBoard.currentPlayer().getAlliance());
+            builder.setMoveTransition(this);
             return builder.build();
         }
 
@@ -318,6 +306,7 @@ public abstract class Move {
             // record pawn that executed a jump move -> this piece can be taken by an "en passant" move
             builder.setEnPassantPawn(movedPawn);
             builder.setMoveMaker(this.board.currentPlayer().getOpponent().getAlliance());
+            builder.setMoveTransition(this);
             return builder.build();
         }
     }
@@ -362,6 +351,7 @@ public abstract class Move {
             // set a new rook that represents the one involved in the castling
             builder.setPiece(new Rook(this.castleRookDestination, this.castleRook.getPieceAlliance(), false));
             builder.setMoveMaker(this.board.currentPlayer().getOpponent().getAlliance());
+            builder.setMoveTransition(this);
             return builder.build();
         }
 
@@ -455,6 +445,7 @@ public abstract class Move {
             }
             builder.setPiece(this.movedPiece.movePiece(this));
             builder.setMoveMaker(this.board.currentPlayer().getOpponent().getAlliance());
+            builder.setMoveTransition(this);
             return builder.build();
         }
 

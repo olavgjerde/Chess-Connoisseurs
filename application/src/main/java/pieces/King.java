@@ -74,4 +74,9 @@ public class King extends Piece {
     public boolean isCastled() {
         return this.isCastled;
     }
+
+    @Override
+    public int locationValue(boolean isEndGame) {
+        return this.pieceAlliance.kingSquareValue(this.pieceCoordinate, isEndGame);
+    }
 }

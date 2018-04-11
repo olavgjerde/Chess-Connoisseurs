@@ -124,4 +124,9 @@ public class Pawn extends Piece {
     public Piece getPromotionPiece() {
         return new Queen(this.pieceCoordinate, this.pieceAlliance, false);
     }
+
+    @Override
+    public int locationValue(boolean isEndGame) {
+        return this.pieceAlliance.pawnSquareValue(this.pieceCoordinate);
+    }
 }

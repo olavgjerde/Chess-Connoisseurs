@@ -77,6 +77,8 @@ public class ChessMainRevamp extends Application {
     private int equalBoardStateCounter = 0;
     //Move history, even = white moves, odd = black moves
     private ArrayList<Move> moveHistory = new ArrayList<>();
+    //List of all the dead pieces
+    private ArrayList<Piece> deadPieces = new ArrayList<>();
     //Toggle random board
     private boolean boardIsRandom = false;
 
@@ -588,6 +590,20 @@ public class ChessMainRevamp extends Application {
                 hintDestinationCoordinate = null;
             }
         });
+        //display the dead pieces
+        String w = "WHITE DEAD PIECES: \n";
+        String b = "BLACK DEAD PIECES: \n";
+        for (Piece p : deadPieces)
+            if (p.getPieceAlliance() == Alliance.WHITE)
+                w += p.toString() + " ";
+            else
+                b += p.toString() + " ";
+        Text wText = new Text(w);
+        Text bText = new Text(b);
+        wText.setFont(Font.font("Verdana", FontWeight.NORMAL, 14));
+        bText.setFont(Font.font("Verdana", FontWeight.NORMAL, 14));
+        statusPane.getChildren().add(wText);
+        statusPane.getChildren().add(bText);
 
         statusPane.getChildren().addAll(currentPlayerInCheck, hintButton);
     }
@@ -779,6 +795,8 @@ public class ChessMainRevamp extends Application {
             if (newBoard.getMoveStatus().isDone()) {
                 chessDataBoard = newBoard.getTransitionBoard();
                 moveHistory.add(move);
+                if (move.isAttack())
+                    deadPieces.add(move.getAttackedPiece());
             }
 
             //Reset user move related variables
@@ -817,6 +835,8 @@ public class ChessMainRevamp extends Application {
             if (newBoard.getMoveStatus().isDone()) {
                 chessDataBoard = newBoard.getTransitionBoard();
                 moveHistory.add(AIMove);
+                if (AIMove.isAttack())
+                    deadPieces.add(AIMove.getAttackedPiece());
             }
 
             Platform.runLater(this::drawChessGridPane);

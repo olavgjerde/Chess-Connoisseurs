@@ -81,6 +81,9 @@ public class ChessMainRevamp extends Application {
     private ArrayList<Piece> deadPieces = new ArrayList<>();
     //Toggle random board
     private boolean boardIsRandom = false;
+    //Sound handler
+    private SoundClipManager soundClipManager;
+    private boolean playSound = true;
 
     @Override
     public void init() {
@@ -94,6 +97,9 @@ public class ChessMainRevamp extends Application {
         this.gamePlayPane = new BorderPane();
         this.chessGridPane = new GridPane();
         this.statusPane = new VBox();
+
+        // Play menu music
+        soundClipManager = new SoundClipManager("MenuMusic.wav", true,0.05, playSound);
 
         // add menu bar
         MenuBar menuBar = populateMenuBar();
@@ -129,6 +135,15 @@ public class ChessMainRevamp extends Application {
         createStartMenuScene();
 
         mainStage.show();
+    }
+
+    /**
+     * Play sounds like buttonClicks and PieceDrop without interrupting main music.
+     * @param name
+     * @param volume
+     */
+    private void playSound(String name, double volume) {
+        SoundClipManager tempSoundClipManager = new SoundClipManager(name, false, volume,playSound);
     }
 
     /**
@@ -168,7 +183,19 @@ public class ChessMainRevamp extends Application {
         });
         toggleBoardStatus.setSelected(true);
 
-        optionsMenu.getItems().addAll(toggleHighlight, toggleMoveHighlight, toggleBoardStatus);
+        CheckMenuItem toggleMute = new CheckMenuItem("Toggle music and sounds");
+        toggleMute.setOnAction(e -> {
+            if(playSound) {
+                soundClipManager.clear();
+                playSound = false;
+            } else {
+                playSound = true;
+                soundClipManager = new SoundClipManager("GameMusic.wav", true,0.05, playSound);
+            }
+        });
+        toggleMute.setSelected(true);
+
+        optionsMenu.getItems().addAll(toggleHighlight, toggleMoveHighlight, toggleBoardStatus, toggleMute);
         return optionsMenu;
     }
 
@@ -181,6 +208,8 @@ public class ChessMainRevamp extends Application {
 
         MenuItem newGame = new MenuItem("New game");
         newGame.setOnAction(event -> {
+            soundClipManager.clear();
+            soundClipManager = new SoundClipManager("MenuMusic.wav",true,0.05, playSound);
             //Stop AI calculation from running in the background
             isWhiteAI = false;
             isBlackAI = false;
@@ -243,6 +272,9 @@ public class ChessMainRevamp extends Application {
             aiOptionList.get(i).setDisable(true);
             aiOptionList.get(i).setToggleGroup(aiOptions);
         }
+        for (RadioButton allAIOptions :aiOptionList) {
+            allAIOptions.setOnAction(event -> playSound("ButtonClick.wav", 1));
+        }
 
         //Options for white
         final ToggleGroup whiteOptions = new ToggleGroup();
@@ -252,6 +284,7 @@ public class ChessMainRevamp extends Application {
         whiteOption1.setUserData(false);
         whiteOption1.setSelected(true);
         whiteOption1.setOnAction(e -> {
+            playSound("ButtonClick.wav",1);
             whitePlayerNameField.setDisable(false);
             whitePlayerNameField.setText("Player1");
             for (RadioButton x : aiOptionList) x.setDisable(true);
@@ -261,6 +294,7 @@ public class ChessMainRevamp extends Application {
         whiteOption2.setToggleGroup(whiteOptions);
         whiteOption2.setUserData(true);
         whiteOption2.setOnAction(e -> {
+            playSound("ButtonClick.wav",1);
             whitePlayerNameField.setDisable(true);
             whitePlayerNameField.setText("CPU");
             for (RadioButton x : aiOptionList) x.setDisable(false);
@@ -274,6 +308,7 @@ public class ChessMainRevamp extends Application {
         blackOption1.setUserData(false);
         blackOption1.setSelected(true);
         blackOption1.setOnAction(e -> {
+            playSound("ButtonClick.wav",1);
             blackPlayerNameField.setDisable(false);
             blackPlayerNameField.setText("Player2");
             for (RadioButton x : aiOptionList) x.setDisable(true);
@@ -283,6 +318,7 @@ public class ChessMainRevamp extends Application {
         blackOption2.setToggleGroup(blackOptions);
         blackOption2.setUserData(true);
         blackOption2.setOnAction(e -> {
+            playSound("ButtonClick.wav",1);
             blackPlayerNameField.setDisable(true);
             blackPlayerNameField.setText("CPU");
             for (RadioButton x : aiOptionList) x.setDisable(false);
@@ -295,11 +331,13 @@ public class ChessMainRevamp extends Application {
         boardStateOption1.setToggleGroup(boardStateOptions);
         boardStateOption1.setUserData(true);
         boardStateOption1.setSelected(true);
+        boardStateOption1.setOnAction(e -> playSound("ButtonClick.wav", 1));
 
         RadioButton boardStateOption2 = new RadioButton("Random board");
         boardStateOption2.setToggleGroup(boardStateOptions);
         boardStateOption2.setUserData(false);
         boardStateOption2.setSelected(false);
+        boardStateOption2.setOnAction(e -> playSound("ButtonClick.wav", 1));
 
         //Sub panes
         whiteOptionsPane.getChildren().addAll(whiteOptionsText, whitePlayerNameField, whiteOption1, whiteOption2);
@@ -383,6 +421,10 @@ public class ChessMainRevamp extends Application {
             drawChessGridPane();
             mainStage.setScene(gameScene);
 
+            // Set GameMusic
+            soundClipManager.clear();
+            soundClipManager = new SoundClipManager("GameMusic.wav",true,0.05,playSound);
+
             //Set off ai vs ai match
             if (isWhiteAI || isBlackAI) Platform.runLater(this::makeAIMove);
         });
@@ -459,6 +501,8 @@ public class ChessMainRevamp extends Application {
      * Shows the game over pane for the application
      */
     private void createGameOverPane() {
+        soundClipManager.clear();
+        playSound("GameOverSound.wav",0.4);
         //Text box - HBox
         HBox gameOverRoot = new HBox();
         gameOverRoot.setPadding(new Insets(3,0,2,0));
@@ -496,6 +540,8 @@ public class ChessMainRevamp extends Application {
         newGame.setOnAction(e -> {
             //This option allows user/settings change
             createStartMenuScene();
+            soundClipManager.clear();
+            soundClipManager = new SoundClipManager("MenuMusic.wav", true,0.05, playSound);
         });
         newRound.setOnAction(e -> {
             //This lets the user continue with another round
@@ -508,6 +554,13 @@ public class ChessMainRevamp extends Application {
             //Removes game over pane
             gamePlayPane.setBottom(null);
             drawChessGridPane();
+
+            // Makes the first move in new round
+            if(isWhiteAI && isBlackAI) {
+                makeAIMove();
+            }
+            soundClipManager.clear();
+            soundClipManager = new SoundClipManager("GameMusic.wav", true,0.05, playSound);
         });
         quit.setOnAction(e -> System.exit(0));
 
@@ -793,10 +846,12 @@ public class ChessMainRevamp extends Application {
             final MoveTransition newBoard = chessDataBoard.currentPlayer().makeMove(move);
 
             if (newBoard.getMoveStatus().isDone()) {
+                playSound("DropPieceNew.wav",0.4);
                 chessDataBoard = newBoard.getTransitionBoard();
                 moveHistory.add(move);
-                if (move.isAttack())
+                if (move.isAttack()) {
                     deadPieces.add(move.getAttackedPiece());
+                }
             }
 
             //Reset user move related variables

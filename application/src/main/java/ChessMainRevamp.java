@@ -99,9 +99,6 @@ public class ChessMainRevamp extends Application {
         this.chessGridPane = new GridPane();
         this.statusPane = new VBox();
 
-        // Play menu music
-        soundClipManager = new SoundClipManager("MenuMusic.wav", true,0.2, playSound);
-
         // add menu bar
         MenuBar menuBar = populateMenuBar();
         gamePlayPane.setTop(menuBar);
@@ -211,8 +208,6 @@ public class ChessMainRevamp extends Application {
 
         MenuItem newGame = new MenuItem("New game");
         newGame.setOnAction(event -> {
-            soundClipManager.clear();
-            soundClipManager = new SoundClipManager("MenuMusic.wav",true,0.05, playSound);
             //Stop AI calculation from running in the background
             isWhiteAI = false;
             isBlackAI = false;
@@ -233,6 +228,9 @@ public class ChessMainRevamp extends Application {
      * Shows the start menu for the application
      */
     private void createStartMenuScene() {
+        // Play menu music
+        soundClipManager = new SoundClipManager("MenuMusic.wav", true,0.2, playSound);
+
         //Settings box - HBox
         VBox settingsRoot = new VBox();
         settingsRoot.setAlignment(Pos.CENTER);
@@ -507,8 +505,10 @@ public class ChessMainRevamp extends Application {
      * Shows the game over pane for the application
      */
     private void createGameOverPane() {
+        //Play game over sound
         soundClipManager.clear();
         playSound("GameOverSound.wav",0.4);
+
         //Text box - HBox
         HBox gameOverRoot = new HBox();
         gameOverRoot.setPadding(new Insets(3,0,2,0));
@@ -546,8 +546,6 @@ public class ChessMainRevamp extends Application {
         newGame.setOnAction(e -> {
             //This option allows user/settings change
             createStartMenuScene();
-            soundClipManager.clear();
-            soundClipManager = new SoundClipManager("MenuMusic.wav", true,0.05, playSound);
         });
         newRound.setOnAction(e -> {
             //This lets the user continue with another round
@@ -566,6 +564,8 @@ public class ChessMainRevamp extends Application {
             if(isWhiteAI && isBlackAI) {
                 makeAIMove();
             }
+
+            //Play game-music
             soundClipManager.clear();
             soundClipManager = new SoundClipManager("GameMusic.wav", true,0.05, playSound);
         });
@@ -842,12 +842,14 @@ public class ChessMainRevamp extends Application {
                 //User select
                 startCoordinate = chessDataBoard.getTile(inputCoordinate);
                 if (startCoordinate.getPiece() != null) {
-                    if (chessDataBoard.currentPlayer().getAlliance() == startCoordinate.getPiece().getPieceAlliance()) {
+                    if (startCoordinate.getPiece().getPieceAlliance() == chessDataBoard.currentPlayer().getAlliance()) {
                         userMovedPiece = startCoordinate.getPiece();
                         drawChessGridPane();
                     } else {
                         startCoordinate = null;
                     }
+                } else {
+                    startCoordinate = null;
                 }
             } else if (startCoordinate.equals(chessDataBoard.getTile(inputCoordinate))) {
                 //User deselect

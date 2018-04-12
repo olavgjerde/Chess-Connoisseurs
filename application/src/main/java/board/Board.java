@@ -226,12 +226,32 @@ public class Board {
             ThreadLocalRandom randGen = ThreadLocalRandom.current();
             int numOfPieces = (BoardUtils.getHeight() * BoardUtils.getWidth()) / 2;
 
-            // generate coordinates for all other pieces than kings
+            // generate coordinates for bishops so that each players bishops are not placed on same color
+            List<Coordinate> whiteTileCoordinates = new ArrayList<>();
+            List<Coordinate> blackTileCoordinates = new ArrayList<>();
+            while (whiteTileCoordinates.size() < 2 || blackTileCoordinates.size() < 2) {
+                Coordinate generatedCoordinate = new Coordinate(randGen.nextInt(BoardUtils.getWidth()), randGen.nextInt(BoardUtils.getHeight()));
+                if ((generatedCoordinate.getY() % 2 == generatedCoordinate.getX() % 2) && !whiteTileCoordinates.contains(generatedCoordinate)) {
+                    whiteTileCoordinates.add(generatedCoordinate);
+                } else if (!blackTileCoordinates.contains(generatedCoordinate)) {
+                    blackTileCoordinates.add(generatedCoordinate);
+                }
+            }
+            // place bishops
+            boardBuilder.setPiece(new Bishop(whiteTileCoordinates.get(0), Alliance.BLACK, false));
+            boardBuilder.setPiece(new Bishop(blackTileCoordinates.get(0), Alliance.BLACK, false));
+            boardBuilder.setPiece(new Bishop(whiteTileCoordinates.get(1), Alliance.WHITE, false));
+            boardBuilder.setPiece(new Bishop(blackTileCoordinates.get(1), Alliance.WHITE, false));
+
+            // generate coordinates for all other pieces than bishops
             List<Coordinate> coordinateList = new ArrayList<>();
-            for (int i = 0; i < numOfPieces; i++) {
+            for (int i = 0; i < numOfPieces - 4; i++) {
                 Coordinate generatedCoordinate = new Coordinate(randGen.nextInt(BoardUtils.getWidth()), randGen.nextInt(BoardUtils.getHeight()));
                 // "re-roll" if same coordinate is generated
-                while (coordinateList.contains(generatedCoordinate)) {
+                while (coordinateList.contains(generatedCoordinate) ||
+                        whiteTileCoordinates.contains(generatedCoordinate) ||
+                        blackTileCoordinates.contains(generatedCoordinate)) {
+
                     generatedCoordinate = new Coordinate(randGen.nextInt(BoardUtils.getWidth()), randGen.nextInt(BoardUtils.getHeight()));
                 }
                 coordinateList.add(generatedCoordinate);
@@ -263,15 +283,11 @@ public class Board {
             boardBuilder.setPiece(new Rook(coordinateIterator.next(), Alliance.BLACK, false));
             boardBuilder.setPiece(new Knight(coordinateIterator.next(), Alliance.BLACK, false));
             boardBuilder.setPiece(new Knight(coordinateIterator.next(), Alliance.BLACK, false));
-            boardBuilder.setPiece(new Bishop(coordinateIterator.next(), Alliance.BLACK, false));
-            boardBuilder.setPiece(new Bishop(coordinateIterator.next(), Alliance.BLACK, false));
             boardBuilder.setPiece(new Queen(coordinateIterator.next(), Alliance.BLACK, false));
             boardBuilder.setPiece(new Rook(coordinateIterator.next(), Alliance.WHITE, false));
             boardBuilder.setPiece(new Rook(coordinateIterator.next(), Alliance.WHITE, false));
             boardBuilder.setPiece(new Knight(coordinateIterator.next(), Alliance.WHITE, false));
             boardBuilder.setPiece(new Knight(coordinateIterator.next(), Alliance.WHITE, false));
-            boardBuilder.setPiece(new Bishop(coordinateIterator.next(), Alliance.WHITE, false));
-            boardBuilder.setPiece(new Bishop(coordinateIterator.next(), Alliance.WHITE, false));
             boardBuilder.setPiece(new Queen(coordinateIterator.next(), Alliance.WHITE, false));
             boardBuilder.setMoveMaker(Alliance.WHITE);
 

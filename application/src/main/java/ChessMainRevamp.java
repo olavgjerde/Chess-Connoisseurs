@@ -31,6 +31,7 @@ import player.basicAI.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 public class ChessMainRevamp extends Application {
@@ -124,10 +125,12 @@ public class ChessMainRevamp extends Application {
         gameScene.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
             screenWidth = newSceneWidth.intValue();
             Platform.runLater(this::drawChessGridPane);
+            Platform.runLater(this::drawTakenPiecesPane);
         });
         gameScene.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> {
             screenHeight = newSceneHeight.intValue();
             Platform.runLater(this::drawChessGridPane);
+            Platform.runLater(this::drawTakenPiecesPane);
         });
         mainStage.setOnCloseRequest(e -> System.exit(0));
 
@@ -418,6 +421,7 @@ public class ChessMainRevamp extends Application {
 
             boardHistory.clear();
             equalBoardStateCounter = 0;
+            deadPieces.clear();
             drawChessGridPane();
             mainStage.setScene(gameScene);
 
@@ -552,6 +556,7 @@ public class ChessMainRevamp extends Application {
 
             //Clear info about previous board states
             boardHistory.clear();
+            deadPieces.clear();
             equalBoardStateCounter = 0;
             //Removes game over pane
             gamePlayPane.setBottom(null);
@@ -569,6 +574,9 @@ public class ChessMainRevamp extends Application {
         gamePlayPane.setBottom(gameOverRoot);
     }
 
+    /**
+     * Draw the pane that displays information about the games state
+     */
     private void drawStatusPane() {
         statusPane.getChildren().clear();
 
@@ -645,24 +653,45 @@ public class ChessMainRevamp extends Application {
                 hintDestinationCoordinate = null;
             }
         });
-        //display the dead pieces
-        String w = "WHITE DEAD PIECES: \n";
-        String b = "BLACK DEAD PIECES: \n";
-        for (Piece p : deadPieces)
-            if (p.getPieceAlliance() == Alliance.WHITE)
-                w += p.toString() + " ";
-            else
-                b += p.toString() + " ";
-        Text wText = new Text(w);
-        Text bText = new Text(b);
-        wText.setFont(Font.font("Verdana", FontWeight.NORMAL, 14));
-        bText.setFont(Font.font("Verdana", FontWeight.NORMAL, 14));
-        statusPane.getChildren().add(wText);
-        statusPane.getChildren().add(bText);
 
         statusPane.getChildren().addAll(currentPlayerInCheck, hintButton);
     }
 
+    /**
+     * Draws the pane which will display the pieces taken by the players
+     */
+    private void drawTakenPiecesPane() {
+        VBox baseBox = new VBox();
+        baseBox.setMaxSize(screenWidth / 40, screenHeight);
+        baseBox.setAlignment(Pos.CENTER);
+        VBox whitePiecesBox = new VBox();
+        whitePiecesBox.setAlignment(Pos.TOP_CENTER);
+        VBox blackPieceBox = new VBox();
+        blackPieceBox.setAlignment(Pos.BOTTOM_CENTER);
+
+        //Sorts pieces by value
+        Comparator<Piece> chessCompare = Comparator.comparingInt(o -> o.getPieceType().getPieceValue());
+        deadPieces.sort(chessCompare);
+
+        for (Piece taken : deadPieces) {
+            Alliance takenAlliance = taken.getPieceAlliance();
+            String url = "/images/" + takenAlliance.toString().substring(0, 1) + taken.toString() + ".png";
+            ImageView takenImage = new ImageView(url);
+            takenImage.setFitHeight(baseBox.getMaxHeight() / 30);
+            takenImage.setFitWidth(baseBox.getMaxWidth());
+            takenImage.setPreserveRatio(true);
+            if (taken.getPieceAlliance() == Alliance.WHITE) whitePiecesBox.getChildren().add(takenImage);
+            else blackPieceBox.getChildren().add(takenImage);
+        }
+
+        baseBox.setStyle("-fx-border-color: black; -fx-background-color: radial-gradient(radius 180%, black, derive(darkslategray, -30%));");
+        baseBox.getChildren().addAll(whitePiecesBox, blackPieceBox);
+        gamePlayPane.setLeft(baseBox);
+    }
+
+    /**
+     * Draw the pane where the chess pieces are displayed
+     */
     private void drawChessGridPane() {
         chessGridPane.getChildren().clear();
         for (int y = 0; y < BoardUtils.getHeight(); y++) {
@@ -720,12 +749,12 @@ public class ChessMainRevamp extends Application {
                 Move m = moveHistory.get(moveHistory.size()-1);
                 Coordinate to = m.getDestinationCoordinate();
                 Coordinate from = m.getCurrentCoordinate();
-                if (coordinateId.equals(from)) colorOfTile = Color.rgb(255, 255, 180);
+                if (coordinateId.equals(from)) colorOfTile = Color.rgb(255, 255, 160);
                 else if (coordinateId.equals(to))
                     if (m.isAttack())
-                        colorOfTile = Color.rgb(255, 170, 170);
+                        colorOfTile = Color.rgb(255, 155, 155);
                     else
-                        colorOfTile = Color.rgb(255, 255, 180);
+                        colorOfTile = Color.rgb(255, 255, 160);
             }
 
             Rectangle rectangle = new Rectangle(TILE_SIZE, TILE_SIZE, colorOfTile);
@@ -853,6 +882,7 @@ public class ChessMainRevamp extends Application {
                 moveHistory.add(move);
                 if (move.isAttack()) {
                     deadPieces.add(move.getAttackedPiece());
+                    Platform.runLater(ChessMainRevamp.this::drawTakenPiecesPane);
                 }
             }
 
@@ -895,8 +925,11 @@ public class ChessMainRevamp extends Application {
                 playSound("DropPieceNew.wav",1);
                 chessDataBoard = newBoard.getTransitionBoard();
                 moveHistory.add(AIMove);
-                if (AIMove.isAttack())
+                if (AIMove.isAttack()) {
                     deadPieces.add(AIMove.getAttackedPiece());
+                    Platform.runLater(this::drawTakenPiecesPane);
+                }
+
             }
 
             Platform.runLater(this::drawChessGridPane);

@@ -24,7 +24,6 @@ public class SoundClipManager {
         if (repeat) {
             mediaPlayer.setCycleCount(mediaPlayer.INDEFINITE);
         }
-        System.out.println("Playing: " + sound);
     }
 
     public void clear() {

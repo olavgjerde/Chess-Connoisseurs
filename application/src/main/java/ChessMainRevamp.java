@@ -890,6 +890,7 @@ public class ChessMainRevamp extends Application {
             final MoveTransition newBoard = chessDataBoard.currentPlayer().makeMove(AIMove);
 
             if (newBoard.getMoveStatus().isDone()) {
+                playSound("DropPieceNew.wav",1);
                 chessDataBoard = newBoard.getTransitionBoard();
                 moveHistory.add(AIMove);
                 if (AIMove.isAttack())

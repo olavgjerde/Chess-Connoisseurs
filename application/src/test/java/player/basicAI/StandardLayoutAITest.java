@@ -51,7 +51,7 @@ class StandardLayoutAITest {
         assertTrue(trans3.getMoveStatus().isDone());
         board = trans3.getTransitionBoard();
 
-        final MoveStrategy moveStrategy = new MiniMax(3, false);
+        final MoveStrategy moveStrategy = new MiniMax(3, false, 5000);
         final Move AIMove = moveStrategy.execute(board);
         final Move bestMove = Move.MoveFactory.createMove(board, BoardUtils.getCoordinateFromAlgebraicNotation("d8"),
                                                                  BoardUtils.getCoordinateFromAlgebraicNotation("h4"));

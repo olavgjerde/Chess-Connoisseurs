@@ -50,8 +50,8 @@ public class ChessMainRevamp extends Application {
     //Handles user scores
     private Score scoreSystem;
     //Information toggles
-    private boolean highlightEnabled = true;
-    private boolean moveHighlightEnabled = false;
+    private boolean availableMoveHighlightEnabled = true;
+    private boolean lastMoveHighlightEnabled = true;
     private boolean boardStatusEnabled = true;
     //Player movement
     private Tile startCoordinate;
@@ -99,7 +99,7 @@ public class ChessMainRevamp extends Application {
         this.statusPane = new VBox();
 
         // Play menu music
-        soundClipManager = new SoundClipManager("MenuMusic.wav", true,0.05, playSound);
+        soundClipManager = new SoundClipManager("MenuMusic.wav", true,0.2, playSound);
 
         // add menu bar
         MenuBar menuBar = populateMenuBar();
@@ -163,17 +163,17 @@ public class ChessMainRevamp extends Application {
     private Menu createOptionMenu() {
         Menu optionsMenu = new Menu("Options");
 
-        CheckMenuItem toggleHighlight = new CheckMenuItem("Enable highlighting");
-        toggleHighlight.setOnAction(e -> highlightEnabled = !highlightEnabled);
+        CheckMenuItem toggleHighlight = new CheckMenuItem("Highlight available moves");
+        toggleHighlight.setOnAction(e -> availableMoveHighlightEnabled = !availableMoveHighlightEnabled);
         toggleHighlight.setSelected(true);
 
 
         CheckMenuItem toggleMoveHighlight = new CheckMenuItem("Highlight previous move");
         toggleMoveHighlight.setOnAction(event -> {
-            moveHighlightEnabled = !moveHighlightEnabled;
+            lastMoveHighlightEnabled = !lastMoveHighlightEnabled;
             drawChessGridPane();
         });
-        toggleMoveHighlight.setSelected(false);
+        toggleMoveHighlight.setSelected(true);
 
 
         CheckMenuItem toggleBoardStatus = new CheckMenuItem("Show board status");
@@ -183,14 +183,14 @@ public class ChessMainRevamp extends Application {
         });
         toggleBoardStatus.setSelected(true);
 
-        CheckMenuItem toggleMute = new CheckMenuItem("Toggle music and sounds");
+        CheckMenuItem toggleMute = new CheckMenuItem("Toggle sound");
         toggleMute.setOnAction(e -> {
             if(playSound) {
                 soundClipManager.clear();
                 playSound = false;
             } else {
                 playSound = true;
-                soundClipManager = new SoundClipManager("GameMusic.wav", true,0.05, playSound);
+                soundClipManager = new SoundClipManager("GameMusic.wav", true,0.08, playSound);
             }
         });
         toggleMute.setSelected(true);
@@ -439,12 +439,14 @@ public class ChessMainRevamp extends Application {
     private void createHighscoreScene() {
         final Stage dialog = new Stage();
 
+        /* Uncomment when needed for sql work
         SQL conn = new SQL();
         try{
             conn.getAllScores();
         } catch (SQLException e ) {
             System.out.println(e);
         }
+        */
 
         VBox hsRoot = new VBox();
         hsRoot.setSpacing(5);
@@ -690,7 +692,7 @@ public class ChessMainRevamp extends Application {
 
             Color colorOfTile = assignTileColor();
             boolean animateTile = false;
-            if (highlightEnabled && startCoordinate != null) {
+            if (availableMoveHighlightEnabled && startCoordinate != null) {
                 //Highlight selected tile
                 if (coordinateId.equals(startCoordinate.getTileCoord())) colorOfTile = Color.LIGHTGREEN;
                 //Highlight legal moves
@@ -713,7 +715,7 @@ public class ChessMainRevamp extends Application {
                     colorOfTile = Color.GREENYELLOW;
                 }
                 else if (coordinateId.equals(hintDestinationCoordinate)) colorOfTile = Color.GREENYELLOW;
-            } if (!moveHistory.isEmpty() && moveHighlightEnabled) {
+            } if (!moveHistory.isEmpty() && lastMoveHighlightEnabled) {
                 //highlight the previous move
                 Move m = moveHistory.get(moveHistory.size()-1);
                 Coordinate to = m.getDestinationCoordinate();

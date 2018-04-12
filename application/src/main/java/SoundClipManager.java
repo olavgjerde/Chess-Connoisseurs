@@ -1,7 +1,7 @@
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
-import java.io.File;
+import java.net.URISyntaxException;
 
 public class SoundClipManager {
     private MediaPlayer mediaPlayer;
@@ -15,14 +15,20 @@ public class SoundClipManager {
         // Load file from resource folder
         String filePath = "sounds/" + sound;
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource(filePath).getFile());
 
-        Media hit = new Media(file.toURI().toString());
+        Media hit = null;
+        try {
+            hit = new Media(classLoader.getResource(filePath).toURI().toString());
+        } catch (NullPointerException | URISyntaxException e) {
+            System.out.println("MediaPlayer could not find the requested sound file" + filePath);
+            e.printStackTrace();
+        }
+
         mediaPlayer = new MediaPlayer(hit);
         mediaPlayer.play();
         mediaPlayer.setVolume(volume);
         if (repeat) {
-            mediaPlayer.setCycleCount(mediaPlayer.INDEFINITE);
+            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
         }
     }
 

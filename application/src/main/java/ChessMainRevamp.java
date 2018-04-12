@@ -566,7 +566,7 @@ public class ChessMainRevamp extends Application {
         //Disable hint when not human players turn, or the game has ended
         if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
             (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI) ||
-            gameIsOver()) {
+             chessDataBoard.currentPlayer().isInCheckmate()) {
             hintButton.setDisable(true);
         }
         hintButton.setOnAction(new EventHandler<ActionEvent>() {

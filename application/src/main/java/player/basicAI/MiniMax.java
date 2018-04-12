@@ -26,11 +26,12 @@ public class MiniMax implements MoveStrategy {
     private final int searchDepth;
     private int quiescenceCount;
     private int totalQuiescence;
-    private static final int MAX_QUIESCENCE = 5000;
+    private int maxQuiescence;
 
-    public MiniMax(int searchDepth, boolean usePieceSquareBoards) {
+    public MiniMax(int searchDepth, boolean usePieceSquareBoards, int maxQuiescence) {
         this.boardEvaluator = new RegularBoardEvaluator(usePieceSquareBoards);
         this.searchDepth = searchDepth;
+        this.maxQuiescence = maxQuiescence;
     }
 
     @Override
@@ -80,10 +81,10 @@ public class MiniMax implements MoveStrategy {
                     if (moveTransition.getTransitionBoard().getWhitePlayer().isInCheckmate()) break;
                 }
             }
-            /*System.out.println(this.toString() + "(" + searchDepth + ") (" + moveCount++ + "/" + sorted.size() + ") "
+            System.out.println(this.toString() + "(" + searchDepth + ") (" + moveCount++ + "/" + sorted.size() + ") "
                                + "MOVE ANALYZED: " + move + " "
                                + "QUIESCENCE COUNT: " + quiescenceCount + " "
-                               + "BEST MOVE: " + bestMove + " [Score: " + currentValue + "]");*/
+                               + "BEST MOVE: " + bestMove + " [Score: " + currentValue + "]");
         }
 
         final long timeSpent = System.currentTimeMillis() - startTime;
@@ -170,7 +171,7 @@ public class MiniMax implements MoveStrategy {
      * @see <a href="https://chessprogramming.wikispaces.com/Quiescence+Search">Quiescence</a>
      */
     private int calculateQuiescenceDepth(final MoveTransition moveTransition, final int searchDepth) {
-        if (searchDepth == 1 && this.quiescenceCount < MAX_QUIESCENCE) {
+        if (searchDepth == 1 && this.quiescenceCount < maxQuiescence) {
             int activityScore = 0;
             if (moveTransition.getTransitionBoard().currentPlayer().isInCheck()) {
                 activityScore += 2;

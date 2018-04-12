@@ -619,7 +619,7 @@ public class ChessMainRevamp extends Application {
         //Disable hint when not human players turn, or the game has ended
         if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
             (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI) ||
-            gameIsOver()) {
+             chessDataBoard.currentPlayer().isInCheckmate()) {
             hintButton.setDisable(true);
         }
         hintButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -630,8 +630,8 @@ public class ChessMainRevamp extends Application {
                 destinationCoordinate = null;
                 userMovedPiece = null;
                 //Let AI find "best" move
-                MoveStrategy moveStrategy = new MiniMax(4, true);
-                if (boardIsRandom) moveStrategy = new MiniMax(4, false);
+                MoveStrategy moveStrategy = new MiniMax(4, true, 5000);
+                if (boardIsRandom) moveStrategy = new MiniMax(4, false, 100);
                 final Move AIMove = moveStrategy.execute(chessDataBoard);
                 //Set coordinates found
                 hintStartCoordinate = AIMove.getCurrentCoordinate();
@@ -883,8 +883,8 @@ public class ChessMainRevamp extends Application {
         if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
             (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI)) {
 
-            MoveStrategy moveStrategy = new MiniMax(aiDepth, true);
-            if (boardIsRandom) moveStrategy = new MiniMax(aiDepth, false);
+            MoveStrategy moveStrategy = new MiniMax(aiDepth, true, 5000);
+            if (boardIsRandom) moveStrategy = new MiniMax(aiDepth, false, 100);
 
             final Move AIMove = moveStrategy.execute(chessDataBoard);
             final MoveTransition newBoard = chessDataBoard.currentPlayer().makeMove(AIMove);

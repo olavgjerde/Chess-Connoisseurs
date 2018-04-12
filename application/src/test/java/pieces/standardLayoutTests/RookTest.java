@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import pieces.Alliance;
 import pieces.Rook;
 
+import java.util.Collection;
 import java.util.List;
 
 import static board.Board.*;
@@ -37,7 +38,7 @@ class RookTest {
         builder.setPiece(rook);
         builder.setMoveMaker(Alliance.BLACK);
         Board board = builder.build();
-        List<Move> rookCalculatedMoves = (List<Move>) board.getBlackPlayer().getLegalMoves();
+        Collection<Move> rookCalculatedMoves = board.getBlackPlayer().getLegalMoves();
 
         assertTrue(rookCalculatedMoves.contains(MoveFactory.createMove(board,
                 BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e1"))));

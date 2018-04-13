@@ -663,6 +663,10 @@ public class ChessMainRevamp extends Application {
                 hintDestinationCoordinate = null;
             }
         });
+        hintButton.setOnMouseEntered(event -> {
+            Tooltip tp = new Tooltip("Let the AI suggest a move");
+            Tooltip.install(hintButton, tp);
+        });
 
         statusPane.getChildren().addAll(currentPlayerInCheck, hintButton);
     }

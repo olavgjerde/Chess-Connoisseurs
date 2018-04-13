@@ -41,5 +41,9 @@ Works based on Black Widow-chess must use the same license, hence our license is
 + Chess piece graphics were made by JohnPablok (2018)   
   Available on: [https://opengameart.org/content/chess-pieces-and-board-squares](https://opengameart.org/content/chess-pieces-and-board-squares)  
 
-
   License: [https://creativecommons.org/licenses/by-sa/3.0/](https://creativecommons.org/licenses/by-sa/3.0/)
+  
++ GUI artwork from developer kit by Burak OZTURK
+
+  Available on: [https://www.shareicon.net/pack/developer-kit](https://www.shareicon.net/pack/developer-kit)
+  

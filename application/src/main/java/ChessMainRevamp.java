@@ -542,14 +542,15 @@ public class ChessMainRevamp extends Application {
         if (chessDataBoard.currentPlayer().isInCheckmate()) title = new Text("CHECKMATE - ");
         else if (chessDataBoard.currentPlayer().isInStalemate()) title = new Text("STALEMATE - ");
         else if (checkForDrawByRepetition()) title = new Text("DRAW - ");
-        title.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth/650 * 15));
+        title.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth/650 * 13));
 
         Text t1 = new Text("UPDATED SCORES: ");
-        t1.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth/650 * 15));
+        t1.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth/650 * 13));
         Text t2 = new Text(whitePlayerName + ": " + whitePlayerScore + " /");
         Text t3 = new Text(blackPlayerName + ": " + blackPlayerScore + " ");
-        t2.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, screenWidth/650 * 15));
-        t3.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, screenWidth/650 * 15));
+        int length = t2.getText().length() + t3.getText().length();
+        t2.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, screenWidth/650 * 15 - length/5));
+        t3.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, screenWidth/650 * 15 - length/5));
         gameOverRoot.getChildren().addAll(title, t1, t2, t3);
 
         //Button container

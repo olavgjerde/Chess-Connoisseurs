@@ -601,8 +601,8 @@ public class ChessMainRevamp extends Application {
         Text whitePlayerText = new Text(whitePlayerName + ": " + whitePlayerScore + " | " + whitePlayerStats);
         Text blackPlayerText = new Text(blackPlayerName + ": " + blackPlayerScore + " | " + blackPlayerStats);
         //Player names and scores styling
-        whitePlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 17));
-        blackPlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 17));
+        whitePlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (screenWidth/650 * 17)-whitePlayerText.getText().length()/5));
+        blackPlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (screenWidth/650 * 17)-blackPlayerText.getText().length()/5));
         whitePlayerText.setUnderline(true);
         blackPlayerText.setUnderline(true);
 
@@ -642,7 +642,6 @@ public class ChessMainRevamp extends Application {
         image.preserveRatioProperty();
         image.setFitHeight(30);
         image.setFitWidth(30);
-
         Button hintButton = new Button("Hint", image);
         hintButton.setStyle("-fx-focus-color: darkslategrey; -fx-faint-focus-color: transparent;");
         hintButton.setMaxWidth(100);
@@ -672,10 +671,39 @@ public class ChessMainRevamp extends Application {
                 hintDestinationCoordinate = null;
             }
         });
-        hintButton.setOnMouseEntered(event -> {
-            Tooltip tp = new Tooltip("Let the AI suggest a move");
-            Tooltip.install(hintButton, tp);
+
+        /*
+        url = "/images/GUI/undo.png";
+        image = new ImageView(url);
+        image.preserveRatioProperty();
+        image.setFitHeight(30);
+        image.setFitWidth(30);
+        Button backButton = new Button("", image);
+        backButton.setOnMouseEntered(event -> {
+            Tooltip tp = new Tooltip("Undo a move");
+            Tooltip.install(backButton, tp);
         });
+        backButton.setTranslateX(-50);
+        backButton.setOnAction(event -> {
+
+        });
+
+        url = "/images/GUI/redo.png";
+        image = new ImageView(url);
+        image.preserveRatioProperty();
+        image.setFitHeight(30);
+        image.setFitWidth(30);
+        Button forwardButton = new Button("", image);
+        forwardButton.setOnMouseEntered(event -> {
+            Tooltip tp = new Tooltip("Redo a move");
+            Tooltip.install(forwardButton, tp);
+        });
+        forwardButton.setTranslateX(50);
+        forwardButton.setTranslateY(-50);
+        backButton.setOnAction(event -> {
+
+        });
+        */
 
         statusPane.getChildren().addAll(currentPlayerInCheck, hintButton);
     }
@@ -852,20 +880,31 @@ public class ChessMainRevamp extends Application {
          */
         private void assignTileLabel() {
 
-            //we're not in a tile where we want to draw a label
-            if (coordinateId.getX() != 0 && coordinateId.getY() != BoardUtils.getHeight()-1) return;
-
             Text xLabel = new Text("");
             Text yLabel = new Text("");
 
-            //the rightmost column
-            if (coordinateId.getX() == 0) {
-                yLabel = new Text(String.valueOf(Math.abs(coordinateId.getY()-BoardUtils.getHeight())));
+            //if human plays black against CPU we flip
+            if (isWhiteAI && !isBlackAI) {
+                //the rightmost column
+                if (coordinateId.getX() == BoardUtils.getWidth()-1) {
+                    yLabel = new Text(String.valueOf(Math.abs(coordinateId.getY()-BoardUtils.getHeight())));
+                }
+                //the lower row
+                if (coordinateId.getY() == 0) {
+                    String label = ((char)(coordinateId.getX()+65)) + "";
+                    xLabel = new Text(label);
+                }
             }
-            //the lower row
-            if (coordinateId.getY() == BoardUtils.getHeight()-1) {
-                String label = ((char)(coordinateId.getX()+65)) + "";
-                xLabel = new Text(label);
+            else {
+                //the rightmost column
+                if (coordinateId.getX() == 0) {
+                    yLabel = new Text(String.valueOf(Math.abs(coordinateId.getY() - BoardUtils.getHeight())));
+                }
+                //the lower row
+                if (coordinateId.getY() == BoardUtils.getHeight() - 1) {
+                    String label = ((char) (coordinateId.getX() + 65)) + "";
+                    xLabel = new Text(label);
+                }
             }
 
             yLabel.setFont(Font.font("Verdana", FontWeight.NORMAL, TILE_SIZE/50 * 10));

@@ -208,6 +208,7 @@ public class ChessMainRevamp extends Application {
 
         MenuItem newGame = new MenuItem("New game");
         newGame.setOnAction(event -> {
+            soundClipManager.clear();
             //Stop AI calculation from running in the background
             isWhiteAI = false;
             isBlackAI = false;
@@ -428,7 +429,7 @@ public class ChessMainRevamp extends Application {
             soundClipManager = new SoundClipManager("GameMusic.wav",true,0.05,playSound);
 
             //Set off ai vs ai match
-            if (isWhiteAI || isBlackAI) {
+            if (isWhiteAI) {
                 new Thread(new Task() {
                     @Override
                     protected Object call() {
@@ -552,6 +553,7 @@ public class ChessMainRevamp extends Application {
         gameOverRoot.getChildren().addAll(buttonContainer);
 
         newGame.setOnAction(e -> {
+            soundClipManager.clear();
             //This option allows user/settings change
             createStartMenuScene();
         });
@@ -569,7 +571,7 @@ public class ChessMainRevamp extends Application {
             drawChessGridPane();
 
             // Makes the first move in new round
-            if(isWhiteAI && isBlackAI) {
+            if(isWhiteAI) {
                 makeAIMove();
             }
 

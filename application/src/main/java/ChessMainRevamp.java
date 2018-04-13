@@ -56,6 +56,7 @@ public class ChessMainRevamp extends Application {
     private boolean boardStatusEnabled = true;
     //Player movement
     private Tile startCoordinate;
+
     private Tile destinationCoordinate;
     private Piece userMovedPiece;
     //Hint coordinates
@@ -789,6 +790,8 @@ public class ChessMainRevamp extends Application {
 
             this.getChildren().add(rectangle);
 
+            assignTileLabel();
+
             if (!chessDataBoard.getTile(coordinateId).isEmpty())
                 assignTilePieceImage(chessDataBoard.getTile(coordinateId));
             this.setOnMouseClicked(e -> onClickHandler(coordinateId));
@@ -826,6 +829,45 @@ public class ChessMainRevamp extends Application {
             icon.setFitWidth(TILE_SIZE - 20);
             icon.setPreserveRatio(true);
             this.getChildren().add(icon);
+        }
+
+        /**
+         * assign labels to the tile, should only be called when we are at a tile that is in the rightmost column or the lower row
+         */
+        private void assignTileLabel() {
+
+            //we're not in a tile where we want to draw a label
+            if (coordinateId.getX() != 0 && coordinateId.getY() != BoardUtils.getHeight()-1) return;
+
+            Text xLabel = new Text("");
+            Text yLabel = new Text("");
+
+            //the rightmost column
+            if (coordinateId.getX() == 0) {
+                yLabel = new Text(String.valueOf(Math.abs(coordinateId.getY()-BoardUtils.getHeight())));
+            }
+            //the lower row
+            if (coordinateId.getY() == BoardUtils.getHeight()-1) {
+                String label = ((char)(coordinateId.getX()+65)) + "";
+                xLabel = new Text(label);
+            }
+
+            yLabel.setTranslateY(-TILE_SIZE/3-3);
+            yLabel.setTranslateX(-TILE_SIZE/3-3);
+            xLabel.setTranslateY(TILE_SIZE/3+3);
+            xLabel.setTranslateX(TILE_SIZE/3+3);
+
+            if (assignTileColor() == Color.LIGHTGRAY) {
+                xLabel.setFill(Color.DARKGRAY.darker().darker());
+                yLabel.setFill(Color.DARKGRAY.darker().darker());
+            }
+            else {
+                xLabel.setFill(Color.LIGHTGRAY);
+                yLabel.setFill(Color.LIGHTGRAY);
+            }
+
+            this.getChildren().add(xLabel);
+            this.getChildren().add(yLabel);
         }
 
         /**

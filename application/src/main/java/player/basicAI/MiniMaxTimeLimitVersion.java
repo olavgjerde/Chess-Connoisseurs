@@ -9,9 +9,12 @@ import pieces.Alliance;
 import pieces.Piece;
 import player.MoveTransition;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
-import static board.Move.*;
+import static board.Move.NullMove;
 
 /**
  * An implementation of the "MiniMax" algorithm with alpha-beta pruning and quiescence search
@@ -19,35 +22,38 @@ import static board.Move.*;
  * @see <a href=https://en.wikipedia.org/wiki/Minimax>MiniMax</a>
  * @see <a href=https://en.wikipedia.org/wiki/Alpha-beta_pruning>Alpha-beta pruning</a>
  */
-public class MiniMax implements MoveStrategy {
+public class MiniMaxTimeLimitVersion implements MoveStrategy {
     private final BoardEvaluator boardEvaluator;
     private final int searchDepth;
     private static boolean shuffleMode = false;
     private boolean printMoveInformation;
 
-    private int quiescenceCount;
-    private int totalQuiescence;
-    private int maxQuiescence;
+    private boolean quiescenceSearchStarted;
+    private long quiescenceSearchStartTime;
+    private long quiescenceSearchTimeSpent;
+    private long totalQuiescenceTime;
+    private int maxQuiescenceTime;
+    private double quiescenceTimeLimit;
 
     /**
      * The constructor for the MiniMax Alpha-beta algorithm
      * @param searchDepth depth of the search (plys)
-     * @param maxQuiescence how many times the ai is allowed to search deeper per top move node
+     * @param maxQuiescenceTime how much time should be granted in total to quiescence searching
      * @param usePieceSquareBoards to use piece-square board or not
      * @param printMoveInformation to print information about
      * @param shuffleMode to shuffle moves, this removes move ordering and makes it random (for use with random board generator)
      */
-    public MiniMax(int searchDepth, int maxQuiescence, boolean usePieceSquareBoards, boolean printMoveInformation, boolean shuffleMode) {
+    public MiniMaxTimeLimitVersion(int searchDepth, int maxQuiescenceTime, boolean usePieceSquareBoards, boolean printMoveInformation, boolean shuffleMode) {
         this.boardEvaluator = new RegularBoardEvaluator(usePieceSquareBoards);
         this.searchDepth = searchDepth;
-        this.maxQuiescence = maxQuiescence;
+        this.maxQuiescenceTime = maxQuiescenceTime;
         this.printMoveInformation = printMoveInformation;
         this.shuffleMode = shuffleMode;
     }
 
     @Override
     public String toString() {
-        return "MiniMax+";
+        return "Mini-Max/AB+MO+QUIESCENCE";
     }
 
     /**
@@ -61,18 +67,23 @@ public class MiniMax implements MoveStrategy {
     public Move execute(Board board) {
         final long startTime = System.currentTimeMillis();
         Move bestMove = new NullMove();
+        this.quiescenceTimeLimit = maxQuiescenceTime / board.currentPlayer().getLegalMoves().size();
 
         int highestEncounteredValue = Integer.MIN_VALUE;
         int lowestEncounteredValue = Integer.MAX_VALUE;
         int currentValue = 0;
 
-        if (printMoveInformation) System.out.println(board.currentPlayer().getAlliance().toString().toUpperCase() + " EVALUATING WITH DEPTH: " + searchDepth);
+        if (printMoveInformation) {
+            System.out.println(board.currentPlayer().getAlliance() + " EVALUATING with depth: " + searchDepth);
+            System.out.println("Quiescence time limit per move: " + quiescenceTimeLimit + "ms");
+        }
         Collection<Move> sorted = moveSortExpensive(board.currentPlayer().getLegalMoves());
         int moveCount = 1;
         for (Move move : sorted) {
             final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
             //Reset quiescence for every start node
-            this.quiescenceCount = 0;
+            totalQuiescenceTime += quiescenceSearchTimeSpent;
+            resetQuiescence();
             if (moveTransition.getMoveStatus().isDone()) {
                 if (board.currentPlayer().getAlliance() == Alliance.WHITE) {
                     currentValue = min(moveTransition.getTransitionBoard(), searchDepth - 1, highestEncounteredValue, lowestEncounteredValue);
@@ -94,19 +105,18 @@ public class MiniMax implements MoveStrategy {
             }
 
             if (printMoveInformation) {
-                System.out.printf("(" + moveCount++ + "/" + sorted.size() + ") "
-                        + "\u001B[34m" + "MOVE ANALYZED: " + "\u001B[0m" + move + " "
-                        + "\u001B[36m" + "DEEPER SEARCHES: " + "\u001B[0m" + quiescenceCount + " "
-                        + "\u001B[32m" + "BEST MOVE: " + "\u001B[0m" + bestMove
-                        + "\u001B[33m" + " [Score: " + "\u001B[0m" + currentValue + "\u001B[33m" + "]" + "\u001B[0m");
+                System.out.println(this.toString() + "(" + searchDepth + ") (" + moveCount++ + "/" + sorted.size() + ") "
+                        + "MOVE ANALYZED: " + move + " "
+                        + "QUIESCENCE TIME SPENT: " + quiescenceSearchTimeSpent + "ms "
+                        + "BEST MOVE: " + bestMove + " [Score: " + currentValue + "]");
             }
 
         }
 
         if (printMoveInformation) {
             final long timeSpent = System.currentTimeMillis() - startTime;
-            System.out.println("\tTIME TAKEN: " + "\u001B[32m" + timeSpent + "ms" + "\u001B[0m");
-            System.out.println("\tTOTAL DEEP SEARCH COUNT: " + "\u001B[36m" + totalQuiescence + "\u001B[0m" + "\n");
+            System.out.println("\tTIME TAKEN: " + timeSpent + "ms");
+            System.out.println("\tTOTAL QUIESCENCE TIME: " + totalQuiescenceTime + "ms");
         }
 
         return bestMove;
@@ -128,8 +138,13 @@ public class MiniMax implements MoveStrategy {
 
         int currentLowestValue = beta;
         for (Move move : moveSortStandard(board.currentPlayer().getLegalMoves())) {
-            final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
 
+            if (quiescenceSearchStarted) {
+                quiescenceSearchTimeSpent = Math.abs(quiescenceSearchStartTime - System.currentTimeMillis());
+                //System.out.println(quiescenceSearchTimeSpent + "ms");
+            }
+
+            final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
             if (moveTransition.getMoveStatus().isDone()) {
                 currentLowestValue = Math.min(currentLowestValue,
                         max(moveTransition.getTransitionBoard(), calculateQuiescenceDepth(moveTransition, searchDepth), alpha, currentLowestValue));
@@ -157,8 +172,13 @@ public class MiniMax implements MoveStrategy {
 
         int currentHighestValue = alpha;
         for (Move move : moveSortStandard(board.currentPlayer().getLegalMoves())) {
-            final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
 
+            if (quiescenceSearchStarted) {
+                quiescenceSearchTimeSpent = Math.abs(quiescenceSearchStartTime - System.currentTimeMillis());
+                //System.out.println(quiescenceSearchTimeSpent + "ms");
+            }
+
+            final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
             if (moveTransition.getMoveStatus().isDone()) {
                 currentHighestValue = Math.max(currentHighestValue,
                         min(moveTransition.getTransitionBoard(), calculateQuiescenceDepth(moveTransition, searchDepth), currentHighestValue, beta));
@@ -189,7 +209,8 @@ public class MiniMax implements MoveStrategy {
      * @see <a href="https://chessprogramming.wikispaces.com/Quiescence+Search">Quiescence</a>
      */
     private int calculateQuiescenceDepth(final MoveTransition moveTransition, final int searchDepth) {
-        if (searchDepth == 1 && this.quiescenceCount < maxQuiescence) {
+        if (quiescenceSearchTimeSpent > quiescenceTimeLimit) return 0;
+        if (searchDepth == 1) {
             int activityScore = 0;
             if (moveTransition.getTransitionBoard().currentPlayer().isInCheck()) {
                 activityScore += 2;
@@ -198,12 +219,24 @@ public class MiniMax implements MoveStrategy {
                 if (move.isAttack()) activityScore += 1;
             }
             if (activityScore > 3) {
-                this.quiescenceCount++;
-                this.totalQuiescence++;
+                // set of stop watch for quiescence search
+                if (!quiescenceSearchStarted) {
+                    quiescenceSearchStarted = true;
+                    quiescenceSearchStartTime = System.currentTimeMillis();
+                }
                 return 2;
             }
         }
         return searchDepth - 1;
+    }
+
+    /**
+     * Resets all the parameters regarding quiescence
+     */
+    private void resetQuiescence() {
+        this.quiescenceSearchStarted = false;
+        this.quiescenceSearchStartTime = 0;
+        this.quiescenceSearchTimeSpent = 0;
     }
 
     /**

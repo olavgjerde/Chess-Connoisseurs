@@ -648,8 +648,7 @@ public class ChessMainRevamp extends Application {
                 destinationCoordinate = null;
                 userMovedPiece = null;
                 //Let AI find "best" move
-                MoveStrategy moveStrategy = new MiniMax(4, 5000, true, true, false);
-                if (boardIsRandom) moveStrategy = new MiniMax(4, 100, false, true, false);
+                MoveStrategy moveStrategy = new MiniMax(4, 1000, true, true, false);
                 final Move AIMove = moveStrategy.execute(chessDataBoard);
                 //Set coordinates found
                 hintStartCoordinate = AIMove.getCurrentCoordinate();
@@ -925,9 +924,7 @@ public class ChessMainRevamp extends Application {
         if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
             (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI)) {
 
-            MoveStrategy moveStrategy = new MiniMax(aiDepth, 5000, true, true, false);
-            if (boardIsRandom) moveStrategy = new MiniMax(aiDepth, 5000, true, true, false);
-
+            MoveStrategy moveStrategy = new MiniMax(aiDepth, 1000, true, true, false);
             final Move AIMove = moveStrategy.execute(chessDataBoard);
             final MoveTransition newBoard = chessDataBoard.currentPlayer().makeMove(AIMove);
 
@@ -939,7 +936,6 @@ public class ChessMainRevamp extends Application {
                     deadPieces.add(AIMove.getAttackedPiece());
                     Platform.runLater(this::drawTakenPiecesPane);
                 }
-
             }
 
             Platform.runLater(this::drawChessGridPane);

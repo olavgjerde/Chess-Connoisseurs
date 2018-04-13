@@ -429,8 +429,10 @@ public class ChessMainRevamp extends Application {
             mainStage.setScene(gameScene);
 
             // Set GameMusic
-            soundClipManager.clear();
-            soundClipManager = new SoundClipManager("GameMusic.wav",true,0.05,playSound);
+            if (playSound) {
+                soundClipManager.clear();
+                soundClipManager = new SoundClipManager("GameMusic.wav",true,0.05, playSound);
+            }
 
             //Set off ai vs ai match
             if (isWhiteAI) {
@@ -596,13 +598,13 @@ public class ChessMainRevamp extends Application {
 
         Text title = new Text("GAME STATS");
         //Title styling
-        title.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, screenWidth/650 * 30));
+        title.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, screenWidth/650 * 20));
         //Player names and scores
         Text whitePlayerText = new Text(whitePlayerName + ": " + whitePlayerScore + " | " + whitePlayerStats);
         Text blackPlayerText = new Text(blackPlayerName + ": " + blackPlayerScore + " | " + blackPlayerStats);
         //Player names and scores styling
-        whitePlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (screenWidth/650 * 17)-whitePlayerText.getText().length()/5));
-        blackPlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (screenWidth/650 * 17)-blackPlayerText.getText().length()/5));
+        whitePlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (screenWidth/650 * 14)-whitePlayerText.getText().length()/5));
+        blackPlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (screenWidth/650 * 14)-blackPlayerText.getText().length()/5));
         whitePlayerText.setUnderline(true);
         blackPlayerText.setUnderline(true);
 
@@ -618,7 +620,7 @@ public class ChessMainRevamp extends Application {
                 boardStatusText = new Text((chessDataBoard.currentPlayer().getAlliance() +
                         " board status: \n" + boardEvaluator.evaluate(chessDataBoard, 3) * -1).toUpperCase());
 
-            boardStatusText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 14));
+            boardStatusText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
             statusPane.getChildren().add(boardStatusText);
 
 
@@ -627,14 +629,14 @@ public class ChessMainRevamp extends Application {
             if (!moveHistory.isEmpty()) {
                 moveHistoryText = new Text("PREVIOUS MOVE: \n" + moveHistory.get(moveHistory.size() - 1).toString());
             }
-            moveHistoryText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 14));
+            moveHistoryText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
             statusPane.getChildren().add(moveHistoryText);
 
         }
 
         //Display if the current player is in check
         Text currentPlayerInCheck = new Text((chessDataBoard.currentPlayer().getAlliance() + " in check: \n" + chessDataBoard.currentPlayer().isInCheck()).toUpperCase());
-        currentPlayerInCheck.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 14));
+        currentPlayerInCheck.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
 
         //Hint button for player help
         String url = "/images/GUI/hint.png";
@@ -642,9 +644,9 @@ public class ChessMainRevamp extends Application {
         image.preserveRatioProperty();
         image.setFitHeight(30);
         image.setFitWidth(30);
-        Button hintButton = new Button("Hint", image);
+        Button hintButton = new Button("HINT", image);
         hintButton.setStyle("-fx-focus-color: darkslategrey; -fx-faint-focus-color: transparent;");
-        hintButton.setMaxWidth(100);
+        hintButton.setMaxWidth(80);
         //Disable hint when not human players turn, or the game has ended
         if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
             (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI) ||
@@ -671,6 +673,11 @@ public class ChessMainRevamp extends Application {
                 hintDestinationCoordinate = null;
             }
         });
+        hintButton.setOnMouseDragOver(event -> {
+            Tooltip tp = new Tooltip("Let the AI suggest a move");
+            Tooltip.install(hintButton, tp);
+        });
+        hintButton.setAlignment(Pos.BOTTOM_CENTER);
 
         /*
         url = "/images/GUI/undo.png";
@@ -712,9 +719,9 @@ public class ChessMainRevamp extends Application {
      * Draws the pane which will display the pieces taken by the players
      */
     private void drawTakenPiecesPane() {
-        VBox baseBox = new VBox();
-        baseBox.setMaxSize(screenWidth / 40, screenHeight);
-        baseBox.setAlignment(Pos.CENTER);
+        FlowPane basePane = new FlowPane();
+        basePane.setPrefWrapLength(screenWidth / 25 * 2);
+        basePane.setAlignment(Pos.CENTER);
         VBox whitePiecesBox = new VBox();
         whitePiecesBox.setAlignment(Pos.TOP_CENTER);
         VBox blackPieceBox = new VBox();
@@ -728,16 +735,16 @@ public class ChessMainRevamp extends Application {
             Alliance takenAlliance = taken.getPieceAlliance();
             String url = "/images/" + takenAlliance.toString().substring(0, 1) + taken.toString() + ".png";
             ImageView takenImage = new ImageView(url);
-            takenImage.setFitHeight(baseBox.getMaxHeight() / 30);
-            takenImage.setFitWidth(baseBox.getMaxWidth());
+            takenImage.setFitHeight(basePane.getPrefWrapLength() / 2 - 10);
+            takenImage.setFitWidth(basePane.getMaxWidth());
             takenImage.setPreserveRatio(true);
             if (taken.getPieceAlliance() == Alliance.WHITE) whitePiecesBox.getChildren().add(takenImage);
             else blackPieceBox.getChildren().add(takenImage);
         }
 
-        baseBox.setStyle("-fx-border-color: black; -fx-background-color: radial-gradient(radius 180%, black, derive(darkslategray, -30%));");
-        baseBox.getChildren().addAll(whitePiecesBox, blackPieceBox);
-        gamePlayPane.setLeft(baseBox);
+        basePane.setStyle("-fx-border-color: black; -fx-background-color: radial-gradient(radius 180%, black, derive(darkslategray, -30%));");
+        basePane.getChildren().addAll(whitePiecesBox, blackPieceBox);
+        gamePlayPane.setLeft(basePane);
     }
 
     /**

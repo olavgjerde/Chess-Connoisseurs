@@ -744,6 +744,18 @@ public class ChessMainRevamp extends Application {
 
             Color colorOfTile = assignTileColor();
             boolean animateTile = false;
+            if (!moveHistory.isEmpty() && lastMoveHighlightEnabled) {
+                //highlight the previous move
+                Move m = moveHistory.get(moveHistory.size()-1);
+                Coordinate to = m.getDestinationCoordinate();
+                Coordinate from = m.getCurrentCoordinate();
+                if (coordinateId.equals(from)) colorOfTile = Color.rgb(255, 255, 160);
+                else if (coordinateId.equals(to))
+                    if (m.isAttack())
+                        colorOfTile = Color.rgb(255, 155, 155);
+                    else
+                        colorOfTile = Color.rgb(255, 255, 160);
+            }
             if (availableMoveHighlightEnabled && startCoordinate != null) {
                 //Highlight selected tile
                 if (coordinateId.equals(startCoordinate.getTileCoord())) colorOfTile = Color.LIGHTGREEN;
@@ -767,17 +779,6 @@ public class ChessMainRevamp extends Application {
                     colorOfTile = Color.GREENYELLOW;
                 }
                 else if (coordinateId.equals(hintDestinationCoordinate)) colorOfTile = Color.GREENYELLOW;
-            } if (!moveHistory.isEmpty() && lastMoveHighlightEnabled) {
-                //highlight the previous move
-                Move m = moveHistory.get(moveHistory.size()-1);
-                Coordinate to = m.getDestinationCoordinate();
-                Coordinate from = m.getCurrentCoordinate();
-                if (coordinateId.equals(from)) colorOfTile = Color.rgb(255, 255, 160);
-                else if (coordinateId.equals(to))
-                    if (m.isAttack())
-                        colorOfTile = Color.rgb(255, 155, 155);
-                    else
-                        colorOfTile = Color.rgb(255, 255, 160);
             }
 
             Rectangle rectangle = new Rectangle(TILE_SIZE, TILE_SIZE, colorOfTile);

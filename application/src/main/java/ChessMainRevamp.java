@@ -78,6 +78,7 @@ public class ChessMainRevamp extends Application {
     private boolean isBlackAI;
     //Keep count of board history (board states)
     private ArrayList<Board> boardHistory = new ArrayList<>();
+    private int rewindCounter = 0;
     private int equalBoardStateCounter = 0;
     //Move history, even = white moves, odd = black moves
     private ArrayList<Move> moveHistory = new ArrayList<>();
@@ -215,6 +216,9 @@ public class ChessMainRevamp extends Application {
             //Stop AI calculation from running in the background
             isWhiteAI = false;
             isBlackAI = false;
+            boardHistory.clear();
+            moveHistory.clear();
+            rewindCounter = 0;
             createStartMenuScene();
         });
 
@@ -423,11 +427,14 @@ public class ChessMainRevamp extends Application {
 
             boardHistory.clear();
             moveHistory.clear();
+            moveHistory.clear();
+            equalBoardStateCounter = 0;
             deadPieces.clear();
             equalBoardStateCounter = 0;
             drawChessGridPane();
             mainStage.setScene(gameScene);
 
+            boardHistory.add(chessDataBoard);
             // Set GameMusic
             if (playSound) {
                 soundClipManager.clear();
@@ -654,25 +661,22 @@ public class ChessMainRevamp extends Application {
              chessDataBoard.currentPlayer().isInCheckmate()) {
             hintButton.setDisable(true);
         }
-        hintButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                //Empty any ongoing player move
-                startCoordinate = null;
-                destinationCoordinate = null;
-                userMovedPiece = null;
-                //Let AI find "best" move
-                MoveStrategy moveStrategy = new MiniMax(4, 1000, true, true, false);
-                final Move AIMove = moveStrategy.execute(chessDataBoard);
-                //Set coordinates found
-                hintStartCoordinate = AIMove.getCurrentCoordinate();
-                hintDestinationCoordinate = AIMove.getDestinationCoordinate();
-                //Redraw to show coordinates found
-                drawChessGridPane();
-                //Reset hint variables
-                hintStartCoordinate = null;
-                hintDestinationCoordinate = null;
-            }
+        hintButton.setOnAction(event -> {
+            //Empty any ongoing player move
+            startCoordinate = null;
+            destinationCoordinate = null;
+            userMovedPiece = null;
+            //Let AI find "best" move
+            MoveStrategy moveStrategy = new MiniMax(4, 1000, true, true, false);
+            final Move AIMove = moveStrategy.execute(chessDataBoard);
+            //Set coordinates found
+            hintStartCoordinate = AIMove.getCurrentCoordinate();
+            hintDestinationCoordinate = AIMove.getDestinationCoordinate();
+            //Redraw to show coordinates found
+            drawChessGridPane();
+            //Reset hint variables
+            hintStartCoordinate = null;
+            hintDestinationCoordinate = null;
         });
         hintButton.setOnMouseDragOver(event -> {
             Tooltip tp = new Tooltip("Let the AI suggest a move");
@@ -680,7 +684,7 @@ public class ChessMainRevamp extends Application {
         });
         hintButton.setAlignment(Pos.BOTTOM_CENTER);
 
-        /*
+        //button for undoing a move
         url = "/images/GUI/undo.png";
         image = new ImageView(url);
         image.preserveRatioProperty();
@@ -691,11 +695,14 @@ public class ChessMainRevamp extends Application {
             Tooltip tp = new Tooltip("Undo a move");
             Tooltip.install(backButton, tp);
         });
-        backButton.setTranslateX(-50);
+        if (rewindCounter >= boardHistory.size()-1) backButton.setDisable(true);
         backButton.setOnAction(event -> {
-
+            chessDataBoard = boardHistory.get((boardHistory.size()-1)-(++rewindCounter));
+            drawChessGridPane();
         });
+        backButton.setTranslateX(-50);
 
+        //button for redoing a move
         url = "/images/GUI/redo.png";
         image = new ImageView(url);
         image.preserveRatioProperty();
@@ -706,14 +713,15 @@ public class ChessMainRevamp extends Application {
             Tooltip tp = new Tooltip("Redo a move");
             Tooltip.install(forwardButton, tp);
         });
+        if (rewindCounter <= 0) forwardButton.setDisable(true);
+        forwardButton.setOnAction(event -> {
+            chessDataBoard = boardHistory.get((boardHistory.size()-1)-(--rewindCounter));
+            drawChessGridPane();
+        });
         forwardButton.setTranslateX(50);
         forwardButton.setTranslateY(-50);
-        backButton.setOnAction(event -> {
 
-        });
-        */
-
-        statusPane.getChildren().addAll(currentPlayerInCheck, hintButton);
+        statusPane.getChildren().addAll(currentPlayerInCheck, hintButton, backButton, forwardButton);
     }
 
     /**
@@ -780,9 +788,9 @@ public class ChessMainRevamp extends Application {
 
             Color colorOfTile = assignTileColor();
             boolean animateTile = false;
-            if (!moveHistory.isEmpty() && lastMoveHighlightEnabled) {
+            if (moveHistory.size()-rewindCounter >= 1 && lastMoveHighlightEnabled) {
                 //highlight the previous move
-                Move m = moveHistory.get(moveHistory.size()-1);
+                Move m = moveHistory.get((moveHistory.size()-1)-rewindCounter);
                 Coordinate to = m.getDestinationCoordinate();
                 Coordinate from = m.getCurrentCoordinate();
                 if (coordinateId.equals(from)) colorOfTile = Color.rgb(255, 255, 160);
@@ -1003,8 +1011,17 @@ public class ChessMainRevamp extends Application {
 
             if (newBoard.getMoveStatus().isDone()) {
                 playSound("DropPieceNew.wav",0.4);
+                //clear out undone boards and moves
+                if (rewindCounter > 0) {
+                    for (int i=0; i<rewindCounter; i++) {
+                        boardHistory.remove(boardHistory.size()-1);
+                        if (!moveHistory.isEmpty()) moveHistory.remove(moveHistory.size()-1);
+                    }
+                    rewindCounter=0;
+                }
                 chessDataBoard = newBoard.getTransitionBoard();
                 moveHistory.add(move);
+                boardHistory.add(chessDataBoard);
                 if (move.isAttack()) {
                     deadPieces.add(move.getAttackedPiece());
                     Platform.runLater(ChessMainRevamp.this::drawTakenPiecesPane);
@@ -1046,8 +1063,17 @@ public class ChessMainRevamp extends Application {
 
             if (newBoard.getMoveStatus().isDone()) {
                 playSound("DropPieceNew.wav",1);
+                //clear out undone boards and moves
+                if (rewindCounter > 0) {
+                    for (int i=0; i<rewindCounter; i++) {
+                        boardHistory.remove(boardHistory.size()-1);
+                        if (!moveHistory.isEmpty()) moveHistory.remove(moveHistory.size()-1);
+                    }
+                    rewindCounter=0;
+                }
                 chessDataBoard = newBoard.getTransitionBoard();
                 moveHistory.add(AIMove);
+                boardHistory.add(chessDataBoard);
                 if (AIMove.isAttack()) {
                     deadPieces.add(AIMove.getAttackedPiece());
                     Platform.runLater(this::drawTakenPiecesPane);
@@ -1089,29 +1115,21 @@ public class ChessMainRevamp extends Application {
      */
     private boolean checkForDrawByRepetition(){
         if (!boardHistory.isEmpty()) {
-            //No moves were made
+            //No moves have been made
             if (boardHistory.get(boardHistory.size()-1).toString().equals(chessDataBoard.toString())) {
                 return false;
             }
         }
-
-        for (Board b : boardHistory){
-            if (chessDataBoard.toString().equals(b.toString())) {
-                equalBoardStateCounter++;
-                break;
+        if (boardHistory.size() >= 5) {
+            for (int i = boardHistory.size() - 1; i >= boardHistory.size() - 6; i--) {
+                if (chessDataBoard.toString().equals(boardHistory.get(i).toString())) {
+                    equalBoardStateCounter++;
+                    break;
+                }
             }
-        }
-        if (equalBoardStateCounter >= 3){
-            return true;
-        }
-
-        if (boardHistory.size() < 5)
-            boardHistory.add(chessDataBoard);
-        else {
-            for (int i=1; i<boardHistory.size(); i++){
-                boardHistory.set(i-1, boardHistory.get(i));
+            if (equalBoardStateCounter >= 3) {
+                return true;
             }
-            boardHistory.add(chessDataBoard);
         }
         return false;
     }

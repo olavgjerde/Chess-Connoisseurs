@@ -857,6 +857,16 @@ public class ChessMainRevamp extends Application {
             xLabel.setTranslateY(TILE_SIZE/3+3);
             xLabel.setTranslateX(TILE_SIZE/3+3);
 
+            if (TILE_SIZE < 50) {
+                yLabel.setTranslateY(-TILE_SIZE/3+3);
+                yLabel.setTranslateX(-TILE_SIZE/3+3);
+                xLabel.setTranslateY(TILE_SIZE/3-3);
+                xLabel.setTranslateX(TILE_SIZE/3-3);
+
+                yLabel.setFont(Font.font("Verdana", FontWeight.NORMAL, 10));
+                xLabel.setFont(Font.font("Verdana", FontWeight.NORMAL, 10));
+            }
+
             if (assignTileColor() == Color.LIGHTGRAY) {
                 xLabel.setFill(Color.DARKGRAY.darker().darker());
                 yLabel.setFill(Color.DARKGRAY.darker().darker());

@@ -10,6 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.BlendMode;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -28,6 +29,8 @@ import player.MoveTransition;
 import player.Score;
 import player.basicAI.*;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -530,14 +533,14 @@ public class ChessMainRevamp extends Application {
         if (chessDataBoard.currentPlayer().isInCheckmate()) title = new Text("CHECKMATE - ");
         else if (chessDataBoard.currentPlayer().isInStalemate()) title = new Text("STALEMATE - ");
         else if (checkForDrawByRepetition()) title = new Text("DRAW - ");
-        title.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        title.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth/650 * 15));
 
         Text t1 = new Text("UPDATED SCORES: ");
-        t1.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        t1.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth/650 * 15));
         Text t2 = new Text(whitePlayerName + ": " + whitePlayerScore + " /");
         Text t3 = new Text(blackPlayerName + ": " + blackPlayerScore + " ");
-        t2.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 20));
-        t3.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 20));
+        t2.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, screenWidth/650 * 15));
+        t3.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, screenWidth/650 * 15));
         gameOverRoot.getChildren().addAll(title, t1, t2, t3);
 
         //Button container
@@ -593,13 +596,13 @@ public class ChessMainRevamp extends Application {
 
         Text title = new Text("GAME STATS");
         //Title styling
-        title.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, 30));
+        title.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, screenWidth/650 * 30));
         //Player names and scores
         Text whitePlayerText = new Text(whitePlayerName + ": " + whitePlayerScore + " | " + whitePlayerStats);
         Text blackPlayerText = new Text(blackPlayerName + ": " + blackPlayerScore + " | " + blackPlayerStats);
         //Player names and scores styling
-        whitePlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, 17));
-        blackPlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, 17));
+        whitePlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 17));
+        blackPlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 17));
         whitePlayerText.setUnderline(true);
         blackPlayerText.setUnderline(true);
 
@@ -615,7 +618,7 @@ public class ChessMainRevamp extends Application {
                 boardStatusText = new Text((chessDataBoard.currentPlayer().getAlliance() +
                         " board status: \n" + boardEvaluator.evaluate(chessDataBoard, 3) * -1).toUpperCase());
 
-            boardStatusText.setFont(Font.font("Verdana", FontWeight.NORMAL, 14));
+            boardStatusText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 14));
             statusPane.getChildren().add(boardStatusText);
 
 
@@ -624,17 +627,23 @@ public class ChessMainRevamp extends Application {
             if (!moveHistory.isEmpty()) {
                 moveHistoryText = new Text("PREVIOUS MOVE: \n" + moveHistory.get(moveHistory.size() - 1).toString());
             }
-            moveHistoryText.setFont(Font.font("Verdana", FontWeight.NORMAL, 14));
+            moveHistoryText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 14));
             statusPane.getChildren().add(moveHistoryText);
 
         }
 
         //Display if the current player is in check
         Text currentPlayerInCheck = new Text((chessDataBoard.currentPlayer().getAlliance() + " in check: \n" + chessDataBoard.currentPlayer().isInCheck()).toUpperCase());
-        currentPlayerInCheck.setFont(Font.font("Verdana", FontWeight.NORMAL, 14));
+        currentPlayerInCheck.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 14));
 
         //Hint button for player help
-        Button hintButton = new Button("Hint");
+        String url = "/images/GUI/hint.png";
+        ImageView image = new ImageView(url);
+        image.preserveRatioProperty();
+        image.setFitHeight(30);
+        image.setFitWidth(30);
+
+        Button hintButton = new Button("Hint", image);
         hintButton.setStyle("-fx-focus-color: darkslategrey; -fx-faint-focus-color: transparent;");
         hintButton.setMaxWidth(100);
         //Disable hint when not human players turn, or the game has ended
@@ -858,19 +867,20 @@ public class ChessMainRevamp extends Application {
                 xLabel = new Text(label);
             }
 
+            yLabel.setFont(Font.font("Verdana", FontWeight.NORMAL, TILE_SIZE/50 * 10));
+            xLabel.setFont(Font.font("Verdana", FontWeight.NORMAL, TILE_SIZE/50 * 10));
+
             yLabel.setTranslateY(-TILE_SIZE/3-3);
             yLabel.setTranslateX(-TILE_SIZE/3-3);
             xLabel.setTranslateY(TILE_SIZE/3+3);
             xLabel.setTranslateX(TILE_SIZE/3+3);
 
+            //if the board is really small
             if (TILE_SIZE < 50) {
                 yLabel.setTranslateY(-TILE_SIZE/3+3);
                 yLabel.setTranslateX(-TILE_SIZE/3+3);
                 xLabel.setTranslateY(TILE_SIZE/3-3);
                 xLabel.setTranslateX(TILE_SIZE/3-3);
-
-                yLabel.setFont(Font.font("Verdana", FontWeight.NORMAL, 10));
-                xLabel.setFont(Font.font("Verdana", FontWeight.NORMAL, 10));
             }
 
             if (assignTileColor() == Color.LIGHTGRAY) {

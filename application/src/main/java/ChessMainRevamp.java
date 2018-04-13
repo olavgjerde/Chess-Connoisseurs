@@ -59,7 +59,6 @@ public class ChessMainRevamp extends Application {
     private boolean boardStatusEnabled = true;
     //Player movement
     private Tile startCoordinate;
-
     private Tile destinationCoordinate;
     private Piece userMovedPiece;
     //Hint coordinates
@@ -423,8 +422,9 @@ public class ChessMainRevamp extends Application {
             }
 
             boardHistory.clear();
-            equalBoardStateCounter = 0;
+            moveHistory.clear();
             deadPieces.clear();
+            equalBoardStateCounter = 0;
             drawChessGridPane();
             mainStage.setScene(gameScene);
 
@@ -570,6 +570,7 @@ public class ChessMainRevamp extends Application {
 
             //Clear info about previous board states
             boardHistory.clear();
+            moveHistory.clear();
             deadPieces.clear();
             equalBoardStateCounter = 0;
             //Removes game over pane

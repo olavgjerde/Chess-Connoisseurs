@@ -94,7 +94,7 @@ public class MiniMax implements MoveStrategy {
             }
 
             if (printMoveInformation) {
-                System.out.printf("(" + moveCount++ + "/" + sorted.size() + ") "
+                System.out.println("(" + moveCount++ + "/" + sorted.size() + ") "
                         + "\u001B[34m" + "MOVE ANALYZED: " + "\u001B[0m" + move + " "
                         + "\u001B[36m" + "DEEPER SEARCHES: " + "\u001B[0m" + quiescenceCount + " "
                         + "\u001B[32m" + "BEST MOVE: " + "\u001B[0m" + bestMove

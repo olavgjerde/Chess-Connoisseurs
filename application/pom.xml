@@ -51,6 +51,7 @@
                                 <includes>
                                     <include>com.google.guava:*</include>
                                     <include>mysql:*</include>
+                                    <include>org.mongodb:*</include>
                                 </includes>
                             </artifactSet>
                         </configuration>
@@ -101,6 +102,11 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>6.0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver</artifactId>
+            <version>3.7.0-rc0</version>
         </dependency>
     </dependencies>
 

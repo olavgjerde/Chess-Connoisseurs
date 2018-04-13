@@ -7,6 +7,14 @@ import java.util.Properties;
 
 public class SQL {
 
+    // load database driver
+    static {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            System.err.print("Could not load MySQL Driver");
+        }
+    }
     private static final String HIGHSCORE_TABLE = "highscore";
     static Connection con;
     private String jdbcUrl = "jdbc:mysql://localhost:3306/chess?autoReconnect=true&useSSL=false";
@@ -26,9 +34,6 @@ public class SQL {
             throw new IllegalStateException("Cannot connect the database!", e);
         }
     }
-
-
-
 
     //returns all scores
     public static void getAllScores() throws SQLException {

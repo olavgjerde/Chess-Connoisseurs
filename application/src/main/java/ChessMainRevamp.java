@@ -428,7 +428,15 @@ public class ChessMainRevamp extends Application {
             soundClipManager = new SoundClipManager("GameMusic.wav",true,0.05,playSound);
 
             //Set off ai vs ai match
-            if (isWhiteAI || isBlackAI) Platform.runLater(this::makeAIMove);
+            if (isWhiteAI || isBlackAI) {
+                new Thread(new Task() {
+                    @Override
+                    protected Object call() {
+                        makeAIMove();
+                        return null;
+                    }
+                }).start();
+            }
         });
 
         Scene settingsScene = new Scene(settingsRoot, gameScene.getWidth(), gameScene.getHeight());
@@ -640,8 +648,8 @@ public class ChessMainRevamp extends Application {
                 destinationCoordinate = null;
                 userMovedPiece = null;
                 //Let AI find "best" move
-                MoveStrategy moveStrategy = new MiniMax(4, true, 5000);
-                if (boardIsRandom) moveStrategy = new MiniMax(4, false, 100);
+                MoveStrategy moveStrategy = new MiniMax(4, 5000, true, true, false);
+                if (boardIsRandom) moveStrategy = new MiniMax(4, 100, false, true, false);
                 final Move AIMove = moveStrategy.execute(chessDataBoard);
                 //Set coordinates found
                 hintStartCoordinate = AIMove.getCurrentCoordinate();
@@ -917,8 +925,8 @@ public class ChessMainRevamp extends Application {
         if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
             (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI)) {
 
-            MoveStrategy moveStrategy = new MiniMax(aiDepth, true, 5000);
-            if (boardIsRandom) moveStrategy = new MiniMax(aiDepth, false, 100);
+            MoveStrategy moveStrategy = new MiniMax(aiDepth, 5000, true, true, false);
+            if (boardIsRandom) moveStrategy = new MiniMax(aiDepth, 5000, true, true, false);
 
             final Move AIMove = moveStrategy.execute(chessDataBoard);
             final MoveTransition newBoard = chessDataBoard.currentPlayer().makeMove(AIMove);

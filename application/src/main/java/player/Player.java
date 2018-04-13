@@ -41,7 +41,7 @@ public abstract class Player {
             legalMoves.addAll(calculateKingCastles(legalMoves, opponentMoves));
             this.isInCheck = !calculateAttacksOnCoordinate(this.playerKing.getPieceCoordinate(), opponentMoves).isEmpty();
         }
-        this.legalMoves = Collections.unmodifiableCollection(legalMoves);
+        this.legalMoves = legalMoves;
     }
 
     /**

@@ -2,8 +2,11 @@ package board;
 
 import pieces.*;
 import player.BlackPlayer;
+import player.MoveTransition;
 import player.Player;
 import player.WhitePlayer;
+import player.basicAI.MiniMax;
+import player.basicAI.MoveStrategy;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -217,7 +220,8 @@ public class Board {
      * Creates a board with the pieces for a regular chess game spread out randomly
      * @return a Board with a random layout
      */
-    public static Board createRandomBoard() {
+    public static Board createRandomBoardDeprecated() {
+        System.out.println("WARNING THIS CREATES ILLEGAL BOARDS");
         Builder boardBuilder;
         do {
             // if while condition checks out -> create new builder on loop start
@@ -297,6 +301,54 @@ public class Board {
                  boardBuilder.build().currentPlayer().getOpponent().isInCheck());
 
         return boardBuilder.build();
+    }
+
+    public static Board createRandomBoard() {
+        Board board = Board.createStandardBoard();
+        final MoveStrategy AI = new MiniMax(1, 0, false, false, false);
+
+        // empty board to hold last board before change
+        Board boardBeforeChange = new Board(new Builder().setMoveMaker(Alliance.WHITE));
+        int i;
+        int numberOfMoves = ThreadLocalRandom.current().nextInt(5, 35);
+        for (i = 0; i < numberOfMoves; i++) {
+           Move aiMove = AI.execute(board);
+           MoveTransition moveChange = board.currentPlayer().makeMove(aiMove);
+           if (moveChange.getMoveStatus().isDone()) {
+               boardBeforeChange = board;
+               board = moveChange.getTransitionBoard();
+           }
+        }
+
+        // revert to last board if last move made Alliance black
+        if (board.currentPlayer().getAlliance() != Alliance.WHITE) {
+            i--;
+            board = boardBeforeChange;
+        }
+
+        // check that player is not put in checkmate when the ai makes its next move
+        MoveStrategy smarterAI = new MiniMax(4, 100, true, false, false);
+        Move aiNextMove = smarterAI.execute(board);
+        Board nextIterationBoard = null;
+        if (board.currentPlayer().makeMove(aiNextMove).getMoveStatus().isDone()) {
+            nextIterationBoard = aiNextMove.execute();
+        } else {
+            // ai could not move, re-roll board
+            System.out.println("Illegal board state: reshuffling board");
+            createRandomBoard();
+        }
+
+        if (nextIterationBoard != null &&
+            (board.currentPlayer().isInCheckmate() || board.currentPlayer().isInStalemate() ||
+             board.currentPlayer().getOpponent().isInCheck() || board.currentPlayer().getOpponent().isInStalemate() ||
+             nextIterationBoard.currentPlayer().isInCheck())) {
+
+            System.out.println("Illegal board state: reshuffling board");
+            createRandomBoard();
+        }
+
+        System.out.println("Board shuffled with " + i + " AI moves");
+        return board;
     }
 
     /**

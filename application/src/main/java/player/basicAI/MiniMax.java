@@ -9,9 +9,7 @@ import pieces.Alliance;
 import pieces.Piece;
 import player.MoveTransition;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import static board.Move.*;
 
@@ -24,14 +22,27 @@ import static board.Move.*;
 public class MiniMax implements MoveStrategy {
     private final BoardEvaluator boardEvaluator;
     private final int searchDepth;
+    private static boolean shuffleMode = false;
+    private boolean printMoveInformation;
+
     private int quiescenceCount;
     private int totalQuiescence;
     private int maxQuiescence;
 
-    public MiniMax(int searchDepth, boolean usePieceSquareBoards, int maxQuiescence) {
+    /**
+     * The constructor for the MiniMax Alpha-beta algorithm
+     * @param searchDepth depth of the search (plys)
+     * @param maxQuiescence how many times the ai is allowed to search deeper per top move node
+     * @param usePieceSquareBoards to use piece-square board or not
+     * @param printMoveInformation to print information about
+     * @param shuffleMode to shuffle moves, this removes move ordering and makes it random (for use with random board generator)
+     */
+    public MiniMax(int searchDepth, int maxQuiescence, boolean usePieceSquareBoards, boolean printMoveInformation, boolean shuffleMode) {
         this.boardEvaluator = new RegularBoardEvaluator(usePieceSquareBoards);
         this.searchDepth = searchDepth;
         this.maxQuiescence = maxQuiescence;
+        this.printMoveInformation = printMoveInformation;
+        this.shuffleMode = shuffleMode;
     }
 
     @Override
@@ -55,7 +66,7 @@ public class MiniMax implements MoveStrategy {
         int lowestEncounteredValue = Integer.MAX_VALUE;
         int currentValue = 0;
 
-        System.out.println(board.currentPlayer().getAlliance() + " EVALUATING with depth: " + searchDepth);
+        if (printMoveInformation) System.out.println(board.currentPlayer().getAlliance() + " EVALUATING with depth: " + searchDepth);
         Collection<Move> sorted = moveSortExpensive(board.currentPlayer().getLegalMoves());
         int moveCount = 1;
         for (Move move : sorted) {
@@ -81,15 +92,21 @@ public class MiniMax implements MoveStrategy {
                     if (moveTransition.getTransitionBoard().getWhitePlayer().isInCheckmate()) break;
                 }
             }
-            System.out.println(this.toString() + "(" + searchDepth + ") (" + moveCount++ + "/" + sorted.size() + ") "
-                               + "MOVE ANALYZED: " + move + " "
-                               + "QUIESCENCE COUNT: " + quiescenceCount + " "
-                               + "BEST MOVE: " + bestMove + " [Score: " + currentValue + "]");
+
+            if (printMoveInformation) {
+                System.out.println(this.toString() + "(" + searchDepth + ") (" + moveCount++ + "/" + sorted.size() + ") "
+                        + "MOVE ANALYZED: " + move + " "
+                        + "QUIESCENCE COUNT: " + quiescenceCount + " "
+                        + "BEST MOVE: " + bestMove + " [Score: " + currentValue + "]");
+            }
+
         }
 
-        final long timeSpent = System.currentTimeMillis() - startTime;
-        System.out.println("\tTIME TAKEN: " + timeSpent + "ms");
-        System.out.println("\tTOTAL QUIESCENCE COUNT: " + totalQuiescence);
+        if (printMoveInformation) {
+            final long timeSpent = System.currentTimeMillis() - startTime;
+            System.out.println("\tTIME TAKEN: " + timeSpent + "ms");
+            System.out.println("\tTOTAL QUIESCENCE COUNT: " + totalQuiescence);
+        }
 
         return bestMove;
     }
@@ -188,7 +205,6 @@ public class MiniMax implements MoveStrategy {
         return searchDepth - 1;
     }
 
-
     /**
      * Sorts moves contained in a collection
      * General comparison outline:
@@ -201,6 +217,10 @@ public class MiniMax implements MoveStrategy {
      * @return a immutable collection which contains the moves in sorted order
      */
     private static Collection<Move> moveSortSmart(final Collection<Move> moves) {
+        if (shuffleMode) {
+            Collections.shuffle((List)moves);
+            return moves;
+        }
         return Ordering.from((Comparator<Move>) (moveA, moveB) -> ComparisonChain.start()
                 .compareTrueFirst(hasCheckStatus(moveA.getBoard()), hasCheckStatus(moveB.getBoard()))
                 .compareTrueFirst(moveA.isAttack(), moveB.isAttack())
@@ -219,7 +239,11 @@ public class MiniMax implements MoveStrategy {
      * @param moves to sort
      * @return sorted collection of moves
      */
-    private static Collection<Move> moveSortExpensive(final Collection<Move> moves) {
+    private static Collection<Move> moveSortExpensive(Collection<Move> moves) {
+        if (shuffleMode) {
+            Collections.shuffle((List)moves);
+            return moves;
+        }
         return Ordering.from((Comparator<Move>) (moveA, moveB) -> ComparisonChain.start()
                 .compareTrueFirst(moveCreatesCheck(moveA), moveCreatesCheck(moveB))
                 .compareTrueFirst(moveA.isCastlingMove(), moveB.isCastlingMove())
@@ -236,7 +260,11 @@ public class MiniMax implements MoveStrategy {
      * @param moves to sort
      * @return sorted collection of moves
      */
-    private static Collection<Move> moveSortStandard(final Collection<Move> moves) {
+    private static Collection<Move> moveSortStandard(Collection<Move> moves) {
+        if (shuffleMode) {
+            Collections.shuffle((List)moves);
+            return moves;
+        }
         return Ordering.from((Comparator<Move>) (moveA, moveB) -> ComparisonChain.start()
                 .compareTrueFirst(moveA.isCastlingMove(), moveB.isCastlingMove())
                 .compare(mvvlva(moveB), mvvlva(moveA))

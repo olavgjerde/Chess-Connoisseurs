@@ -136,8 +136,8 @@ public class ChessMainRevamp extends Application {
 
     /**
      * Play sounds like buttonClicks and PieceDrop without interrupting main music.
-     * @param name
-     * @param volume
+     * @param name of sound file (path to)
+     * @param volume volume to be played at
      */
     private void playSound(String name, double volume) {
         SoundClipManager tempSoundClipManager = new SoundClipManager(name, false, volume,playSound);
@@ -231,11 +231,9 @@ public class ChessMainRevamp extends Application {
         soundClipManager = new SoundClipManager("MenuMusic.wav", true,0.2, playSound);
 
         //Menu Text
-        Text whiteOptionsText = new Text("WHITE PLAYER");
+        Text whiteOptionsText = new Text("WHITE PLAYER"), blackOptionsText = new Text("BLACK PLAYER"), aiDifficulty = new Text("AI DIFFICULTY");
         whiteOptionsText.setFont(new Font(30));
-        Text blackOptionsText = new Text("BLACK PLAYER");
         blackOptionsText.setFont(new Font(30));
-        Text aiDifficulty = new Text("AI DIFFICULTY");
         aiDifficulty.setFont(new Font(18));
 
         //Settings root pane
@@ -250,9 +248,8 @@ public class ChessMainRevamp extends Application {
         }
 
         //Text fields
-        TextField whitePlayerNameField = new TextField("Player1");
+        TextField whitePlayerNameField = new TextField("Player1"), blackPlayerNameField = new TextField("Player2");
         whitePlayerNameField.setMaxWidth(gameScene.getWidth() / 4);
-        TextField blackPlayerNameField = new TextField("Player2");
         blackPlayerNameField.setMaxWidth(gameScene.getWidth() / 4);
 
         //Options for AI
@@ -351,7 +348,26 @@ public class ChessMainRevamp extends Application {
                 ((HBox) x).setSpacing(5);
             }
         }
+        //Add confirm button last
+        settingsRoot.getChildren().addAll(createStartMenuConfirmButton(whiteOptions, blackOptions, aiOptions, boardStateOptions,
+                                                                       whitePlayerNameField, blackPlayerNameField));
+        Scene settingsScene = new Scene(settingsRoot, gameScene.getWidth(), gameScene.getHeight());
+        //Switch to this start menu scene
+        mainStage.setScene(settingsScene);
+    }
 
+    /**
+     * Create a confirm button to use in the StartMenu Scene
+     * @param whiteOptions ToggleGroup which contains the options for white player
+     * @param blackOptions ToggleGroup which contains the options for black player
+     * @param aiOptions ToggleGroup which contains the options for ai
+     * @param boardStateOptions ToggleGroup which contains the options for board state
+     * @param whitePlayerNameField TextField where the white player enters name
+     * @param blackPlayerNameField TextField where the black player enters name
+     * @return Button that confirms the settings and applies the to the games variables
+     */
+    private Button createStartMenuConfirmButton(ToggleGroup whiteOptions, ToggleGroup blackOptions, ToggleGroup aiOptions,
+                                                ToggleGroup boardStateOptions, TextField whitePlayerNameField, TextField blackPlayerNameField) {
         //Confirm settings button
         Button confirmSettings = new Button("Confirm");
         confirmSettings.setMaxWidth(100);
@@ -406,7 +422,6 @@ public class ChessMainRevamp extends Application {
 
             boardHistory.clear();
             moveHistory.clear();
-            equalBoardStateCounter = 0;
             deadPieces.clear();
             equalBoardStateCounter = 0;
             drawChessGridPane();
@@ -431,9 +446,7 @@ public class ChessMainRevamp extends Application {
             }
         });
 
-        settingsRoot.getChildren().addAll(confirmSettings);
-        Scene settingsScene = new Scene(settingsRoot, gameScene.getWidth(), gameScene.getHeight());
-        mainStage.setScene(settingsScene);
+        return confirmSettings;
     }
 
     /**
@@ -464,13 +477,8 @@ public class ChessMainRevamp extends Application {
         list.setSpacing(5);
         hsRoot.getChildren().add(list);
 
-        VBox names = new VBox();
-        VBox scores = new VBox();
-        VBox record = new VBox();
-
-        Text nameTitle = new Text("Name");
-        Text scoreTitle = new Text("Score");
-        Text recordTitle = new Text("Record");
+        VBox names = new VBox(), scores = new VBox(), record = new VBox();
+        Text nameTitle = new Text("Name"), scoreTitle = new Text("Score"), recordTitle = new Text("Record");
 
         nameTitle.setUnderline(true);
         scoreTitle.setUnderline(true);
@@ -537,9 +545,7 @@ public class ChessMainRevamp extends Application {
         buttonContainer.setSpacing(10);
 
         //Buttons
-        Button newGame = new Button("NEW GAME");
-        Button newRound = new Button("NEXT ROUND");
-        Button quit = new Button("QUIT");
+        Button newGame = new Button("NEW GAME"), newRound = new Button("NEXT ROUND"), quit = new Button("QUIT");
 
         buttonContainer.getChildren().addAll(newGame, newRound, quit);
         gameOverRoot.getChildren().addAll(buttonContainer);
@@ -877,8 +883,7 @@ public class ChessMainRevamp extends Application {
          */
         private void assignTilePieceImage(Tile tile) {
             ImageView icon = new ImageView(resources.getPieceImage(tile.getPiece()));
-            icon.setFitHeight(TILE_SIZE - 30);
-            icon.setFitWidth(TILE_SIZE - 30);
+            icon.setFitHeight(TILE_SIZE - 35);
             icon.setPreserveRatio(true);
             this.getChildren().add(icon);
         }

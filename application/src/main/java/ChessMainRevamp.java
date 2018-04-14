@@ -7,6 +7,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.BlendMode;
@@ -648,13 +649,10 @@ public class ChessMainRevamp extends Application {
         currentPlayerInCheck.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
 
         //Hint button for player help
-        String url = "/images/GUI/hint.png";
-        ImageView image = new ImageView(url);
-        image.preserveRatioProperty();
-        image.setFitHeight(30);
-        image.setFitWidth(30);
+        ImageView image = new ImageView("/images/GUI/hint.png");
+        image.setFitHeight(20);
+        image.setPreserveRatio(true);
         Button hintButton = new Button("HINT", image);
-        hintButton.setStyle("-fx-focus-color: darkslategrey; -fx-faint-focus-color: transparent;");
         hintButton.setMaxWidth(80);
         //Disable hint when not human players turn, or the game has ended
         if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
@@ -679,18 +677,15 @@ public class ChessMainRevamp extends Application {
             hintStartCoordinate = null;
             hintDestinationCoordinate = null;
         });
-        hintButton.setOnMouseDragOver(event -> {
+        hintButton.setOnMouseEntered(event -> {
             Tooltip tp = new Tooltip("Let the AI suggest a move");
             Tooltip.install(hintButton, tp);
         });
-        hintButton.setAlignment(Pos.BOTTOM_CENTER);
 
         //button for undoing a move
-        url = "/images/GUI/undo.png";
-        image = new ImageView(url);
-        image.preserveRatioProperty();
-        image.setFitHeight(30);
-        image.setFitWidth(30);
+        image = new ImageView("/images/GUI/undo.png");
+        image.setFitHeight(20);
+        image.setPreserveRatio(true);
         Button backButton = new Button("", image);
         backButton.setOnMouseEntered(event -> {
             Tooltip tp = new Tooltip("Undo a move");
@@ -701,14 +696,11 @@ public class ChessMainRevamp extends Application {
             chessDataBoard = boardHistory.get((boardHistory.size()-1)-(++rewindCounter));
             drawChessGridPane();
         });
-        backButton.setTranslateX(-50);
 
         //button for redoing a move
-        url = "/images/GUI/redo.png";
-        image = new ImageView(url);
-        image.preserveRatioProperty();
-        image.setFitHeight(30);
-        image.setFitWidth(30);
+        image = new ImageView("/images/GUI/redo.png");
+        image.setFitHeight(20);
+        image.setPreserveRatio(true);
         Button forwardButton = new Button("", image);
         forwardButton.setOnMouseEntered(event -> {
             Tooltip tp = new Tooltip("Redo a move");
@@ -719,10 +711,17 @@ public class ChessMainRevamp extends Application {
             chessDataBoard = boardHistory.get((boardHistory.size()-1)-(--rewindCounter));
             drawChessGridPane();
         });
-        forwardButton.setTranslateX(50);
-        forwardButton.setTranslateY(-50);
 
-        statusPane.getChildren().addAll(currentPlayerInCheck, hintButton, backButton, forwardButton);
+        //extra button styling
+        HBox buttonContainer = new HBox(backButton, hintButton, forwardButton);
+        buttonContainer.setAlignment(Pos.CENTER);
+        buttonContainer.setPadding(new Insets(200, 0, 0 , 0));
+        buttonContainer.setSpacing(5);
+        for (Node x : buttonContainer.getChildren()) {
+            x.setStyle("-fx-focus-color: darkslategrey; -fx-faint-focus-color: transparent;");
+        }
+
+        statusPane.getChildren().addAll(currentPlayerInCheck, buttonContainer);
     }
 
     /**

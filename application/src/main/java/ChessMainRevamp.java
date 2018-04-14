@@ -701,7 +701,7 @@ public class ChessMainRevamp extends Application {
         //extra button styling
         HBox buttonContainer = new HBox(backButton, hintButton, forwardButton);
         buttonContainer.setAlignment(Pos.CENTER);
-        buttonContainer.setPadding(new Insets(380, 0, 0 , 0));
+        buttonContainer.setPadding(new Insets(200, 0, 0 , 0));
         buttonContainer.setSpacing(5);
         for (Node x : buttonContainer.getChildren()) {
             x.setStyle("-fx-focus-color: darkslategrey; -fx-faint-focus-color: transparent;");

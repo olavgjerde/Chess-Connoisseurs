@@ -90,6 +90,8 @@ public class ChessMainRevamp extends Application {
     //Sound handler
     private SoundClipManager soundClipManager;
     private boolean playSound = true;
+    //resources
+    private ResourceLoader resources = new ResourceLoader();
 
     @Override
     public void init() {
@@ -638,7 +640,7 @@ public class ChessMainRevamp extends Application {
         //Button scaling
         double buttonSize = ((screenHeight + screenWidth) * 1 / (BoardUtils.getWidth() * BoardUtils.getHeight()));
         //Hint button for player help
-        ImageView image = GuiHelper.imageFinder("/images/GUI/hint.png", buttonSize, buttonSize, true);
+        ImageView image = GuiHelper.imageFinder(resources.hint, buttonSize, buttonSize, true);
         Button hintButton = new Button("HINT", image);
         hintButton.setFont(Font.font("Verdana", screenWidth/650 * 5));
         //Disable hint when not human players turn, or the game has ended
@@ -670,7 +672,7 @@ public class ChessMainRevamp extends Application {
         });
 
         //button for undoing a move
-        image = GuiHelper.imageFinder("/images/GUI/undo.png", buttonSize, buttonSize, true);
+        image = GuiHelper.imageFinder(resources.undo, buttonSize, buttonSize, true);
         Button backButton = new Button("", image);
         backButton.setOnMouseEntered(event -> {
             Tooltip tp = new Tooltip("Undo a move");
@@ -686,7 +688,7 @@ public class ChessMainRevamp extends Application {
         });
 
         //button for redoing a move
-        image = GuiHelper.imageFinder("/images/GUI/redo.png", buttonSize, buttonSize, true);
+        image = GuiHelper.imageFinder(resources.redo, buttonSize, buttonSize, true);
         Button forwardButton = new Button("", image);
         forwardButton.setOnMouseEntered(event -> {
             Tooltip tp = new Tooltip("Redo a move");
@@ -869,8 +871,7 @@ public class ChessMainRevamp extends Application {
          * @param tile to draw
          */
         private void assignTilePieceImage(Tile tile) {
-            String url = "/images/" + tile.getPiece().getPieceAlliance().toString().substring(0, 1) + tile.getPiece().toString() + ".png";
-            ImageView icon = new ImageView(url);
+            ImageView icon = new ImageView(resources.getPieceImage(tile.getPiece()));
             icon.setFitHeight(TILE_SIZE - 30);
             icon.setFitWidth(TILE_SIZE - 30);
             icon.setPreserveRatio(true);

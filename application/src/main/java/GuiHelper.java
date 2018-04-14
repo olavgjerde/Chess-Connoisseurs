@@ -1,3 +1,4 @@
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 /**
@@ -5,11 +6,11 @@ import javafx.scene.image.ImageView;
  */
 class GuiHelper {
 
-    static ImageView imageFinder(String path, double width, double height, boolean preserveRatio) {
-        ImageView image = new ImageView(path);
-        image.setPreserveRatio(preserveRatio);
-        image.setFitWidth(width);
-        image.setFitHeight(height);
-        return image;
+    static ImageView imageFinder(Image image, double width, double height, boolean preserveRatio) {
+        ImageView imageView = new ImageView(image);
+        imageView.setPreserveRatio(preserveRatio);
+        imageView.setFitWidth(width);
+        imageView.setFitHeight(height);
+        return imageView;
     }
 }

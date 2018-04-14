@@ -1115,12 +1115,6 @@ public class ChessMainRevamp extends Application {
      * @return true if its a draw, false otherwise
      */
     private boolean checkForDrawByRepetition(){
-        if (!boardHistory.isEmpty()) {
-            //No moves have been made
-            if (boardHistory.get(boardHistory.size()-1).toString().equals(chessDataBoard.toString())) {
-                return false;
-            }
-        }
         if (boardHistory.size() >= 5) {
             for (int i = boardHistory.size() - 1; i >= boardHistory.size() - 6; i--) {
                 if (chessDataBoard.toString().equals(boardHistory.get(i).toString())) {

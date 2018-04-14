@@ -428,7 +428,6 @@ public class ChessMainRevamp extends Application {
 
             boardHistory.clear();
             moveHistory.clear();
-            moveHistory.clear();
             equalBoardStateCounter = 0;
             deadPieces.clear();
             equalBoardStateCounter = 0;

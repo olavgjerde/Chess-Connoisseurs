@@ -647,12 +647,14 @@ public class ChessMainRevamp extends Application {
         Text currentPlayerInCheck = new Text((chessDataBoard.currentPlayer().getAlliance() + " in check: \n" + chessDataBoard.currentPlayer().isInCheck()).toUpperCase());
         currentPlayerInCheck.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
 
+        //Button scaling
+        double buttonSize = ((screenHeight + screenWidth) * 1 / (BoardUtils.getWidth() * BoardUtils.getHeight()));
         //Hint button for player help
         ImageView image = new ImageView("/images/GUI/hint.png");
-        image.setFitHeight(20);
+        image.setFitHeight(buttonSize);
         image.setPreserveRatio(true);
         Button hintButton = new Button("HINT", image);
-        hintButton.setMaxWidth(80);
+        hintButton.setFont(Font.font("Verdana", screenWidth/650 * 5));
         //Disable hint when not human players turn, or the game has ended
         if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
             (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI) ||
@@ -683,7 +685,7 @@ public class ChessMainRevamp extends Application {
 
         //button for undoing a move
         image = new ImageView("/images/GUI/undo.png");
-        image.setFitHeight(20);
+        image.setFitHeight(buttonSize);
         image.setPreserveRatio(true);
         Button backButton = new Button("", image);
         backButton.setOnMouseEntered(event -> {
@@ -698,7 +700,7 @@ public class ChessMainRevamp extends Application {
 
         //button for redoing a move
         image = new ImageView("/images/GUI/redo.png");
-        image.setFitHeight(20);
+        image.setFitHeight(buttonSize);
         image.setPreserveRatio(true);
         Button forwardButton = new Button("", image);
         forwardButton.setOnMouseEntered(event -> {
@@ -714,7 +716,7 @@ public class ChessMainRevamp extends Application {
         //extra button styling
         HBox buttonContainer = new HBox(backButton, hintButton, forwardButton);
         buttonContainer.setAlignment(Pos.CENTER);
-        buttonContainer.setPadding(new Insets(200, 0, 0 , 0));
+        buttonContainer.setPadding(new Insets(380, 0, 0 , 0));
         buttonContainer.setSpacing(5);
         for (Node x : buttonContainer.getChildren()) {
             x.setStyle("-fx-focus-color: darkslategrey; -fx-faint-focus-color: transparent;");

@@ -53,41 +53,16 @@ public class ResourceLoader {
     }
 
     public Image getPieceImage(Piece p) {
-        if (p.getPieceAlliance() == Alliance.WHITE) {
-            switch (p.getPieceType()) {
-                case BISHOP:
-                    return WB;
-                case KING:
-                    return WK;
-                case KNIGHT:
-                    return WN;
-                case PAWN:
-                    return WP;
-                case QUEEN:
-                    return WQ;
-                case ROOK:
-                    return WR;
-                default:
-                    return null;
-            }
-        }
-        else {
-            switch (p.getPieceType()) {
-                case BISHOP:
-                    return BB;
-                case KING:
-                    return BK;
-                case KNIGHT:
-                    return BN;
-                case PAWN:
-                    return BP;
-                case QUEEN:
-                    return BQ;
-                case ROOK:
-                    return BR;
-                default:
-                    return null;
-            }
+        Alliance pieceAlliance = p.getPieceAlliance();
+        boolean isWhite = pieceAlliance == Alliance.WHITE;
+        switch (p.getPieceType()) {
+            case BISHOP: return isWhite ? WB : BB;
+            case KING: return isWhite ? WK : BK;
+            case KNIGHT: return isWhite ? WN : BN;
+            case PAWN: return isWhite ? WP : BP;
+            case QUEEN: return isWhite ? WQ : BQ;
+            case ROOK: return isWhite ? WR : BR;
+            default: return null;
         }
     }
 }

@@ -240,21 +240,7 @@ public class ChessMainRevamp extends Application {
         // Play menu music
         soundClipManager = new SoundClipManager("MenuMusic.wav", true,0.2, playSound);
 
-        //Settings box - HBox
-        VBox settingsRoot = new VBox();
-        settingsRoot.setAlignment(Pos.CENTER);
-        settingsRoot.setSpacing(5);
-
-        HBox whiteOptionsPane = new HBox();
-        whiteOptionsPane.setAlignment(Pos.CENTER);
-        HBox blackOptionsPane = new HBox();
-        blackOptionsPane.setAlignment(Pos.CENTER);
-        HBox boardStateOptionsPane = new HBox();
-        boardStateOptionsPane.setAlignment(Pos.CENTER);
-        HBox aiDifficultyPane = new HBox();
-        aiDifficultyPane.setAlignment(Pos.CENTER);
-
-        //Text
+        //Menu Text
         Text whiteOptionsText = new Text("WHITE PLAYER");
         whiteOptionsText.setFont(new Font(30));
         Text blackOptionsText = new Text("BLACK PLAYER");
@@ -262,17 +248,26 @@ public class ChessMainRevamp extends Application {
         Text aiDifficulty = new Text("AI DIFFICULTY");
         aiDifficulty.setFont(new Font(18));
 
+        //Settings root pane
+        VBox settingsRoot = new VBox(new HBox(), new HBox(), new HBox(), aiDifficulty, new HBox());
+        settingsRoot.setAlignment(Pos.CENTER);
+        settingsRoot.setSpacing(5);
+        //Center sub panes of root pane
+        for (Node x : settingsRoot.getChildren()) {
+            if (x instanceof HBox) {
+                ((HBox) x).setAlignment(Pos.CENTER);
+            }
+        }
+
         //Text fields
         TextField whitePlayerNameField = new TextField("Player1");
         whitePlayerNameField.setMaxWidth(gameScene.getWidth() / 4);
         TextField blackPlayerNameField = new TextField("Player2");
         blackPlayerNameField.setMaxWidth(gameScene.getWidth() / 4);
 
-        //Radio buttons for options
-
         //Options for AI
         final ToggleGroup aiOptions = new ToggleGroup();
-
+        //Radio buttons for options
         String[] levelPrefix = {"Easy", "Intermediate", "Expert", "Experimental"};
         List<RadioButton> aiOptionList = new ArrayList<>();
         for (int i = 0; i < levelPrefix.length; i++) {
@@ -282,52 +277,52 @@ public class ChessMainRevamp extends Application {
             aiOptionList.get(i).setDisable(true);
             aiOptionList.get(i).setToggleGroup(aiOptions);
         }
-        for (RadioButton allAIOptions :aiOptionList) {
+        for (RadioButton allAIOptions : aiOptionList) {
             allAIOptions.setOnAction(event -> playSound("ButtonClick.wav", 1));
         }
 
-        //Options for white
+        //Buttons for white
         final ToggleGroup whiteOptions = new ToggleGroup();
+        RadioButton whiteHumanOption = new RadioButton("Human");
+        whiteHumanOption.setToggleGroup(whiteOptions);
+        whiteHumanOption.setUserData(false);
+        whiteHumanOption.setSelected(true);
+        RadioButton whiteAiOption = new RadioButton("AI");
+        whiteAiOption.setToggleGroup(whiteOptions);
+        whiteAiOption.setUserData(true);
 
-        RadioButton whiteOption1 = new RadioButton("Human");
-        whiteOption1.setToggleGroup(whiteOptions);
-        whiteOption1.setUserData(false);
-        whiteOption1.setSelected(true);
-        whiteOption1.setOnAction(e -> {
+        //Buttons for black
+        final ToggleGroup blackOptions = new ToggleGroup();
+        RadioButton blackHumanOption = new RadioButton("Human");
+        blackHumanOption.setToggleGroup(blackOptions);
+        blackHumanOption.setUserData(false);
+        blackHumanOption.setSelected(true);
+        RadioButton blackAiOption = new RadioButton("AI");
+        blackAiOption.setToggleGroup(blackOptions);
+        blackAiOption.setUserData(true);
+
+        //AI Button actions
+        whiteHumanOption.setOnAction(e -> {
             playSound("ButtonClick.wav",1);
             whitePlayerNameField.setDisable(false);
             whitePlayerNameField.setText("Player1");
-            for (RadioButton x : aiOptionList) x.setDisable(true);
+            for (RadioButton x : aiOptionList)
+                if (!blackAiOption.isSelected()) x.setDisable(true);
         });
-
-        RadioButton whiteOption2 = new RadioButton("AI");
-        whiteOption2.setToggleGroup(whiteOptions);
-        whiteOption2.setUserData(true);
-        whiteOption2.setOnAction(e -> {
+        blackHumanOption.setOnAction(e -> {
+            playSound("ButtonClick.wav",1);
+            blackPlayerNameField.setDisable(false);
+            blackPlayerNameField.setText("Player2");
+            for (RadioButton x : aiOptionList)
+                if (!whiteAiOption.isSelected()) x.setDisable(true);
+        });
+        whiteAiOption.setOnAction(e -> {
             playSound("ButtonClick.wav",1);
             whitePlayerNameField.setDisable(true);
             whitePlayerNameField.setText("CPU");
             for (RadioButton x : aiOptionList) x.setDisable(false);
         });
-
-        //Options for black
-        final ToggleGroup blackOptions = new ToggleGroup();
-
-        RadioButton blackOption1 = new RadioButton("Human");
-        blackOption1.setToggleGroup(blackOptions);
-        blackOption1.setUserData(false);
-        blackOption1.setSelected(true);
-        blackOption1.setOnAction(e -> {
-            playSound("ButtonClick.wav",1);
-            blackPlayerNameField.setDisable(false);
-            blackPlayerNameField.setText("Player2");
-            for (RadioButton x : aiOptionList) x.setDisable(true);
-        });
-
-        RadioButton blackOption2 = new RadioButton("AI");
-        blackOption2.setToggleGroup(blackOptions);
-        blackOption2.setUserData(true);
-        blackOption2.setOnAction(e -> {
+        blackAiOption.setOnAction(e -> {
             playSound("ButtonClick.wav",1);
             blackPlayerNameField.setDisable(true);
             blackPlayerNameField.setText("CPU");
@@ -336,53 +331,47 @@ public class ChessMainRevamp extends Application {
 
         //Options for the starting board state
         final ToggleGroup boardStateOptions = new ToggleGroup();
-
         RadioButton boardStateOption1 = new RadioButton("Standard board");
         boardStateOption1.setToggleGroup(boardStateOptions);
         boardStateOption1.setUserData(true);
         boardStateOption1.setSelected(true);
         boardStateOption1.setOnAction(e -> playSound("ButtonClick.wav", 1));
-
         RadioButton boardStateOption2 = new RadioButton("Random board");
         boardStateOption2.setToggleGroup(boardStateOptions);
         boardStateOption2.setUserData(false);
         boardStateOption2.setSelected(false);
         boardStateOption2.setOnAction(e -> playSound("ButtonClick.wav", 1));
 
-        //Sub panes
-        whiteOptionsPane.getChildren().addAll(whiteOptionsText, whitePlayerNameField, whiteOption1, whiteOption2);
-        whiteOptionsPane.setPadding(new Insets(0,0,10,0));
-        whiteOptionsPane.setSpacing(5);
-
-        blackOptionsPane.getChildren().addAll(blackOptionsText, blackPlayerNameField, blackOption1, blackOption2);
-        blackOptionsPane.setPadding(new Insets(0,0,10,0));
-        blackOptionsPane.setSpacing(5);
-
-        boardStateOptionsPane.getChildren().addAll(boardStateOption1, boardStateOption2);
-        boardStateOptionsPane.setPadding(new Insets(0,0,10,0));
-        boardStateOptionsPane.setSpacing(5);
-
-        aiDifficultyPane.getChildren().addAll(aiOptionList);
-        aiDifficultyPane.setPadding(new Insets(0,0,10,0));
-        aiDifficultyPane.setSpacing(5);
+        //White option pane
+        if (settingsRoot.getChildren().get(0) instanceof HBox)
+            ((HBox) settingsRoot.getChildren().get(0)).getChildren().addAll(whiteOptionsText, whitePlayerNameField, whiteHumanOption, whiteAiOption);
+        //Black option pane
+        if (settingsRoot.getChildren().get(1) instanceof HBox)
+            ((HBox) settingsRoot.getChildren().get(1)).getChildren().addAll(blackOptionsText, blackPlayerNameField, blackHumanOption, blackAiOption);
+        //Board option pane
+        if (settingsRoot.getChildren().get(2) instanceof HBox)
+            ((HBox) settingsRoot.getChildren().get(2)).getChildren().addAll(boardStateOption1, boardStateOption2);
+        //Ai option pane
+        if (settingsRoot.getChildren().get(4) instanceof HBox)
+            ((HBox) settingsRoot.getChildren().get(4)).getChildren().addAll(aiOptionList);
+        //Sub pane styling
+        for (Node x : settingsRoot.getChildren()) {
+            if (x instanceof HBox) {
+                ((HBox) x).setPadding(new Insets(0, 0, 10, 0));
+                ((HBox) x).setSpacing(5);
+            }
+        }
 
         //Confirm settings button
-        Button confirmSettings = new Button();
-        confirmSettings.setText("Confirm");
+        Button confirmSettings = new Button("Confirm");
         confirmSettings.setMaxWidth(100);
-
-        //Add all elements to the pane
-        settingsRoot.getChildren().addAll(whiteOptionsPane, blackOptionsPane, boardStateOptionsPane);
-        settingsRoot.getChildren().addAll(aiDifficulty, aiDifficultyPane, confirmSettings);
-
         //Confirm button action
         confirmSettings.setOnAction(e -> {
             isWhiteAI = (boolean) whiteOptions.getSelectedToggle().getUserData();
             isBlackAI = (boolean) blackOptions.getSelectedToggle().getUserData();
             aiDepth = (int) aiOptions.getSelectedToggle().getUserData();
 
-            String suffix;
-            int rating;
+            String suffix; int rating;
             switch(aiDepth){
                 case 2: { suffix = "Easy"; rating = 1200; break; }
                 case 3: { suffix = "Intermediate"; rating = 1500; break; }
@@ -391,20 +380,19 @@ public class ChessMainRevamp extends Application {
                 default: { suffix = "Error"; rating = 9999; break; }
             }
 
-            if(isWhiteAI){
+            if (isWhiteAI){
                 whitePlayerName = "CPU(" + suffix +")";
                 scoreSystem.addUsername(whitePlayerName);
                 scoreSystem.updateHighscore(whitePlayerName, rating);
-            } else{
+            } else {
                 whitePlayerName = whitePlayerNameField.getText().replaceAll("\\s","");
                 scoreSystem.addUsername(whitePlayerName);
             }
-            if(isBlackAI) {
+            if (isBlackAI) {
                 blackPlayerName = "CPU(" + suffix +")";
                 scoreSystem.addUsername(blackPlayerName);
                 scoreSystem.updateHighscore(blackPlayerName, rating);
-            }
-            else{
+            } else {
                 blackPlayerName = blackPlayerNameField.getText().trim();
                 scoreSystem.addUsername(blackPlayerName);
             }
@@ -418,7 +406,7 @@ public class ChessMainRevamp extends Application {
             gamePlayPane.setBottom(null);
 
             //Reset board and redraw
-            if((boolean) boardStateOptions.getSelectedToggle().getUserData()){
+            if ((boolean) boardStateOptions.getSelectedToggle().getUserData()){
                 boardIsRandom = false;
                 chessDataBoard = Board.createStandardBoard();
             } else {
@@ -453,6 +441,7 @@ public class ChessMainRevamp extends Application {
             }
         });
 
+        settingsRoot.getChildren().addAll(confirmSettings);
         Scene settingsScene = new Scene(settingsRoot, gameScene.getWidth(), gameScene.getHeight());
         mainStage.setScene(settingsScene);
     }
@@ -632,7 +621,6 @@ public class ChessMainRevamp extends Application {
             boardStatusText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
             statusPane.getChildren().add(boardStatusText);
 
-
             //show the previous moves made
             Text moveHistoryText = new Text("PREVIOUS MOVE: \n");
             if (!moveHistory.isEmpty()) {
@@ -640,25 +628,23 @@ public class ChessMainRevamp extends Application {
             }
             moveHistoryText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
             statusPane.getChildren().add(moveHistoryText);
-
         }
 
         //Display if the current player is in check
-        Text currentPlayerInCheck = new Text((chessDataBoard.currentPlayer().getAlliance() + " in check: \n" + chessDataBoard.currentPlayer().isInCheck()).toUpperCase());
+        Text currentPlayerInCheck = new Text((chessDataBoard.currentPlayer().getAlliance() + " in check: \n" +
+                chessDataBoard.currentPlayer().isInCheck()).toUpperCase());
         currentPlayerInCheck.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
 
         //Button scaling
         double buttonSize = ((screenHeight + screenWidth) * 1 / (BoardUtils.getWidth() * BoardUtils.getHeight()));
         //Hint button for player help
-        ImageView image = new ImageView("/images/GUI/hint.png");
-        image.setFitHeight(buttonSize);
-        image.setPreserveRatio(true);
+        ImageView image = GuiHelper.imageFinder("/images/GUI/hint.png", buttonSize, buttonSize, true);
         Button hintButton = new Button("HINT", image);
         hintButton.setFont(Font.font("Verdana", screenWidth/650 * 5));
         //Disable hint when not human players turn, or the game has ended
         if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
             (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI) ||
-             chessDataBoard.currentPlayer().isInCheckmate()) {
+             chessDataBoard.currentPlayer().isInCheckmate() || chessDataBoard.currentPlayer().isInStalemate()) {
             hintButton.setDisable(true);
         }
         hintButton.setOnAction(event -> {
@@ -684,9 +670,7 @@ public class ChessMainRevamp extends Application {
         });
 
         //button for undoing a move
-        image = new ImageView("/images/GUI/undo.png");
-        image.setFitHeight(buttonSize);
-        image.setPreserveRatio(true);
+        image = GuiHelper.imageFinder("/images/GUI/undo.png", buttonSize, buttonSize, true);
         Button backButton = new Button("", image);
         backButton.setOnMouseEntered(event -> {
             Tooltip tp = new Tooltip("Undo a move");
@@ -699,9 +683,7 @@ public class ChessMainRevamp extends Application {
         });
 
         //button for redoing a move
-        image = new ImageView("/images/GUI/redo.png");
-        image.setFitHeight(buttonSize);
-        image.setPreserveRatio(true);
+        image = GuiHelper.imageFinder("/images/GUI/redo.png", buttonSize, buttonSize, true);
         Button forwardButton = new Button("", image);
         forwardButton.setOnMouseEntered(event -> {
             Tooltip tp = new Tooltip("Redo a move");
@@ -745,7 +727,7 @@ public class ChessMainRevamp extends Application {
             Alliance takenAlliance = taken.getPieceAlliance();
             String url = "/images/" + takenAlliance.toString().substring(0, 1) + taken.toString() + ".png";
             ImageView takenImage = new ImageView(url);
-            takenImage.setFitHeight(basePane.getPrefWrapLength() / 2 - 10);
+            takenImage.setFitHeight(basePane.getPrefWrapLength() / 2 - 15);
             takenImage.setFitWidth(basePane.getMaxWidth());
             takenImage.setPreserveRatio(true);
             if (taken.getPieceAlliance() == Alliance.WHITE) whitePiecesBox.getChildren().add(takenImage);

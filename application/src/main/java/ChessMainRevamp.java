@@ -15,6 +15,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -598,16 +599,28 @@ public class ChessMainRevamp extends Application {
 
         //Show the evaluation of the current board relative to the current player, can help you know how well you are doing
         if(boardStatusEnabled){
-            BoardEvaluator boardEvaluator = new RegularBoardEvaluator(true);
-            if (boardIsRandom) boardEvaluator = new RegularBoardEvaluator(false);
-            Text boardStatusText = new Text((chessDataBoard.currentPlayer().getAlliance() +
-                    " board status: \n" + boardEvaluator.evaluate(chessDataBoard, 3)).toUpperCase());
-            if (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK)
-                boardStatusText = new Text((chessDataBoard.currentPlayer().getAlliance() +
-                        " board status: \n" + boardEvaluator.evaluate(chessDataBoard, 3) * -1).toUpperCase());
+            HBox boardStatusBox = new HBox();
+            boardStatusBox.setAlignment(Pos.CENTER);
 
-            boardStatusText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
-            statusPane.getChildren().add(boardStatusText);
+            BoardEvaluator boardEvaluator = new RegularBoardEvaluator(true);
+            int score = boardEvaluator.evaluate(chessDataBoard, 4);
+            int boardScore = chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE ? score : score * -1;
+
+            Color circleColor = Color.FORESTGREEN;
+            if (boardScore < 0) circleColor = Color.DARKRED;
+            Circle circle = new Circle(((screenHeight + screenWidth) * 1 / (BoardUtils.getWidth() * BoardUtils.getHeight())) - 20, circleColor);
+            //Add fade to circle
+            FadeTransition fade = new FadeTransition(Duration.millis(1300), circle);
+            fade.setFromValue(1.0);
+            fade.setToValue(0.8);
+            fade.setCycleCount(Timeline.INDEFINITE);
+            fade.setAutoReverse(true);
+            fade.play();
+
+            Text boardStatusText = new Text("The AI thinks your chances are: ");
+            boardStatusText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 7));
+
+            boardStatusBox.getChildren().addAll(boardStatusText, circle);
 
             //show the previous moves made
             Text moveHistoryText = new Text("PREVIOUS MOVE: \n");
@@ -615,7 +628,8 @@ public class ChessMainRevamp extends Application {
                 moveHistoryText = new Text("PREVIOUS MOVE: \n" + moveHistory.get(moveHistory.size() - 1).toString());
             }
             moveHistoryText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
-            statusPane.getChildren().add(moveHistoryText);
+
+            statusPane.getChildren().addAll(boardStatusBox, moveHistoryText);
         }
 
         //Display if the current player is in check

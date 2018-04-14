@@ -9,23 +9,10 @@ import pieces.Piece;
 public class ResourceLoader {
 
     //Pieces
-    final Image BB;
-    final Image BK;
-    final Image BN;
-    final Image BP;
-    final Image BQ;
-    final Image BR;
-    final Image WB;
-    final Image WK;
-    final Image WN;
-    final Image WP;
-    final Image WQ;
-    final Image WR;
+    final Image BB, BK ,BN, BP, BQ, BR, WB, WK, WN, WP, WQ, WR;
 
     //GUI images
-    final Image hint;
-    final Image redo;
-    final Image undo;
+    final Image hint, redo, undo;
 
     //sounds
     //TODO

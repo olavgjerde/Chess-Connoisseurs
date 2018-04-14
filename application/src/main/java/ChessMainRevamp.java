@@ -119,7 +119,7 @@ public class ChessMainRevamp extends Application {
         statusPane.setSpacing(10);
 
         // construct game scene
-        this.gameScene = new Scene(gamePlayPane, screenWidth = screenWidth / 2, screenHeight = screenHeight / 1.75);
+        this.gameScene = new Scene(gamePlayPane, screenWidth = screenWidth / 1.8, screenHeight = screenHeight / 1.55);
 
         // listeners for window size change
         gameScene.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
@@ -604,8 +604,8 @@ public class ChessMainRevamp extends Application {
         Text whitePlayerText = new Text(whitePlayerName + ": " + whitePlayerScore + " | " + whitePlayerStats);
         Text blackPlayerText = new Text(blackPlayerName + ": " + blackPlayerScore + " | " + blackPlayerStats);
         //Player names and scores styling
-        whitePlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (screenWidth/650 * 14)-whitePlayerText.getText().length()/5));
-        blackPlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (screenWidth/650 * 14)-blackPlayerText.getText().length()/5));
+        whitePlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (screenWidth/650 * 14)-whitePlayerText.getText().length()/4));
+        blackPlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (screenWidth/650 * 14)-blackPlayerText.getText().length()/4));
         whitePlayerText.setUnderline(true);
         blackPlayerText.setUnderline(true);
 
@@ -819,8 +819,8 @@ public class ChessMainRevamp extends Application {
 
             Rectangle rectangle = new Rectangle(TILE_SIZE, TILE_SIZE, colorOfTile);
             rectangle.setBlendMode(BlendMode.HARD_LIGHT);
-            rectangle.setArcHeight(10);
-            rectangle.setArcWidth(10);
+            rectangle.setArcHeight(12);
+            rectangle.setArcWidth(12);
 
             //Add fade animation to tile
             if (animateTile) {
@@ -877,8 +877,8 @@ public class ChessMainRevamp extends Application {
         private void assignTilePieceImage(Tile tile) {
             String url = "/images/" + tile.getPiece().getPieceAlliance().toString().substring(0, 1) + tile.getPiece().toString() + ".png";
             ImageView icon = new ImageView(url);
-            icon.setFitHeight(TILE_SIZE - 20);
-            icon.setFitWidth(TILE_SIZE - 20);
+            icon.setFitHeight(TILE_SIZE - 30);
+            icon.setFitWidth(TILE_SIZE - 30);
             icon.setPreserveRatio(true);
             this.getChildren().add(icon);
         }

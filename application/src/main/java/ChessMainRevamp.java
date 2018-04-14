@@ -7,6 +7,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.BlendMode;
@@ -78,6 +79,7 @@ public class ChessMainRevamp extends Application {
     private boolean isBlackAI;
     //Keep count of board history (board states)
     private ArrayList<Board> boardHistory = new ArrayList<>();
+    private int rewindCounter = 0;
     private int equalBoardStateCounter = 0;
     //Move history, even = white moves, odd = black moves
     private ArrayList<Move> moveHistory = new ArrayList<>();
@@ -215,6 +217,9 @@ public class ChessMainRevamp extends Application {
             //Stop AI calculation from running in the background
             isWhiteAI = false;
             isBlackAI = false;
+            boardHistory.clear();
+            moveHistory.clear();
+            rewindCounter = 0;
             createStartMenuScene();
         });
 
@@ -423,11 +428,13 @@ public class ChessMainRevamp extends Application {
 
             boardHistory.clear();
             moveHistory.clear();
+            equalBoardStateCounter = 0;
             deadPieces.clear();
             equalBoardStateCounter = 0;
             drawChessGridPane();
             mainStage.setScene(gameScene);
 
+            boardHistory.add(chessDataBoard);
             // Set GameMusic
             if (playSound) {
                 soundClipManager.clear();
@@ -535,14 +542,15 @@ public class ChessMainRevamp extends Application {
         if (chessDataBoard.currentPlayer().isInCheckmate()) title = new Text("CHECKMATE - ");
         else if (chessDataBoard.currentPlayer().isInStalemate()) title = new Text("STALEMATE - ");
         else if (checkForDrawByRepetition()) title = new Text("DRAW - ");
-        title.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth/650 * 15));
+        title.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth/650 * 13));
 
         Text t1 = new Text("UPDATED SCORES: ");
-        t1.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth/650 * 15));
+        t1.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth/650 * 13));
         Text t2 = new Text(whitePlayerName + ": " + whitePlayerScore + " /");
         Text t3 = new Text(blackPlayerName + ": " + blackPlayerScore + " ");
-        t2.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, screenWidth/650 * 15));
-        t3.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, screenWidth/650 * 15));
+        int length = t2.getText().length() + t3.getText().length();
+        t2.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, screenWidth/650 * 15 - length/5));
+        t3.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, screenWidth/650 * 15 - length/5));
         gameOverRoot.getChildren().addAll(title, t1, t2, t3);
 
         //Button container
@@ -640,13 +648,10 @@ public class ChessMainRevamp extends Application {
         currentPlayerInCheck.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
 
         //Hint button for player help
-        String url = "/images/GUI/hint.png";
-        ImageView image = new ImageView(url);
-        image.preserveRatioProperty();
-        image.setFitHeight(30);
-        image.setFitWidth(30);
+        ImageView image = new ImageView("/images/GUI/hint.png");
+        image.setFitHeight(20);
+        image.setPreserveRatio(true);
         Button hintButton = new Button("HINT", image);
-        hintButton.setStyle("-fx-focus-color: darkslategrey; -fx-faint-focus-color: transparent;");
         hintButton.setMaxWidth(80);
         //Disable hint when not human players turn, or the game has ended
         if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
@@ -654,66 +659,68 @@ public class ChessMainRevamp extends Application {
              chessDataBoard.currentPlayer().isInCheckmate()) {
             hintButton.setDisable(true);
         }
-        hintButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                //Empty any ongoing player move
-                startCoordinate = null;
-                destinationCoordinate = null;
-                userMovedPiece = null;
-                //Let AI find "best" move
-                MoveStrategy moveStrategy = new MiniMax(4, 1000, true, true, false);
-                final Move AIMove = moveStrategy.execute(chessDataBoard);
-                //Set coordinates found
-                hintStartCoordinate = AIMove.getCurrentCoordinate();
-                hintDestinationCoordinate = AIMove.getDestinationCoordinate();
-                //Redraw to show coordinates found
-                drawChessGridPane();
-                //Reset hint variables
-                hintStartCoordinate = null;
-                hintDestinationCoordinate = null;
-            }
+        hintButton.setOnAction(event -> {
+            //Empty any ongoing player move
+            startCoordinate = null;
+            destinationCoordinate = null;
+            userMovedPiece = null;
+            //Let AI find "best" move
+            MoveStrategy moveStrategy = new MiniMax(4, 1000, true, true, false);
+            final Move AIMove = moveStrategy.execute(chessDataBoard);
+            //Set coordinates found
+            hintStartCoordinate = AIMove.getCurrentCoordinate();
+            hintDestinationCoordinate = AIMove.getDestinationCoordinate();
+            //Redraw to show coordinates found
+            drawChessGridPane();
+            //Reset hint variables
+            hintStartCoordinate = null;
+            hintDestinationCoordinate = null;
         });
-        hintButton.setOnMouseDragOver(event -> {
+        hintButton.setOnMouseEntered(event -> {
             Tooltip tp = new Tooltip("Let the AI suggest a move");
             Tooltip.install(hintButton, tp);
         });
-        hintButton.setAlignment(Pos.BOTTOM_CENTER);
 
-        /*
-        url = "/images/GUI/undo.png";
-        image = new ImageView(url);
-        image.preserveRatioProperty();
-        image.setFitHeight(30);
-        image.setFitWidth(30);
+        //button for undoing a move
+        image = new ImageView("/images/GUI/undo.png");
+        image.setFitHeight(20);
+        image.setPreserveRatio(true);
         Button backButton = new Button("", image);
         backButton.setOnMouseEntered(event -> {
             Tooltip tp = new Tooltip("Undo a move");
             Tooltip.install(backButton, tp);
         });
-        backButton.setTranslateX(-50);
+        if (rewindCounter >= boardHistory.size()-1) backButton.setDisable(true);
         backButton.setOnAction(event -> {
-
+            chessDataBoard = boardHistory.get((boardHistory.size()-1)-(++rewindCounter));
+            drawChessGridPane();
         });
 
-        url = "/images/GUI/redo.png";
-        image = new ImageView(url);
-        image.preserveRatioProperty();
-        image.setFitHeight(30);
-        image.setFitWidth(30);
+        //button for redoing a move
+        image = new ImageView("/images/GUI/redo.png");
+        image.setFitHeight(20);
+        image.setPreserveRatio(true);
         Button forwardButton = new Button("", image);
         forwardButton.setOnMouseEntered(event -> {
             Tooltip tp = new Tooltip("Redo a move");
             Tooltip.install(forwardButton, tp);
         });
-        forwardButton.setTranslateX(50);
-        forwardButton.setTranslateY(-50);
-        backButton.setOnAction(event -> {
-
+        if (rewindCounter <= 0) forwardButton.setDisable(true);
+        forwardButton.setOnAction(event -> {
+            chessDataBoard = boardHistory.get((boardHistory.size()-1)-(--rewindCounter));
+            drawChessGridPane();
         });
-        */
 
-        statusPane.getChildren().addAll(currentPlayerInCheck, hintButton);
+        //extra button styling
+        HBox buttonContainer = new HBox(backButton, hintButton, forwardButton);
+        buttonContainer.setAlignment(Pos.CENTER);
+        buttonContainer.setPadding(new Insets(200, 0, 0 , 0));
+        buttonContainer.setSpacing(5);
+        for (Node x : buttonContainer.getChildren()) {
+            x.setStyle("-fx-focus-color: darkslategrey; -fx-faint-focus-color: transparent;");
+        }
+
+        statusPane.getChildren().addAll(currentPlayerInCheck, buttonContainer);
     }
 
     /**
@@ -780,9 +787,9 @@ public class ChessMainRevamp extends Application {
 
             Color colorOfTile = assignTileColor();
             boolean animateTile = false;
-            if (!moveHistory.isEmpty() && lastMoveHighlightEnabled) {
+            if (moveHistory.size()-rewindCounter >= 1 && lastMoveHighlightEnabled) {
                 //highlight the previous move
-                Move m = moveHistory.get(moveHistory.size()-1);
+                Move m = moveHistory.get((moveHistory.size()-1)-rewindCounter);
                 Coordinate to = m.getDestinationCoordinate();
                 Coordinate from = m.getCurrentCoordinate();
                 if (coordinateId.equals(from)) colorOfTile = Color.rgb(255, 255, 160);
@@ -1003,8 +1010,17 @@ public class ChessMainRevamp extends Application {
 
             if (newBoard.getMoveStatus().isDone()) {
                 playSound("DropPieceNew.wav",0.4);
+                //clear out undone boards and moves
+                if (rewindCounter > 0) {
+                    for (int i=0; i<rewindCounter; i++) {
+                        boardHistory.remove(boardHistory.size()-1);
+                        if (!moveHistory.isEmpty()) moveHistory.remove(moveHistory.size()-1);
+                    }
+                    rewindCounter=0;
+                }
                 chessDataBoard = newBoard.getTransitionBoard();
                 moveHistory.add(move);
+                boardHistory.add(chessDataBoard);
                 if (move.isAttack()) {
                     deadPieces.add(move.getAttackedPiece());
                     Platform.runLater(ChessMainRevamp.this::drawTakenPiecesPane);
@@ -1046,8 +1062,17 @@ public class ChessMainRevamp extends Application {
 
             if (newBoard.getMoveStatus().isDone()) {
                 playSound("DropPieceNew.wav",1);
+                //clear out undone boards and moves
+                if (rewindCounter > 0) {
+                    for (int i=0; i<rewindCounter; i++) {
+                        boardHistory.remove(boardHistory.size()-1);
+                        if (!moveHistory.isEmpty()) moveHistory.remove(moveHistory.size()-1);
+                    }
+                    rewindCounter=0;
+                }
                 chessDataBoard = newBoard.getTransitionBoard();
                 moveHistory.add(AIMove);
+                boardHistory.add(chessDataBoard);
                 if (AIMove.isAttack()) {
                     deadPieces.add(AIMove.getAttackedPiece());
                     Platform.runLater(this::drawTakenPiecesPane);
@@ -1089,29 +1114,21 @@ public class ChessMainRevamp extends Application {
      */
     private boolean checkForDrawByRepetition(){
         if (!boardHistory.isEmpty()) {
-            //No moves were made
+            //No moves have been made
             if (boardHistory.get(boardHistory.size()-1).toString().equals(chessDataBoard.toString())) {
                 return false;
             }
         }
-
-        for (Board b : boardHistory){
-            if (chessDataBoard.toString().equals(b.toString())) {
-                equalBoardStateCounter++;
-                break;
+        if (boardHistory.size() >= 5) {
+            for (int i = boardHistory.size() - 1; i >= boardHistory.size() - 6; i--) {
+                if (chessDataBoard.toString().equals(boardHistory.get(i).toString())) {
+                    equalBoardStateCounter++;
+                    break;
+                }
             }
-        }
-        if (equalBoardStateCounter >= 3){
-            return true;
-        }
-
-        if (boardHistory.size() < 5)
-            boardHistory.add(chessDataBoard);
-        else {
-            for (int i=1; i<boardHistory.size(); i++){
-                boardHistory.set(i-1, boardHistory.get(i));
+            if (equalBoardStateCounter >= 3) {
+                return true;
             }
-            boardHistory.add(chessDataBoard);
         }
         return false;
     }

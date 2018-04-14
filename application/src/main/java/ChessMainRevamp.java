@@ -676,7 +676,10 @@ public class ChessMainRevamp extends Application {
             Tooltip tp = new Tooltip("Undo a move");
             Tooltip.install(backButton, tp);
         });
-        if (rewindCounter >= boardHistory.size()-1) backButton.setDisable(true);
+        if (rewindCounter >= boardHistory.size()-1 || chessDataBoard.currentPlayer().isInCheckmate() ||
+            chessDataBoard.currentPlayer().isInStalemate()) {
+            backButton.setDisable(true);
+        }
         backButton.setOnAction(event -> {
             chessDataBoard = boardHistory.get((boardHistory.size()-1)-(++rewindCounter));
             drawChessGridPane();

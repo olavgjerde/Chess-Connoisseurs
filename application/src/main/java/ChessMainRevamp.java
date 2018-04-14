@@ -50,37 +50,26 @@ public class ChessMainRevamp extends Application {
     //Chess board data representation
     private Board chessDataBoard;
     //Screen dimensions
-    private double screenWidth = Screen.getPrimary().getBounds().getWidth();
-    private double screenHeight = Screen.getPrimary().getBounds().getHeight();
+    private double screenWidth = Screen.getPrimary().getBounds().getWidth(), screenHeight = Screen.getPrimary().getBounds().getHeight();
     //Handles user scores
     private Score scoreSystem;
     //Information toggles
-    private boolean availableMoveHighlightEnabled = true;
-    private boolean lastMoveHighlightEnabled = true;
-    private boolean boardStatusEnabled = true;
+    private boolean availableMoveHighlightEnabled = true, lastMoveHighlightEnabled = true, boardStatusEnabled = true;
     //Player movement
-    private Tile startCoordinate;
-    private Tile destinationCoordinate;
+    private Tile startCoordinate, destinationCoordinate;
     private Piece userMovedPiece;
     //Hint coordinates
-    private Coordinate hintStartCoordinate;
-    private Coordinate hintDestinationCoordinate;
+    private Coordinate hintStartCoordinate, hintDestinationCoordinate;
     //Player scores
-    private String whitePlayerName;
-    private String whitePlayerStats;
-    private int whitePlayerScore;
-    private String blackPlayerName;
-    private String blackPlayerStats;
-    private int blackPlayerScore;
+    private String whitePlayerName, whitePlayerStats, blackPlayerName, blackPlayerStats;
+    private int whitePlayerScore, blackPlayerScore;
     //Depth of AI search
     private int aiDepth;
     //Ai toggles
-    private boolean isWhiteAI;
-    private boolean isBlackAI;
+    private boolean isWhiteAI, isBlackAI;
     //Keep count of board history (board states)
     private ArrayList<Board> boardHistory = new ArrayList<>();
-    private int rewindCounter = 0;
-    private int equalBoardStateCounter = 0;
+    private int rewindCounter = 0, equalBoardStateCounter = 0;
     //Move history, even = white moves, odd = black moves
     private ArrayList<Move> moveHistory = new ArrayList<>();
     //List of all the dead pieces
@@ -174,14 +163,12 @@ public class ChessMainRevamp extends Application {
         toggleHighlight.setOnAction(e -> availableMoveHighlightEnabled = !availableMoveHighlightEnabled);
         toggleHighlight.setSelected(true);
 
-
         CheckMenuItem toggleMoveHighlight = new CheckMenuItem("Highlight previous move");
         toggleMoveHighlight.setOnAction(event -> {
             lastMoveHighlightEnabled = !lastMoveHighlightEnabled;
             drawChessGridPane();
         });
         toggleMoveHighlight.setSelected(true);
-
 
         CheckMenuItem toggleBoardStatus = new CheckMenuItem("Show board status");
         toggleBoardStatus.setOnAction(event -> {
@@ -460,8 +447,7 @@ public class ChessMainRevamp extends Application {
             conn.getAllScores();
         } catch (SQLException e ) {
             System.out.println(e);
-        }
-        */
+        } */
 
         VBox hsRoot = new VBox();
         hsRoot.setSpacing(5);
@@ -640,7 +626,9 @@ public class ChessMainRevamp extends Application {
         //Button scaling
         double buttonSize = ((screenHeight + screenWidth) * 1 / (BoardUtils.getWidth() * BoardUtils.getHeight()));
         //Hint button for player help
-        ImageView image = GuiHelper.imageFinder(resources.hint, buttonSize, buttonSize, true);
+        ImageView image = new ImageView(resources.hint);
+        image.setFitHeight(buttonSize);
+        image.setPreserveRatio(true);
         Button hintButton = new Button("HINT", image);
         hintButton.setFont(Font.font("Verdana", screenWidth/650 * 5));
         //Disable hint when not human players turn, or the game has ended
@@ -672,7 +660,9 @@ public class ChessMainRevamp extends Application {
         });
 
         //button for undoing a move
-        image = GuiHelper.imageFinder(resources.undo, buttonSize, buttonSize, true);
+        image = new ImageView(resources.undo);
+        image.setFitHeight(buttonSize);
+        image.setPreserveRatio(true);
         Button backButton = new Button("", image);
         backButton.setOnMouseEntered(event -> {
             Tooltip tp = new Tooltip("Undo a move");
@@ -688,7 +678,9 @@ public class ChessMainRevamp extends Application {
         });
 
         //button for redoing a move
-        image = GuiHelper.imageFinder(resources.redo, buttonSize, buttonSize, true);
+        image = new ImageView(resources.redo);
+        image.setFitHeight(buttonSize);
+        image.setPreserveRatio(true);
         Button forwardButton = new Button("", image);
         forwardButton.setOnMouseEntered(event -> {
             Tooltip tp = new Tooltip("Redo a move");
@@ -729,9 +721,7 @@ public class ChessMainRevamp extends Application {
         deadPieces.sort(chessCompare);
 
         for (Piece taken : deadPieces) {
-            Alliance takenAlliance = taken.getPieceAlliance();
-            String url = "/images/" + takenAlliance.toString().substring(0, 1) + taken.toString() + ".png";
-            ImageView takenImage = new ImageView(url);
+            ImageView takenImage = new ImageView(resources.getPieceImage(taken));
             takenImage.setFitHeight(basePane.getPrefWrapLength() / 2 - 15);
             takenImage.setFitWidth(basePane.getMaxWidth());
             takenImage.setPreserveRatio(true);

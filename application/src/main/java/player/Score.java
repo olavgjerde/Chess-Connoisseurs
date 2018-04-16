@@ -2,10 +2,22 @@ package player;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import com.mongodb.*;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
+import java.util.List;
+
+
+import java.net.UnknownHostException;
+
 
 public class Score {
     private HashMap<String, Integer> userRating = new HashMap<>();
     private HashMap<String, Stats> userStats = new HashMap<>();
+    private List<Document> highscoreDB = new ArrayList<Document>();
+
 
     /**
      *  takes the old rating of both players, and the result of the game for both players,
@@ -82,6 +94,7 @@ public class Score {
             userStats.put(username, new Stats(0,0,0));
             writeHighscore();
         }
+
     }
 
     /**
@@ -113,6 +126,30 @@ public class Score {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
+        /*
+        MongoClientURI uri  = new MongoClientURI("mongodb://ccuser:ccpass@ds129706.mlab.com:29706/ccdb");
+        MongoClient client = new MongoClient(uri);
+        MongoDatabase db = client.getDatabase(uri.getDatabase());
+        MongoCollection<Document> highscore = db.getCollection("highscore");
+
+
+        Document findQuery = new Document("", new Document("$gte",10));
+        Document orderBy = new Document("score", 1);
+        MongoCursor<Document> cursor = highscore.find(findQuery).sort(orderBy).iterator();
+
+        try {
+            while (cursor.hasNext()) {
+                Document doc = cursor.next();
+                System.out.println(doc.get("playername") + ", " + doc.get("score") +" " +doc.get("win") + doc.get("draw") + doc.get("draw"));
+            }
+        } finally {
+            cursor.close();
+        }
+
+        client.close();
+*/
     }
 
     /**
@@ -129,6 +166,28 @@ public class Score {
         } catch (FileNotFoundException e) {
             System.out.println("FileNotFound");
         }
+
+        /*
+        MongoClientURI uri  = new MongoClientURI("mongodb://ccuser:ccpass@ds129706.mlab.com:29706/ccdb");
+        MongoClient client = new MongoClient(uri);
+        MongoDatabase db = client.getDatabase(uri.getDatabase());
+        MongoCollection<Document> highscore = db.getCollection("highscore");
+        highscore.insertMany(highscoreDB);
+
+
+            for (String s : userRating.keySet()) {
+               // String line = s + " " + userRating.get(s) + " " + userStats.get(s).getStats() + "\n";
+                highscoreDB.add(new Document("playername", s)
+                        .append("score", userRating.get(s))
+                    .append("win", userStats.get(s).getStats())
+                        .append("draw", 0)
+                        .append("loss", 0)
+
+                );
+            }
+
+            client.close();*/
+
     }
 
     private Stats readStats(String stats){

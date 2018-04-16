@@ -450,13 +450,7 @@ public class ChessMainRevamp extends Application {
     private void createHighscoreScene() {
         final Stage dialog = new Stage();
 
-        /* Uncomment when needed for sql work
-        SQL conn = new SQL();
-        try{
-            conn.getAllScores();
-        } catch (SQLException e ) {
-            System.out.println(e);
-        } */
+
 
         VBox hsRoot = new VBox();
         hsRoot.setSpacing(5);

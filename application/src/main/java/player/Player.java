@@ -38,8 +38,9 @@ public abstract class Player {
         // add castling moves to legal moves
         // allows the creation of boards without a king -> mostly for testing purposes
         if (king != null) {
-            legalMoves.addAll(calculateKingCastles(legalMoves, opponentMoves));
+            // calculate if player is in check before calculating castle moves
             this.isInCheck = !calculateAttacksOnCoordinate(this.playerKing.getPieceCoordinate(), opponentMoves).isEmpty();
+            legalMoves.addAll(calculateKingCastles(legalMoves, opponentMoves));
         }
         this.legalMoves = legalMoves;
     }

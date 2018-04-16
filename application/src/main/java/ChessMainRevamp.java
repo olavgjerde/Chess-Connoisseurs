@@ -654,7 +654,6 @@ public class ChessMainRevamp extends Application {
         image.setFitHeight(buttonSize);
         image.setPreserveRatio(true);
         Button hintButton = new Button("HINT", image);
-        hintButton.setFont(Font.font("Verdana", screenWidth/650 * 5));
         //Disable hint when not human players turn, or the game has ended
         if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
                 (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI) ||
@@ -731,6 +730,7 @@ public class ChessMainRevamp extends Application {
         buttonContainer.setSpacing(5);
         for (Node x : buttonContainer.getChildren()) {
             x.setStyle("-fx-focus-color: darkslategrey; -fx-faint-focus-color: transparent;");
+            x.setFocusTraversable(false);
         }
 
         return buttonContainer;

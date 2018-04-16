@@ -3,15 +3,12 @@ import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.BlendMode;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -31,9 +28,6 @@ import player.MoveTransition;
 import player.Score;
 import player.basicAI.*;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -645,6 +639,19 @@ public class ChessMainRevamp extends Application {
                 chessDataBoard.currentPlayer().isInCheck()).toUpperCase());
         currentPlayerInCheck.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
 
+        statusPane.getChildren().addAll(currentPlayerInCheck, createButtonBoxForStatusPane());
+
+        //Color all texts in the root node of status pane to the color white
+        for (Node x : statusPane.getChildren()) {
+            if (x instanceof Text) ((Text) x).setFill(Color.WHITE);
+        }
+    }
+
+    /**
+     * Creates the HBox with buttons to display in the status pane
+     * @return populated HBox
+     */
+    private HBox createButtonBoxForStatusPane() {
         //Button scaling
         double buttonSize = ((screenHeight + screenWidth) * 1 / (BoardUtils.getWidth() * BoardUtils.getHeight()));
 
@@ -656,8 +663,8 @@ public class ChessMainRevamp extends Application {
         hintButton.setFont(Font.font("Verdana", screenWidth/650 * 5));
         //Disable hint when not human players turn, or the game has ended
         if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
-            (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI) ||
-             chessDataBoard.currentPlayer().isInCheckmate() || chessDataBoard.currentPlayer().isInStalemate()) {
+                (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI) ||
+                chessDataBoard.currentPlayer().isInCheckmate() || chessDataBoard.currentPlayer().isInStalemate()) {
             hintButton.setDisable(true);
         }
         hintButton.setOnAction(event -> {
@@ -692,7 +699,7 @@ public class ChessMainRevamp extends Application {
             Tooltip.install(backButton, tp);
         });
         if (rewindCounter >= boardHistory.size()-1 || chessDataBoard.currentPlayer().isInCheckmate() ||
-            chessDataBoard.currentPlayer().isInStalemate()) {
+                chessDataBoard.currentPlayer().isInStalemate()) {
             backButton.setDisable(true);
         }
         backButton.setOnAction(event -> {
@@ -724,11 +731,7 @@ public class ChessMainRevamp extends Application {
             x.setStyle("-fx-focus-color: darkslategrey; -fx-faint-focus-color: transparent;");
         }
 
-        statusPane.getChildren().addAll(currentPlayerInCheck, buttonContainer);
-
-        //Color all texts in the root node of status pane to the color white
-        for (Node x : statusPane.getChildren())
-            if (x instanceof Text) ((Text) x).setFill(Color.WHITE);
+        return buttonContainer;
     }
 
     /**

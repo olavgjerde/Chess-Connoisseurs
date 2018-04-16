@@ -108,6 +108,7 @@ public class ChessMainRevamp extends Application {
         chessGridPane.setVgap(5);
         chessGridPane.setHgap(5);
         // style status pane
+        statusPane.setStyle("-fx-border-color: black; -fx-background-color: radial-gradient(radius 180%, black, derive(darkslategray, -30%));");
         statusPane.setPadding(new Insets(30));
         statusPane.setAlignment(Pos.TOP_CENTER);
         statusPane.setSpacing(10);
@@ -604,7 +605,7 @@ public class ChessMainRevamp extends Application {
         statusPane.getChildren().addAll(title, whitePlayerText, blackPlayerText);
 
         //Show the evaluation of the current board relative to the current player, can help you know how well you are doing
-        if(boardStatusEnabled){
+        if (boardStatusEnabled) {
             HBox boardStatusBox = new HBox();
             boardStatusBox.setAlignment(Pos.CENTER);
 
@@ -625,6 +626,7 @@ public class ChessMainRevamp extends Application {
 
             Text boardStatusText = new Text("The AI thinks your chances are: ");
             boardStatusText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 7));
+            boardStatusText.setFill(Color.WHITE);
 
             boardStatusBox.getChildren().addAll(boardStatusText, circle);
 
@@ -723,6 +725,10 @@ public class ChessMainRevamp extends Application {
         }
 
         statusPane.getChildren().addAll(currentPlayerInCheck, buttonContainer);
+
+        //Color all texts in the root node of status pane to the color white
+        for (Node x : statusPane.getChildren())
+            if (x instanceof Text) ((Text) x).setFill(Color.WHITE);
     }
 
     /**

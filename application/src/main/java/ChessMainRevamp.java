@@ -633,7 +633,7 @@ public class ChessMainRevamp extends Application {
                 chessDataBoard.currentPlayer().isInCheck()).toUpperCase());
         currentPlayerInCheck.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
 
-        statusPane.getChildren().addAll(currentPlayerInCheck, createButtonBoxForStatusPane());
+        statusPane.getChildren().addAll(currentPlayerInCheck, createStatusPaneButtonBox());
 
         //Color all texts in the root node of status pane to the color white
         for (Node x : statusPane.getChildren()) {
@@ -645,7 +645,7 @@ public class ChessMainRevamp extends Application {
      * Creates the HBox with buttons to display in the status pane
      * @return populated HBox
      */
-    private HBox createButtonBoxForStatusPane() {
+    private HBox createStatusPaneButtonBox() {
         //Button scaling
         double buttonSize = ((screenHeight + screenWidth) * 1 / (BoardUtils.getWidth() * BoardUtils.getHeight()));
 
@@ -698,6 +698,14 @@ public class ChessMainRevamp extends Application {
         }
         backButton.setOnAction(event -> {
             chessDataBoard = boardHistory.get((boardHistory.size()-1)-(++rewindCounter));
+            // removes taken piece when undoing an attack move
+            if (deadPieces.size() > 0) {
+                Move lastMove = moveHistory.get(moveHistory.size() - rewindCounter);
+                if (lastMove.isAttack()) {
+                    deadPieces.remove(lastMove.getAttackedPiece());
+                    drawTakenPiecesPane();
+                }
+            }
             drawChessGridPane();
         });
 

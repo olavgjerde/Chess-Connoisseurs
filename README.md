@@ -12,6 +12,10 @@ Team members:
 + Rune Vatne	(rva013)
 + Simen Gad Hasvi	(qax007)
 + Henrik Borgli (hbo019)
+ 
+
+Trello Board:
+https://trello.com/invite/b/hxBw4hwl/433f7523ea3b218c4ccb81a93d96abfa/taskboard
 
 How to run:
 ----

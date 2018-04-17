@@ -650,8 +650,8 @@ public class ChessMainRevamp extends Application {
         Button hintButton = new Button("HINT", image);
         //Disable hint when not human players turn, or the game has ended
         if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
-                (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI) ||
-                chessDataBoard.currentPlayer().isInCheckmate() || chessDataBoard.currentPlayer().isInStalemate()) {
+            (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI) ||
+            chessDataBoard.currentPlayer().isInCheckmate() || chessDataBoard.currentPlayer().isInStalemate()) {
             hintButton.setDisable(true);
         }
         hintButton.setOnAction(event -> {
@@ -685,8 +685,10 @@ public class ChessMainRevamp extends Application {
             Tooltip tp = new Tooltip("Undo a move");
             Tooltip.install(backButton, tp);
         });
-        if (boardHistory.size() < 3 || chessDataBoard.currentPlayer().isInCheckmate() ||
-                chessDataBoard.currentPlayer().isInStalemate()) {
+        if (boardHistory.size() < 3 ||
+            chessDataBoard.currentPlayer().isInCheckmate() ||
+            chessDataBoard.currentPlayer().isInStalemate() ||
+            (!isBlackAI && !isWhiteAI)) {
             backButton.setDisable(true);
         }
         backButton.setOnAction(event -> {

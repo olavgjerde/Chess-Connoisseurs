@@ -610,22 +610,24 @@ public class ChessMainRevamp extends Application {
 
             boardStatusBox.getChildren().addAll(boardStatusText, circle);
 
-            //show the previous moves made
-            Text moveHistoryText = new Text("PREVIOUS MOVE: \n");
-            if (!moveHistory.isEmpty()) {
-                moveHistoryText = new Text("PREVIOUS MOVE: \n" + moveHistory.get(moveHistory.size() - 1).toString());
-            }
-            moveHistoryText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
-
-            statusPane.getChildren().addAll(boardStatusBox, moveHistoryText);
+            statusPane.getChildren().addAll(boardStatusBox);
         }
+
+        //Show the previous moves made
+        Text moveHistoryText = new Text("PREVIOUS MOVE: \n");
+        if (!moveHistory.isEmpty()) {
+            moveHistoryText = new Text("PREVIOUS MOVE: \n" + moveHistory.get(moveHistory.size() - 1).toString());
+            if (boardHistory.get(boardHistory.size() - 1).currentPlayer().isInCheck()) moveHistoryText.setText(moveHistoryText.getText() + "+");
+            else if (boardHistory.get(boardHistory.size() - 1).currentPlayer().isInCheckmate()) moveHistoryText.setText(moveHistoryText.getText() + "#");
+        }
+        moveHistoryText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
 
         //Display if the current player is in check
         Text currentPlayerInCheck = new Text((chessDataBoard.currentPlayer().getAlliance() + " in check: \n" +
                 chessDataBoard.currentPlayer().isInCheck()).toUpperCase());
         currentPlayerInCheck.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
 
-        statusPane.getChildren().addAll(currentPlayerInCheck, createStatusPaneButtonBox());
+        statusPane.getChildren().addAll(moveHistoryText, currentPlayerInCheck, createStatusPaneButtonBox());
 
         //Color all texts in the root node of status pane to the color white
         for (Node x : statusPane.getChildren()) {

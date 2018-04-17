@@ -115,6 +115,21 @@ public abstract class Move {
         return this.board;
     }
 
+    /**
+     * This helps differentiate equal pieces that may be moving to the same position
+     * @return column index
+     * @see <a href="https://en.wikipedia.org/wiki/Portable_Game_Notation">Disambiguation</a>
+     */
+    public String disambiguationColumn() {
+        for (Move move : board.currentPlayer().getLegalMoves()) {
+            if (move.getDestinationCoordinate().equals(this.destinationCoordinate) && !this.equals(move) &&
+                this.movedPiece.getPieceType().equals(move.getMovedPiece().getPieceType())) {
+                return BoardUtils.getAlgebraicNotationFromCoordinate(this.movedPiece.getPieceCoordinate()).substring(0, 1);
+            }
+        }
+        return "";
+    }
+
     @Override
     public String toString() {
         return BoardUtils.getAlgebraicNotationFromCoordinate(destinationCoordinate);
@@ -197,7 +212,7 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return movedPiece.getPieceType() + BoardUtils.getAlgebraicNotationFromCoordinate(destinationCoordinate);
+            return movedPiece.getPieceType() + disambiguationColumn() + BoardUtils.getAlgebraicNotationFromCoordinate(destinationCoordinate);
         }
     }
 
@@ -285,9 +300,7 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return BoardUtils.getAlgebraicNotationFromCoordinate(this.movedPiece.getPieceCoordinate()) + "-" +
-                    BoardUtils.getAlgebraicNotationFromCoordinate(this.destinationCoordinate) + "=" +
-                    upgradeType;
+            return BoardUtils.getAlgebraicNotationFromCoordinate(this.destinationCoordinate) + "=" + upgradeType;
         }
 
         @Override
@@ -411,7 +424,7 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return "0-0";
+            return "O-O";
         }
     }
 
@@ -431,7 +444,7 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return "0-0-0";
+            return "O-O-O";
         }
     }
 
@@ -502,7 +515,7 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return movedPiece.getPieceType() + "x" + BoardUtils.getAlgebraicNotationFromCoordinate(this.destinationCoordinate);
+            return movedPiece.getPieceType() + disambiguationColumn() + "x" + BoardUtils.getAlgebraicNotationFromCoordinate(this.destinationCoordinate);
         }
     }
 

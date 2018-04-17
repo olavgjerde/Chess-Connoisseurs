@@ -59,7 +59,10 @@ public class Pawn extends Piece {
                 if (relativeX == 0 && relativeY == 1) {
                     // 1 step
                     if (promotionIsPossible && destinationIsEmpty) {
-                        legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination)));
+                        legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.QUEEN));
+                        legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.ROOK));
+                        legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.BISHOP));
+                        legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.KNIGHT));
                     } else if (destinationIsEmpty) {
                         legalMoves.add(new PawnMove(board, this, destination));
                     }
@@ -77,7 +80,10 @@ public class Pawn extends Piece {
                         final Piece pieceAtDestination = board.getTile(destination).getPiece();
                         if (pieceAtDestination.getPieceAlliance() != thisAlliance) {
                             if (promotionIsPossible) {
-                                legalMoves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination)));
+                                legalMoves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.QUEEN));
+                                legalMoves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.ROOK));
+                                legalMoves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.BISHOP));
+                                legalMoves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.KNIGHT));
                             } else {
                                 legalMoves.add(new PawnAttackMove(board, this, destination, pieceAtDestination));
                             }

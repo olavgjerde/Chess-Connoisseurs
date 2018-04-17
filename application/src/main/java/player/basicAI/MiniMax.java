@@ -22,9 +22,7 @@ import static board.Move.*;
 public class MiniMax implements MoveStrategy {
     private final BoardEvaluator boardEvaluator;
     private final int searchDepth;
-    private static boolean shuffleMode = false;
     private boolean printMoveInformation;
-
     private int quiescenceCount;
     private int totalQuiescence;
     private int maxQuiescence;
@@ -37,12 +35,11 @@ public class MiniMax implements MoveStrategy {
      * @param printMoveInformation to print information about
      * @param shuffleMode to shuffle moves, this removes move ordering and makes it random (for use with random board generator)
      */
-    public MiniMax(int searchDepth, int maxQuiescence, boolean usePieceSquareBoards, boolean printMoveInformation, boolean shuffleMode) {
+    public MiniMax(int searchDepth, int maxQuiescence, boolean usePieceSquareBoards, boolean printMoveInformation) {
         this.boardEvaluator = new RegularBoardEvaluator(usePieceSquareBoards);
         this.searchDepth = searchDepth;
         this.maxQuiescence = maxQuiescence;
         this.printMoveInformation = printMoveInformation;
-        this.shuffleMode = shuffleMode;
     }
 
     @Override
@@ -69,7 +66,7 @@ public class MiniMax implements MoveStrategy {
         if (printMoveInformation) System.out.println(board.currentPlayer().getAlliance().toString().toUpperCase() + " EVALUATING WITH DEPTH: " + searchDepth);
         Collection<Move> sorted = moveSortExpensive(board.currentPlayer().getLegalMoves());
         int moveCount = 1;
-        for (Move move : sorted) {
+        for (Move move : moveSortExpensive(board.currentPlayer().getLegalMoves())) {
             final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
             //Reset quiescence for every start node
             this.quiescenceCount = 0;
@@ -91,16 +88,22 @@ public class MiniMax implements MoveStrategy {
                     bestMove = move;
                     if (moveTransition.getTransitionBoard().getWhitePlayer().isInCheckmate()) break;
                 }
-            }
 
-            if (printMoveInformation) {
-                System.out.println("(" + moveCount++ + "/" + sorted.size() + ") "
-                        + "\u001B[34m" + "MOVE ANALYZED: " + "\u001B[0m" + move + " "
-                        + "\u001B[36m" + "DEEPER SEARCHES: " + "\u001B[0m" + quiescenceCount + " "
-                        + "\u001B[32m" + "BEST MOVE: " + "\u001B[0m" + bestMove
-                        + "\u001B[33m" + " [Score: " + "\u001B[0m" + currentValue + "\u001B[33m" + "]" + "\u001B[0m");
-            }
+                if (printMoveInformation) {
+                    System.out.println("(" + moveCount++ + "/" + sorted.size() + ") "
+                            + "\u001B[34m" + "MOVE: " + "\u001B[0m" + move + " "
+                            + "\u001B[36m" + "DEEPER SEARCHES: " + "\u001B[0m" + quiescenceCount + " "
+                            + "\u001B[32m" + "BEST MOVE: " + "\u001B[0m" + bestMove
+                            + "\u001B[33m" + " [Score: " + "\u001B[0m" + currentValue + "\u001B[33m" + "]" + "\u001B[0m");
+                }
 
+            } else {
+                if (printMoveInformation) {
+                    System.out.println("(" + moveCount++ + "/" + sorted.size() + ") "
+                            + "\u001B[34m" + "MOVE: " + "\u001B[0m" + move + " is illegal! "
+                            + "\u001B[32m" + "BEST MOVE: " + "\u001B[0m" + bestMove);
+                }
+            }
         }
 
         if (printMoveInformation) {
@@ -135,7 +138,7 @@ public class MiniMax implements MoveStrategy {
                         max(moveTransition.getTransitionBoard(), calculateQuiescenceDepth(moveTransition, searchDepth), alpha, currentLowestValue));
 
                 // alpha beta break off
-                if (currentLowestValue <= alpha) break;
+                if (currentLowestValue <= alpha) return alpha;
             }
         }
         return currentLowestValue;
@@ -164,7 +167,7 @@ public class MiniMax implements MoveStrategy {
                         min(moveTransition.getTransitionBoard(), calculateQuiescenceDepth(moveTransition, searchDepth), currentHighestValue, beta));
 
                 // alpha beta break off
-                if (beta <= currentHighestValue) break;
+                if (beta <= currentHighestValue) return beta;
             }
         }
         return currentHighestValue;
@@ -209,30 +212,6 @@ public class MiniMax implements MoveStrategy {
     /**
      * Sorts moves contained in a collection
      * General comparison outline:
-     * Check if move is on a board where one of the player are in check
-     * If it is an attack move
-     * If it is a castling move
-     * The value of the piece moving
-     *
-     * @param moves to sort
-     * @return a immutable collection which contains the moves in sorted order
-     */
-    private static Collection<Move> moveSortSmart(final Collection<Move> moves) {
-        if (shuffleMode) {
-            Collections.shuffle((List)moves);
-            return moves;
-        }
-        return Ordering.from((Comparator<Move>) (moveA, moveB) -> ComparisonChain.start()
-                .compareTrueFirst(hasCheckStatus(moveA.getBoard()), hasCheckStatus(moveB.getBoard()))
-                .compareTrueFirst(moveA.isAttack(), moveB.isAttack())
-                .compareTrueFirst(moveA.isCastlingMove(), moveB.isCastlingMove())
-                .compare(moveB.getMovedPiece().getPieceType().getPieceValue(), moveA.getMovedPiece().getPieceType().getPieceValue())
-                .result()).immutableSortedCopy(moves);
-    }
-
-    /**
-     * Sorts moves contained in a collection
-     * General comparison outline:
      * Check if move puts opponent in check
      * Check if move is a castling move
      * Use MVV-LVA heuristic
@@ -240,11 +219,7 @@ public class MiniMax implements MoveStrategy {
      * @param moves to sort
      * @return sorted collection of moves
      */
-    private static Collection<Move> moveSortExpensive(Collection<Move> moves) {
-        if (shuffleMode) {
-            Collections.shuffle((List)moves);
-            return moves;
-        }
+    private Collection<Move> moveSortExpensive(Collection<Move> moves) {
         return Ordering.from((Comparator<Move>) (moveA, moveB) -> ComparisonChain.start()
                 .compareTrueFirst(moveCreatesCheck(moveA), moveCreatesCheck(moveB))
                 .compareTrueFirst(moveA.isCastlingMove(), moveB.isCastlingMove())
@@ -261,11 +236,7 @@ public class MiniMax implements MoveStrategy {
      * @param moves to sort
      * @return sorted collection of moves
      */
-    private static Collection<Move> moveSortStandard(Collection<Move> moves) {
-        if (shuffleMode) {
-            Collections.shuffle((List)moves);
-            return moves;
-        }
+    private Collection<Move> moveSortStandard(Collection<Move> moves) {
         return Ordering.from((Comparator<Move>) (moveA, moveB) -> ComparisonChain.start()
                 .compareTrueFirst(moveA.isCastlingMove(), moveB.isCastlingMove())
                 .compare(mvvlva(moveB), mvvlva(moveA))
@@ -278,7 +249,7 @@ public class MiniMax implements MoveStrategy {
      * @param move to evaluate
      * @return true if opponent is in check
      */
-    private static boolean moveCreatesCheck(final Move move) {
+    private boolean moveCreatesCheck(final Move move) {
         final Board board = move.getBoard();
         MoveTransition transition = board.currentPlayer().makeMove(move);
         return transition.getTransitionBoard().currentPlayer().isInCheck();
@@ -291,23 +262,12 @@ public class MiniMax implements MoveStrategy {
      * @return score for the move
      * @see <a href="https://chessprogramming.wikispaces.com/MVV-LVA">MVV-LVA</a>
      */
-    private static int mvvlva(final Move move) {
+    private int mvvlva(final Move move) {
         final Piece movingPiece = move.getMovedPiece();
         if (move.isAttack()) {
             final Piece attackedPiece = move.getAttackedPiece();
             return (attackedPiece.getPieceType().getPieceValue() - movingPiece.getPieceType().getPieceValue() + Piece.PieceType.KING.getPieceValue()) * 100;
         }
         return Piece.PieceType.KING.getPieceValue() - movingPiece.getPieceType().getPieceValue();
-    }
-
-    /**
-     * Checks if either of the players on a board is in check
-     * (for use with sorting)
-     *
-     * @param board to evaluate
-     * @return true if either of the players is in check
-     */
-    private static boolean hasCheckStatus(Board board) {
-        return board.getWhitePlayer().isInCheck() || board.getBlackPlayer().isInCheck();
     }
 }

@@ -1,9 +1,10 @@
 package board;
 
-import pieces.Pawn;
-import pieces.Piece;
-import pieces.Rook;
+import pieces.*;
+import pieces.Piece.PieceType;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static board.Board.*;
@@ -114,6 +115,21 @@ public abstract class Move {
         return this.board;
     }
 
+    /**
+     * This helps differentiate equal pieces that may be moving to the same position
+     * @return column index
+     * @see <a href="https://en.wikipedia.org/wiki/Portable_Game_Notation">Disambiguation</a>
+     */
+    public String disambiguationColumn() {
+        for (Move move : board.currentPlayer().getLegalMoves()) {
+            if (move.getDestinationCoordinate().equals(this.destinationCoordinate) && !this.equals(move) &&
+                this.movedPiece.getPieceType().equals(move.getMovedPiece().getPieceType())) {
+                return BoardUtils.getAlgebraicNotationFromCoordinate(this.movedPiece.getPieceCoordinate()).substring(0, 1);
+            }
+        }
+        return "";
+    }
+
     @Override
     public String toString() {
         return BoardUtils.getAlgebraicNotationFromCoordinate(destinationCoordinate);
@@ -196,7 +212,7 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return movedPiece.getPieceType() + BoardUtils.getAlgebraicNotationFromCoordinate(destinationCoordinate);
+            return movedPiece.getPieceType() + disambiguationColumn() + BoardUtils.getAlgebraicNotationFromCoordinate(destinationCoordinate);
         }
     }
 
@@ -229,10 +245,13 @@ public abstract class Move {
         final Move decoratedMove;
         final Pawn promotedPawn;
 
-        public PawnPromotion(Move decoratedMove) {
+        final PieceType upgradeType;
+
+        public PawnPromotion(Move decoratedMove, PieceType upgradeType) {
             super(decoratedMove.getBoard(), decoratedMove.getMovedPiece(), decoratedMove.getDestinationCoordinate());
             this.decoratedMove = decoratedMove;
             this.promotedPawn = (Pawn) decoratedMove.getMovedPiece();
+            this.upgradeType = upgradeType;
         }
 
         @Override
@@ -245,7 +264,17 @@ public abstract class Move {
             for (Piece piece : pawnMovedBoard.currentPlayer().getOpponent().getActivePieces()) {
                 builder.setPiece(piece);
             }
-            builder.setPiece(this.promotedPawn.getPromotionPiece().movePiece(this));
+
+            Piece upgradePiece;
+            switch (upgradeType) {
+                case QUEEN: {upgradePiece = new Queen(decoratedMove.getDestinationCoordinate(), promotedPawn.getPieceAlliance(), false); break;}
+                case KNIGHT: {upgradePiece = new Knight(decoratedMove.getDestinationCoordinate(), promotedPawn.getPieceAlliance(), false); break;}
+                case BISHOP: {upgradePiece = new Bishop(decoratedMove.getDestinationCoordinate(), promotedPawn.getPieceAlliance(), false); break;}
+                case ROOK: {upgradePiece = new Rook(decoratedMove.getDestinationCoordinate(), promotedPawn.getPieceAlliance(), false); break;}
+                default: upgradePiece = new Queen(decoratedMove.getDestinationCoordinate(), promotedPawn.getPieceAlliance(), false);
+            }
+            builder.setPiece(upgradePiece);
+
             builder.setMoveMaker(pawnMovedBoard.currentPlayer().getAlliance());
             builder.setMoveTransition(this);
             return builder.build();
@@ -261,11 +290,17 @@ public abstract class Move {
             return this.decoratedMove.getAttackedPiece();
         }
 
+        /**
+         * Method specific to PawnPromotions
+         * @return the piece type that this move promotes to
+         */
+        public PieceType getUpgradeType() {
+            return upgradeType;
+        }
+
         @Override
         public String toString() {
-            return BoardUtils.getAlgebraicNotationFromCoordinate(this.movedPiece.getPieceCoordinate()) + "-" +
-                    BoardUtils.getAlgebraicNotationFromCoordinate(this.destinationCoordinate) + "=" +
-                    this.promotedPawn.getPromotionPiece();
+            return BoardUtils.getAlgebraicNotationFromCoordinate(this.destinationCoordinate) + "=" + upgradeType;
         }
 
         @Override
@@ -389,7 +424,7 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return "0-0";
+            return "O-O";
         }
     }
 
@@ -409,7 +444,7 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return "0-0-0";
+            return "O-O-O";
         }
     }
 
@@ -480,7 +515,7 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return movedPiece.getPieceType() + "x" + BoardUtils.getAlgebraicNotationFromCoordinate(this.destinationCoordinate);
+            return movedPiece.getPieceType() + disambiguationColumn() + "x" + BoardUtils.getAlgebraicNotationFromCoordinate(this.destinationCoordinate);
         }
     }
 
@@ -549,6 +584,14 @@ public abstract class Move {
                 }
             }
             return NULL_MOVE;
+        }
+
+        public static List<PawnPromotion> getPromotionMoves(Board board, Coordinate currentCoordinate, Coordinate destinationCoordinate) {
+            List<PawnPromotion> promotionMoves = new ArrayList<>();
+            for (Move move : board.getAllLegalMoves()) {
+                if (move instanceof PawnPromotion) promotionMoves.add((PawnPromotion) move);
+            }
+            return promotionMoves;
         }
     }
 }

@@ -1,4 +1,6 @@
 import board.*;
+import board.Move.MoveFactory;
+import board.Move.PawnPromotion;
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -18,20 +20,16 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-import javafx.stage.Modality;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
+import javafx.stage.*;
 import javafx.util.Duration;
 import pieces.Alliance;
 import pieces.Piece;
+import pieces.Piece.PieceType;
 import player.MoveTransition;
 import player.Score;
 import player.basicAI.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class ChessMainRevamp extends Application {
     //Main window stage for application
@@ -64,7 +62,6 @@ public class ChessMainRevamp extends Application {
     private boolean isWhiteAI, isBlackAI;
     //Keep count of board history (board states)
     private ArrayList<Board> boardHistory = new ArrayList<>();
-    private int rewindCounter = 0, equalBoardStateCounter = 0;
     //Move history, even = white moves, odd = black moves
     private ArrayList<Move> moveHistory = new ArrayList<>();
     //List of all the dead pieces
@@ -204,12 +201,11 @@ public class ChessMainRevamp extends Application {
             isBlackAI = false;
             boardHistory.clear();
             moveHistory.clear();
-            rewindCounter = 0;
             createStartMenuScene();
         });
 
         MenuItem highScores = new MenuItem("Highscores");
-        highScores.setOnAction(event -> createHighscoreScene());
+        highScores.setOnAction(event -> createHighscoreWindow());
 
         MenuItem exit = new MenuItem("Exit");
         exit.setOnAction(event -> System.exit(0));
@@ -414,13 +410,10 @@ public class ChessMainRevamp extends Application {
                 boardIsRandom = true;
                 chessDataBoard = Board.createRandomBoard();
             }
-
             boardHistory.clear();
             moveHistory.clear();
             deadPieces.clear();
-            equalBoardStateCounter = 0;
             drawChessGridPane();
-            mainStage.setScene(gameScene);
 
             boardHistory.add(chessDataBoard);
             // Set GameMusic
@@ -428,6 +421,8 @@ public class ChessMainRevamp extends Application {
                 soundClipManager.clear();
                 soundClipManager = new SoundClipManager("GameMusic.wav",true,0.05, playSound);
             }
+
+            mainStage.setScene(gameScene);
 
             //Set off ai vs ai match
             if (isWhiteAI) {
@@ -447,10 +442,8 @@ public class ChessMainRevamp extends Application {
     /**
      * Shows the highscore scene for the application
      */
-    private void createHighscoreScene() {
+    private void createHighscoreWindow() {
         final Stage dialog = new Stage();
-
-
 
         VBox hsRoot = new VBox();
         hsRoot.setSpacing(5);
@@ -553,7 +546,6 @@ public class ChessMainRevamp extends Application {
             boardHistory.clear();
             moveHistory.clear();
             deadPieces.clear();
-            equalBoardStateCounter = 0;
             //Removes game over pane
             gamePlayPane.setBottom(null);
             drawChessGridPane();
@@ -618,22 +610,24 @@ public class ChessMainRevamp extends Application {
 
             boardStatusBox.getChildren().addAll(boardStatusText, circle);
 
-            //show the previous moves made
-            Text moveHistoryText = new Text("PREVIOUS MOVE: \n");
-            if (!moveHistory.isEmpty()) {
-                moveHistoryText = new Text("PREVIOUS MOVE: \n" + moveHistory.get(moveHistory.size() - 1).toString());
-            }
-            moveHistoryText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
-
-            statusPane.getChildren().addAll(boardStatusBox, moveHistoryText);
+            statusPane.getChildren().addAll(boardStatusBox);
         }
+
+        //Show the previous moves made
+        Text moveHistoryText = new Text("PREVIOUS MOVE: \n");
+        if (!moveHistory.isEmpty()) {
+            moveHistoryText = new Text("PREVIOUS MOVE: \n" + moveHistory.get(moveHistory.size() - 1).toString());
+            if (boardHistory.get(boardHistory.size() - 1).currentPlayer().isInCheckmate()) moveHistoryText.setText(moveHistoryText.getText() + "#");
+            else if (boardHistory.get(boardHistory.size() - 1).currentPlayer().isInCheck()) moveHistoryText.setText(moveHistoryText.getText() + "+");
+        }
+        moveHistoryText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
 
         //Display if the current player is in check
         Text currentPlayerInCheck = new Text((chessDataBoard.currentPlayer().getAlliance() + " in check: \n" +
                 chessDataBoard.currentPlayer().isInCheck()).toUpperCase());
         currentPlayerInCheck.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
 
-        statusPane.getChildren().addAll(currentPlayerInCheck, createButtonBoxForStatusPane());
+        statusPane.getChildren().addAll(moveHistoryText, currentPlayerInCheck, createStatusPaneButtonBox());
 
         //Color all texts in the root node of status pane to the color white
         for (Node x : statusPane.getChildren()) {
@@ -645,7 +639,7 @@ public class ChessMainRevamp extends Application {
      * Creates the HBox with buttons to display in the status pane
      * @return populated HBox
      */
-    private HBox createButtonBoxForStatusPane() {
+    private HBox createStatusPaneButtonBox() {
         //Button scaling
         double buttonSize = ((screenHeight + screenWidth) * 1 / (BoardUtils.getWidth() * BoardUtils.getHeight()));
 
@@ -654,11 +648,10 @@ public class ChessMainRevamp extends Application {
         image.setFitHeight(buttonSize);
         image.setPreserveRatio(true);
         Button hintButton = new Button("HINT", image);
-        hintButton.setFont(Font.font("Verdana", screenWidth/650 * 5));
         //Disable hint when not human players turn, or the game has ended
         if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
-                (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI) ||
-                chessDataBoard.currentPlayer().isInCheckmate() || chessDataBoard.currentPlayer().isInStalemate()) {
+            (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI) ||
+            chessDataBoard.currentPlayer().isInCheckmate() || chessDataBoard.currentPlayer().isInStalemate()) {
             hintButton.setDisable(true);
         }
         hintButton.setOnAction(event -> {
@@ -667,7 +660,7 @@ public class ChessMainRevamp extends Application {
             destinationCoordinate = null;
             userMovedPiece = null;
             //Let AI find "best" move
-            MoveStrategy moveStrategy = new MiniMax(4, 1000, true, true, false);
+            MoveStrategy moveStrategy = new MiniMax(4, 1000, true, true);
             final Move AIMove = moveStrategy.execute(chessDataBoard);
             //Set coordinates found
             hintStartCoordinate = AIMove.getCurrentCoordinate();
@@ -692,37 +685,34 @@ public class ChessMainRevamp extends Application {
             Tooltip tp = new Tooltip("Undo a move");
             Tooltip.install(backButton, tp);
         });
-        if (rewindCounter >= boardHistory.size()-1 || chessDataBoard.currentPlayer().isInCheckmate() ||
-                chessDataBoard.currentPlayer().isInStalemate()) {
+        if (boardHistory.size() < 3 ||
+            chessDataBoard.currentPlayer().isInCheckmate() ||
+            chessDataBoard.currentPlayer().isInStalemate() ||
+            (!isBlackAI && !isWhiteAI)) {
             backButton.setDisable(true);
         }
         backButton.setOnAction(event -> {
-            chessDataBoard = boardHistory.get((boardHistory.size()-1)-(++rewindCounter));
-            drawChessGridPane();
-        });
-
-        //button for redoing a move
-        image = new ImageView(resources.redo);
-        image.setFitHeight(buttonSize);
-        image.setPreserveRatio(true);
-        Button forwardButton = new Button("", image);
-        forwardButton.setOnMouseEntered(event -> {
-            Tooltip tp = new Tooltip("Redo a move");
-            Tooltip.install(forwardButton, tp);
-        });
-        if (rewindCounter <= 0) forwardButton.setDisable(true);
-        forwardButton.setOnAction(event -> {
-            chessDataBoard = boardHistory.get((boardHistory.size()-1)-(--rewindCounter));
+            for (int i = 0; i < 2; i++) {
+                boardHistory.remove(boardHistory.size()-1);
+                Move lastMove = moveHistory.get(moveHistory.size()-1);
+                if (lastMove.isAttack()) {
+                    deadPieces.remove(lastMove.getAttackedPiece());
+                    drawTakenPiecesPane();
+                }
+                moveHistory.remove(moveHistory.size()-1);
+            }
+            chessDataBoard = boardHistory.get(boardHistory.size()-1);
             drawChessGridPane();
         });
 
         //extra button styling
-        HBox buttonContainer = new HBox(backButton, hintButton, forwardButton);
+        HBox buttonContainer = new HBox(backButton, hintButton);
         buttonContainer.setAlignment(Pos.CENTER);
         buttonContainer.setPadding(new Insets((screenHeight/500)*200, 0, 0 , 0));
         buttonContainer.setSpacing(5);
         for (Node x : buttonContainer.getChildren()) {
             x.setStyle("-fx-focus-color: darkslategrey; -fx-faint-focus-color: transparent;");
+            x.setFocusTraversable(false);
         }
 
         return buttonContainer;
@@ -778,6 +768,69 @@ public class ChessMainRevamp extends Application {
     }
 
     /**
+     * Shoes a pop menu where the player can choose what type of piece they want to promote to
+     * @return PieceType which the user selected
+     */
+    private PieceType showPromotionMenu() {
+        Stage menuStage = new Stage();
+        menuStage.initStyle(StageStyle.UNDECORATED);
+        FlowPane menuRoot = new FlowPane();
+        menuRoot.setAlignment(Pos.CENTER);
+        menuRoot.setPadding(new Insets(0));
+
+        //Give buttons a size in relation to screen dimensions
+        double buttonSize = ((screenHeight + screenWidth) * 4 / (BoardUtils.getWidth() * BoardUtils.getHeight()));
+
+        //Fetch images for promotion and scale them to fit within buttons
+        ImageView q = chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE ? new ImageView(resources.WQ) : new ImageView(resources.BQ),
+                k = chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE ? new ImageView(resources.WN) : new ImageView(resources.BN),
+                b = chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE ? new ImageView(resources.WB) : new ImageView(resources.BB),
+                r = chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE ? new ImageView(resources.WR) : new ImageView(resources.BR);
+        for (ImageView image : Arrays.asList(q,k,b,r)) {
+            image.setPreserveRatio(true);
+            image.setFitWidth(buttonSize / 4);
+        }
+
+        Button queen = new Button("QUEEN", q), knight = new Button("KNIGHT", k),
+                bishop = new Button("BISHOP", b), rook = new Button("ROOK", r);
+        menuRoot.getChildren().addAll(queen, knight, bishop, rook);
+
+        //Style buttons
+        menuRoot.setPrefWrapLength(buttonSize);
+        for (Button button : Arrays.asList(queen, knight, bishop, rook)) {
+            button.setPrefWidth(buttonSize);
+            button.setPrefHeight(buttonSize / 2);
+            button.setFocusTraversable(false);
+        }
+
+        final PieceType[] x = new PieceType[1];
+        queen.setOnAction(event -> {
+            x[0] = PieceType.QUEEN;
+            menuStage.close();
+        });
+        knight.setOnAction(event -> {
+            x[0] = PieceType.KNIGHT;
+            menuStage.close();
+        });
+        bishop.setOnAction(event -> {
+            x[0] = PieceType.BISHOP;
+            menuStage.close();
+        });
+        rook.setOnAction(event -> {
+            x[0] = PieceType.ROOK;
+            menuStage.close();
+        });
+
+        Scene menuScene = new Scene(menuRoot, bishop.getPrefWidth()*2+10, bishop.getPrefHeight()*2+10);
+        menuStage.setScene(menuScene);
+        menuStage.initModality(Modality.APPLICATION_MODAL);
+        menuStage.setResizable(false);
+        menuStage.showAndWait();
+
+        return x[0];
+    }
+
+    /**
      * This class extends the StackPane class and embeds the connection between
      * the tiles on data representation of the board and the gui representation of the board.
      */
@@ -790,9 +843,9 @@ public class ChessMainRevamp extends Application {
 
             Color colorOfTile = assignTileColor();
             boolean animateTile = false;
-            if (moveHistory.size()-rewindCounter >= 1 && lastMoveHighlightEnabled) {
+            if (!moveHistory.isEmpty() && lastMoveHighlightEnabled) {
                 //highlight the previous move
-                Move m = moveHistory.get((moveHistory.size()-1)-rewindCounter);
+                Move m = moveHistory.get(moveHistory.size()-1);
                 Coordinate to = m.getDestinationCoordinate();
                 Coordinate from = m.getCurrentCoordinate();
                 if (coordinateId.equals(from)) colorOfTile = Color.rgb(255, 255, 160);
@@ -998,55 +1051,63 @@ public class ChessMainRevamp extends Application {
                         drawChessGridPane();
                     }
                 }
-                if (destinationCoordinate != null) attemptMove();
+                if (destinationCoordinate != null) attemptHumanMove();
+            }
+        }
+    }
+
+    /**
+     * Attempts to make a move from the tile (startCoordinate) which is selected. If the move is illegal nothing happens.
+     */
+    private void attemptHumanMove() {
+        Move move = MoveFactory.createMove(chessDataBoard, startCoordinate.getTileCoord(), destinationCoordinate.getTileCoord());
+        MoveTransition newBoard = chessDataBoard.currentPlayer().makeMove(move);
+
+        if (newBoard.getMoveStatus().isDone()) {
+            //Let user select type of piece for promotion
+            if (move instanceof PawnPromotion) {
+                PieceType userSelectedType = showPromotionMenu();
+                List<PawnPromotion> availablePromotions = MoveFactory.getPromotionMoves(chessDataBoard, startCoordinate.getTileCoord(), destinationCoordinate.getTileCoord());
+                for (PawnPromotion promotion : availablePromotions) {
+                    if (promotion.getUpgradeType() == userSelectedType &&
+                        promotion.getDestinationCoordinate().equals(destinationCoordinate.getTileCoord())) {
+                        // changes the move that altered the board (since this is also a promotion, its safe)
+                        newBoard = chessDataBoard.currentPlayer().makeMove(promotion);
+                        move = promotion;
+                        break;
+                    }
+                }
+            }
+
+            playSound("DropPieceNew.wav",0.4);
+            //clear out undone boards and moves
+            chessDataBoard = newBoard.getTransitionBoard();
+            moveHistory.add(move);
+            boardHistory.add(chessDataBoard);
+            if (move.isAttack()) {
+                deadPieces.add(move.getAttackedPiece());
+                Platform.runLater(ChessMainRevamp.this::drawTakenPiecesPane);
             }
         }
 
-        /**
-         * Attempts to make a move from the tile (startCoordinate) which is selected. If the move is illegal nothing happens.
-         */
-        private void attemptMove() {
-            final Move move = Move.MoveFactory.createMove(chessDataBoard, startCoordinate.getTileCoord(), destinationCoordinate.getTileCoord());
-            final MoveTransition newBoard = chessDataBoard.currentPlayer().makeMove(move);
+        //Reset user move related variables
+        startCoordinate = null;
+        destinationCoordinate = null;
+        userMovedPiece = null;
+        drawChessGridPane();
 
-            if (newBoard.getMoveStatus().isDone()) {
-                playSound("DropPieceNew.wav",0.4);
-                //clear out undone boards and moves
-                if (rewindCounter > 0) {
-                    for (int i=0; i<rewindCounter; i++) {
-                        boardHistory.remove(boardHistory.size()-1);
-                        if (!moveHistory.isEmpty()) moveHistory.remove(moveHistory.size()-1);
-                    }
-                    rewindCounter=0;
+        if (gameIsOver()) {
+            gameOverCalculations();
+        } else {
+            Thread AIThread = new Thread(new Task() {
+                @Override
+                protected Object call() {
+                    makeAIMove();
+                    return null;
                 }
-                chessDataBoard = newBoard.getTransitionBoard();
-                moveHistory.add(move);
-                boardHistory.add(chessDataBoard);
-                if (move.isAttack()) {
-                    deadPieces.add(move.getAttackedPiece());
-                    Platform.runLater(ChessMainRevamp.this::drawTakenPiecesPane);
-                }
-            }
-
-            //Reset user move related variables
-            startCoordinate = null;
-            destinationCoordinate = null;
-            userMovedPiece = null;
-            drawChessGridPane();
-
-            if (gameIsOver()) {
-                gameOverCalculations();
-            } else {
-                Thread AIThread = new Thread(new Task() {
-                    @Override
-                    protected Object call() {
-                        makeAIMove();
-                        return null;
-                    }
-                });
-                AIThread.setPriority(Thread.MAX_PRIORITY);
-                AIThread.start();
-            }
+            });
+            AIThread.setPriority(Thread.MAX_PRIORITY);
+            AIThread.start();
         }
     }
 
@@ -1057,20 +1118,13 @@ public class ChessMainRevamp extends Application {
         if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
             (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI)) {
 
-            MoveStrategy moveStrategy = new MiniMax(aiDepth, 1000, true, true, false);
+            MoveStrategy moveStrategy = new MiniMax(aiDepth, 1000, true, true);
             final Move AIMove = moveStrategy.execute(chessDataBoard);
             final MoveTransition newBoard = chessDataBoard.currentPlayer().makeMove(AIMove);
 
             if (newBoard.getMoveStatus().isDone()) {
                 playSound("DropPieceNew.wav",1);
                 //clear out undone boards and moves
-                if (rewindCounter > 0) {
-                    for (int i=0; i<rewindCounter; i++) {
-                        boardHistory.remove(boardHistory.size()-1);
-                        if (!moveHistory.isEmpty()) moveHistory.remove(moveHistory.size()-1);
-                    }
-                    rewindCounter=0;
-                }
                 chessDataBoard = newBoard.getTransitionBoard();
                 moveHistory.add(AIMove);
                 boardHistory.add(chessDataBoard);
@@ -1117,7 +1171,6 @@ public class ChessMainRevamp extends Application {
         int counter = 0;
         for (Board b : boardHistory) {
             if (chessDataBoard.toString().equals(b.toString())) counter++;
-            System.out.println(counter);
             if (counter >= 4) return true;
         }
         return false;

@@ -216,98 +216,11 @@ public class Board {
         return builder.build();
     }
 
-    /**
-     * Creates a board with the pieces for a regular chess game spread out randomly
-     * @return a Board with a random layout
-     */
-    public static Board createRandomBoardDeprecated() {
-        System.out.println("WARNING THIS CREATES ILLEGAL BOARDS");
-        Builder boardBuilder;
-        do {
-            // if while condition checks out -> create new builder on loop start
-            boardBuilder = new Builder();
-
-            ThreadLocalRandom randGen = ThreadLocalRandom.current();
-            int numOfPieces = (BoardUtils.getHeight() * BoardUtils.getWidth()) / 2;
-
-            // generate coordinates for bishops so that each players bishops are not placed on same color
-            List<Coordinate> whiteTileCoordinates = new ArrayList<>();
-            List<Coordinate> blackTileCoordinates = new ArrayList<>();
-            while (whiteTileCoordinates.size() < 2 || blackTileCoordinates.size() < 2) {
-                Coordinate generatedCoordinate = new Coordinate(randGen.nextInt(BoardUtils.getWidth()), randGen.nextInt(BoardUtils.getHeight()));
-                if ((generatedCoordinate.getY() % 2 == generatedCoordinate.getX() % 2) && !whiteTileCoordinates.contains(generatedCoordinate)) {
-                    whiteTileCoordinates.add(generatedCoordinate);
-                } else if (!blackTileCoordinates.contains(generatedCoordinate)) {
-                    blackTileCoordinates.add(generatedCoordinate);
-                }
-            }
-            // place bishops
-            boardBuilder.setPiece(new Bishop(whiteTileCoordinates.get(0), Alliance.BLACK, false));
-            boardBuilder.setPiece(new Bishop(blackTileCoordinates.get(0), Alliance.BLACK, false));
-            boardBuilder.setPiece(new Bishop(whiteTileCoordinates.get(1), Alliance.WHITE, false));
-            boardBuilder.setPiece(new Bishop(blackTileCoordinates.get(1), Alliance.WHITE, false));
-
-            // generate coordinates for all other pieces than bishops
-            List<Coordinate> coordinateList = new ArrayList<>();
-            for (int i = 0; i < numOfPieces - 4; i++) {
-                Coordinate generatedCoordinate = new Coordinate(randGen.nextInt(BoardUtils.getWidth()), randGen.nextInt(BoardUtils.getHeight()));
-                // "re-roll" if same coordinate is generated
-                while (coordinateList.contains(generatedCoordinate) ||
-                        whiteTileCoordinates.contains(generatedCoordinate) ||
-                        blackTileCoordinates.contains(generatedCoordinate)) {
-
-                    generatedCoordinate = new Coordinate(randGen.nextInt(BoardUtils.getWidth()), randGen.nextInt(BoardUtils.getHeight()));
-                }
-                coordinateList.add(generatedCoordinate);
-            }
-            Iterator<Coordinate> coordinateIterator = coordinateList.iterator();
-
-            // place kings
-            boardBuilder.setPiece(new King(coordinateIterator.next(), Alliance.WHITE, false, false));
-            boardBuilder.setPiece(new King(coordinateIterator.next(), Alliance.BLACK, false, false));
-
-            // place pawns
-            for (int i = 0; i < 8; i++) {
-                Coordinate whiteCoordinate = coordinateIterator.next();
-                if (Alliance.WHITE.isPawnPromotionCoordinate(whiteCoordinate)) {
-                    boardBuilder.setPiece(new Queen(whiteCoordinate, Alliance.WHITE, false));
-                } else {
-                    boardBuilder.setPiece(new Pawn(whiteCoordinate, Alliance.WHITE, false));
-                }
-                Coordinate blackCoordinate = coordinateIterator.next();
-                if (Alliance.BLACK.isPawnPromotionCoordinate(blackCoordinate)) {
-                    boardBuilder.setPiece(new Queen(blackCoordinate, Alliance.BLACK, false));
-                } else {
-                    boardBuilder.setPiece(new Pawn(blackCoordinate, Alliance.BLACK, false));
-                }
-            }
-
-            // place all other major pieces
-            boardBuilder.setPiece(new Rook(coordinateIterator.next(), Alliance.BLACK, false));
-            boardBuilder.setPiece(new Rook(coordinateIterator.next(), Alliance.BLACK, false));
-            boardBuilder.setPiece(new Knight(coordinateIterator.next(), Alliance.BLACK, false));
-            boardBuilder.setPiece(new Knight(coordinateIterator.next(), Alliance.BLACK, false));
-            boardBuilder.setPiece(new Queen(coordinateIterator.next(), Alliance.BLACK, false));
-            boardBuilder.setPiece(new Rook(coordinateIterator.next(), Alliance.WHITE, false));
-            boardBuilder.setPiece(new Rook(coordinateIterator.next(), Alliance.WHITE, false));
-            boardBuilder.setPiece(new Knight(coordinateIterator.next(), Alliance.WHITE, false));
-            boardBuilder.setPiece(new Knight(coordinateIterator.next(), Alliance.WHITE, false));
-            boardBuilder.setPiece(new Queen(coordinateIterator.next(), Alliance.WHITE, false));
-            boardBuilder.setMoveMaker(Alliance.WHITE);
-
-        } while (boardBuilder.build().currentPlayer().isInStalemate() ||
-                 boardBuilder.build().currentPlayer().isInCheck() ||
-                 boardBuilder.build().currentPlayer().getOpponent().isInStalemate() ||
-                 boardBuilder.build().currentPlayer().getOpponent().isInCheck());
-
-        return boardBuilder.build();
-    }
-
     public static Board createRandomBoard() {
         Board board = Board.createStandardBoard();
-        final MoveStrategy AI = new MiniMax(1, 0, false, false, false);
+        final MoveStrategy AI = new MiniMax(1, 0, true, false);
 
-        // empty board to hold last board before change
+        // create empty board to hold last board before change
         Board boardBeforeChange = new Board(new Builder().setMoveMaker(Alliance.WHITE));
         int i;
         int numberOfMoves = ThreadLocalRandom.current().nextInt(5, 35);
@@ -327,7 +240,7 @@ public class Board {
         }
 
         // check that player is not put in checkmate when the ai makes its next move
-        MoveStrategy smarterAI = new MiniMax(4, 100, true, false, false);
+        MoveStrategy smarterAI = new MiniMax(4, 100, true, false);
         Move aiNextMove = smarterAI.execute(board);
         Board nextIterationBoard = null;
         if (board.currentPlayer().makeMove(aiNextMove).getMoveStatus().isDone()) {

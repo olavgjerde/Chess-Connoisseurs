@@ -60,6 +60,8 @@ public class ChessMainRevamp extends Application {
     private int aiDepth;
     //Ai toggles
     private boolean isWhiteAI, isBlackAI;
+    //Ai alliance (NB! if AI vs AI this will be overwritten)
+    private Alliance aiAlliance;
     //Keep count of board history (board states)
     private ArrayList<Board> boardHistory = new ArrayList<>();
     //Move history, even = white moves, odd = black moves
@@ -132,7 +134,13 @@ public class ChessMainRevamp extends Application {
      * @param volume volume to be played at
      */
     private void playSound(String name, double volume) {
-        SoundClipManager tempSoundClipManager = new SoundClipManager(name, false, volume,playSound);
+        new Thread(new Task<Object>() {
+            @Override
+            protected Object call() {
+                new SoundClipManager(name, false, volume,playSound);
+                return null;
+            }
+        }).start();
     }
 
     /**
@@ -177,7 +185,7 @@ public class ChessMainRevamp extends Application {
                 playSound = false;
             } else {
                 playSound = true;
-                soundClipManager = new SoundClipManager("GameMusic.wav", true,0.08, playSound);
+                soundClipManager = new SoundClipManager("GameMusic.wav", true,0.08, true);
             }
         });
         toggleMute.setSelected(true);
@@ -218,7 +226,13 @@ public class ChessMainRevamp extends Application {
      * Shows the start menu for the application
      */
     private void createStartMenuScene() {
-        // Play menu music
+        //Reset last games settings
+        boardHistory.clear();
+        moveHistory.clear();
+        deadPieces.clear();
+        aiAlliance = null;
+
+        //Play menu music
         soundClipManager = new SoundClipManager("MenuMusic.wav", true,0.2, playSound);
 
         //Menu Text
@@ -378,6 +392,7 @@ public class ChessMainRevamp extends Application {
             }
 
             if (isWhiteAI){
+                aiAlliance = Alliance.WHITE;
                 whitePlayerName = "CPU(" + suffix +")";
                 scoreSystem.addUsername(whitePlayerName);
                 scoreSystem.updateHighscore(whitePlayerName, rating);
@@ -386,6 +401,7 @@ public class ChessMainRevamp extends Application {
                 scoreSystem.addUsername(whitePlayerName);
             }
             if (isBlackAI) {
+                aiAlliance = Alliance.BLACK;
                 blackPlayerName = "CPU(" + suffix +")";
                 scoreSystem.addUsername(blackPlayerName);
                 scoreSystem.updateHighscore(blackPlayerName, rating);
@@ -410,12 +426,10 @@ public class ChessMainRevamp extends Application {
                 boardIsRandom = true;
                 chessDataBoard = Board.createRandomBoard();
             }
-            boardHistory.clear();
-            moveHistory.clear();
-            deadPieces.clear();
             drawChessGridPane();
 
             boardHistory.add(chessDataBoard);
+
             // Set GameMusic
             if (playSound) {
                 soundClipManager.clear();
@@ -495,10 +509,6 @@ public class ChessMainRevamp extends Application {
      * Shows the game over pane for the application
      */
     private void createGameOverPane() {
-        //Play game over sound
-        soundClipManager.clear();
-        playSound("GameOverSound.wav",0.4);
-
         //Text box - HBox
         HBox gameOverRoot = new HBox();
         gameOverRoot.setPadding(new Insets(3,0,2,0));
@@ -521,17 +531,8 @@ public class ChessMainRevamp extends Application {
         t3.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, screenWidth/650 * 15 - length/5));
         gameOverRoot.getChildren().addAll(title, t1, t2, t3);
 
-        //Button container
-        HBox buttonContainer = new HBox();
-        buttonContainer.setAlignment(Pos.CENTER);
-        buttonContainer.setSpacing(10);
-
         //Buttons
         Button newGame = new Button("NEW GAME"), newRound = new Button("NEXT ROUND"), quit = new Button("QUIT");
-
-        buttonContainer.getChildren().addAll(newGame, newRound, quit);
-        gameOverRoot.getChildren().addAll(buttonContainer);
-
         newGame.setOnAction(e -> {
             soundClipManager.clear();
             //This option allows user/settings change
@@ -551,7 +552,7 @@ public class ChessMainRevamp extends Application {
             drawChessGridPane();
 
             // Makes the first move in new round
-            if(isWhiteAI) {
+            if (isWhiteAI) {
                 makeAIMove();
             }
 
@@ -561,7 +562,35 @@ public class ChessMainRevamp extends Application {
         });
         quit.setOnAction(e -> System.exit(0));
 
+        //Button container
+        HBox buttonContainer = new HBox();
+        buttonContainer.setAlignment(Pos.CENTER);
+        buttonContainer.setSpacing(10);
+        buttonContainer.getChildren().addAll(newGame, newRound, quit);
+
+        gameOverRoot.getChildren().addAll(buttonContainer);
+
         gamePlayPane.setBottom(gameOverRoot);
+    }
+
+    /**
+     * Draw the pane where the chess pieces are displayed
+     */
+    private void drawChessGridPane() {
+        chessGridPane.getChildren().clear();
+        for (int y = 0; y < BoardUtils.getHeight(); y++) {
+            for (int x = 0; x < BoardUtils.getWidth(); x++) {
+                int gridPaneX = x, gridPaneY = y;
+                //Flip board if player plays against white ai
+                if (isWhiteAI && !isBlackAI) {
+                    gridPaneX = BoardUtils.getWidth() - (x + 1);
+                    gridPaneY = BoardUtils.getHeight() - (y + 1);
+                }
+                chessGridPane.add(new ChessTile(new Coordinate(x,y)), gridPaneX, gridPaneY);
+            }
+        }
+        drawStatusPane();
+        drawTakenPiecesPane();
     }
 
     /**
@@ -586,9 +615,6 @@ public class ChessMainRevamp extends Application {
 
         //Show the evaluation of the current board relative to the current player, can help you know how well you are doing
         if (boardStatusEnabled) {
-            HBox boardStatusBox = new HBox();
-            boardStatusBox.setAlignment(Pos.CENTER);
-
             BoardEvaluator boardEvaluator = new RegularBoardEvaluator(true);
             int score = boardEvaluator.evaluate(chessDataBoard, 4);
             int boardScore = chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE ? score : score * -1;
@@ -608,8 +634,9 @@ public class ChessMainRevamp extends Application {
             boardStatusText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 7));
             boardStatusText.setFill(Color.WHITE);
 
+            HBox boardStatusBox = new HBox();
+            boardStatusBox.setAlignment(Pos.CENTER);
             boardStatusBox.getChildren().addAll(boardStatusText, circle);
-
             statusPane.getChildren().addAll(boardStatusBox);
         }
 
@@ -623,8 +650,7 @@ public class ChessMainRevamp extends Application {
         moveHistoryText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
 
         //Display if the current player is in check
-        Text currentPlayerInCheck = new Text((chessDataBoard.currentPlayer().getAlliance() + " in check: \n" +
-                chessDataBoard.currentPlayer().isInCheck()).toUpperCase());
+        Text currentPlayerInCheck = new Text((chessDataBoard.currentPlayer().getAlliance() + " in check: \n" + chessDataBoard.currentPlayer().isInCheck()).toUpperCase());
         currentPlayerInCheck.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
 
         statusPane.getChildren().addAll(moveHistoryText, currentPlayerInCheck, createStatusPaneButtonBox());
@@ -641,19 +667,17 @@ public class ChessMainRevamp extends Application {
      */
     private HBox createStatusPaneButtonBox() {
         //Button scaling
-        double buttonSize = ((screenHeight + screenWidth) * 1 / (BoardUtils.getWidth() * BoardUtils.getHeight()));
+        double buttonSize = ((screenHeight + screenWidth) / (BoardUtils.getWidth() * BoardUtils.getHeight()));
 
         //Hint button for player help
         ImageView image = new ImageView(resources.hint);
         image.setFitHeight(buttonSize);
         image.setPreserveRatio(true);
         Button hintButton = new Button("HINT", image);
-        //Disable hint when not human players turn, or the game has ended
-        if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
-            (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI) ||
-            chessDataBoard.currentPlayer().isInCheckmate() || chessDataBoard.currentPlayer().isInStalemate()) {
-            hintButton.setDisable(true);
-        }
+        hintButton.setOnMouseEntered(event -> {
+            Tooltip tp = new Tooltip("Let the AI suggest a move");
+            Tooltip.install(hintButton, tp);
+        });
         hintButton.setOnAction(event -> {
             //Empty any ongoing player move
             startCoordinate = null;
@@ -671,12 +695,8 @@ public class ChessMainRevamp extends Application {
             hintStartCoordinate = null;
             hintDestinationCoordinate = null;
         });
-        hintButton.setOnMouseEntered(event -> {
-            Tooltip tp = new Tooltip("Let the AI suggest a move");
-            Tooltip.install(hintButton, tp);
-        });
 
-        //button for undoing a move
+        //Button for undoing a move
         image = new ImageView(resources.undo);
         image.setFitHeight(buttonSize);
         image.setPreserveRatio(true);
@@ -685,27 +705,23 @@ public class ChessMainRevamp extends Application {
             Tooltip tp = new Tooltip("Undo a move");
             Tooltip.install(backButton, tp);
         });
-        if (boardHistory.size() < 3 ||
-            chessDataBoard.currentPlayer().isInCheckmate() ||
-            chessDataBoard.currentPlayer().isInStalemate() ||
-            (!isBlackAI && !isWhiteAI)) {
-            backButton.setDisable(true);
-        }
         backButton.setOnAction(event -> {
             for (int i = 0; i < 2; i++) {
                 boardHistory.remove(boardHistory.size()-1);
                 Move lastMove = moveHistory.get(moveHistory.size()-1);
                 if (lastMove.isAttack()) {
                     deadPieces.remove(lastMove.getAttackedPiece());
-                    drawTakenPiecesPane();
                 }
                 moveHistory.remove(moveHistory.size()-1);
             }
             chessDataBoard = boardHistory.get(boardHistory.size()-1);
             drawChessGridPane();
         });
+        if (boardHistory.size() < 3 || (!isBlackAI && !isWhiteAI)) {
+            backButton.setDisable(true);
+        }
 
-        //extra button styling
+        //Extra button styling
         HBox buttonContainer = new HBox(backButton, hintButton);
         buttonContainer.setAlignment(Pos.CENTER);
         buttonContainer.setPadding(new Insets((screenHeight/500)*200, 0, 0 , 0));
@@ -713,6 +729,12 @@ public class ChessMainRevamp extends Application {
         for (Node x : buttonContainer.getChildren()) {
             x.setStyle("-fx-focus-color: darkslategrey; -fx-faint-focus-color: transparent;");
             x.setFocusTraversable(false);
+            //Extra disabling criteria
+            if (chessDataBoard.currentPlayer().getAlliance() == aiAlliance ||
+                    chessDataBoard.currentPlayer().isInCheckmate() || chessDataBoard.currentPlayer().isInStalemate() ||
+                    (isBlackAI && isWhiteAI)) {
+                x.setDisable(true);
+            }
         }
 
         return buttonContainer;
@@ -746,25 +768,6 @@ public class ChessMainRevamp extends Application {
         basePane.setStyle("-fx-border-color: black; -fx-background-color: radial-gradient(radius 180%, black, derive(darkslategray, -30%));");
         basePane.getChildren().addAll(whitePiecesBox, blackPieceBox);
         gamePlayPane.setLeft(basePane);
-    }
-
-    /**
-     * Draw the pane where the chess pieces are displayed
-     */
-    private void drawChessGridPane() {
-        chessGridPane.getChildren().clear();
-        for (int y = 0; y < BoardUtils.getHeight(); y++) {
-            for (int x = 0; x < BoardUtils.getWidth(); x++) {
-                int gridPaneX = x, gridPaneY = y;
-                //Flip board if player plays against white ai
-                if (isWhiteAI && !isBlackAI) {
-                    gridPaneX = BoardUtils.getWidth() - (x + 1);
-                    gridPaneY = BoardUtils.getHeight() - (y + 1);
-                }
-                chessGridPane.add(new ChessTile(new Coordinate(x,y)), gridPaneX, gridPaneY);
-            }
-        }
-        drawStatusPane();
     }
 
     /**
@@ -802,7 +805,7 @@ public class ChessMainRevamp extends Application {
             button.setPrefHeight(buttonSize / 2);
             button.setFocusTraversable(false);
         }
-
+        //Set values when selecting button
         final PieceType[] x = new PieceType[1];
         queen.setOnAction(event -> {
             x[0] = PieceType.QUEEN;
@@ -1022,6 +1025,9 @@ public class ChessMainRevamp extends Application {
          * @param inputCoordinate Coordinate on the tile that the user triggered
          */
         private void onClickHandler(Coordinate inputCoordinate) {
+            //Stop player from making moves when it is the AI's turn
+            if (chessDataBoard.currentPlayer().getAlliance() == aiAlliance || (isWhiteAI && isBlackAI)) return;
+
             if (startCoordinate == null) {
                 //User select
                 startCoordinate = chessDataBoard.getTile(inputCoordinate);
@@ -1071,7 +1077,7 @@ public class ChessMainRevamp extends Application {
                 for (PawnPromotion promotion : availablePromotions) {
                     if (promotion.getUpgradeType() == userSelectedType &&
                         promotion.getDestinationCoordinate().equals(destinationCoordinate.getTileCoord())) {
-                        // changes the move that altered the board (since this is also a promotion, its safe)
+                        //Changes the move that altered the board
                         newBoard = chessDataBoard.currentPlayer().makeMove(promotion);
                         move = promotion;
                         break;
@@ -1079,35 +1085,34 @@ public class ChessMainRevamp extends Application {
                 }
             }
 
-            playSound("DropPieceNew.wav",0.4);
-            //clear out undone boards and moves
             chessDataBoard = newBoard.getTransitionBoard();
             moveHistory.add(move);
             boardHistory.add(chessDataBoard);
             if (move.isAttack()) {
                 deadPieces.add(move.getAttackedPiece());
-                Platform.runLater(ChessMainRevamp.this::drawTakenPiecesPane);
             }
+
+            //Play sound for moving piece
+            playSound("DropPieceNew.wav",0.4);
         }
 
-        //Reset user move related variables
+        //Reset user move related variables that were used for making this move
         startCoordinate = null;
         destinationCoordinate = null;
         userMovedPiece = null;
+        //Redraw
         drawChessGridPane();
 
         if (gameIsOver()) {
             gameOverCalculations();
         } else {
-            Thread AIThread = new Thread(new Task() {
+            new Thread(new Task() {
                 @Override
                 protected Object call() {
                     makeAIMove();
                     return null;
                 }
-            });
-            AIThread.setPriority(Thread.MAX_PRIORITY);
-            AIThread.start();
+            }).start();
         }
     }
 
@@ -1130,7 +1135,6 @@ public class ChessMainRevamp extends Application {
                 boardHistory.add(chessDataBoard);
                 if (AIMove.isAttack()) {
                     deadPieces.add(AIMove.getAttackedPiece());
-                    Platform.runLater(this::drawTakenPiecesPane);
                 }
             }
 
@@ -1139,15 +1143,13 @@ public class ChessMainRevamp extends Application {
                 gameOverCalculations();
             } else if ((chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE && isWhiteAI) ||
                        (chessDataBoard.currentPlayer().getAlliance() == Alliance.BLACK && isBlackAI)){
-                Thread AIThread = new Thread(new Task() {
+                new Thread(new Task() {
                     @Override
                     protected Object call() {
                         makeAIMove();
                         return null;
                     }
-                });
-                AIThread.setPriority(Thread.MAX_PRIORITY);
-                AIThread.start();
+                }).start();
             }
         }
     }
@@ -1211,5 +1213,8 @@ public class ChessMainRevamp extends Application {
 
         Platform.runLater(this::drawStatusPane);
         Platform.runLater(this::createGameOverPane);
+        //Play game over sound
+        soundClipManager.clear();
+        playSound("GameOverSound.wav",0.4);
     }
 }

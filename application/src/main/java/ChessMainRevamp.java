@@ -64,7 +64,6 @@ public class ChessMainRevamp extends Application {
     private boolean isWhiteAI, isBlackAI;
     //Keep count of board history (board states)
     private ArrayList<Board> boardHistory = new ArrayList<>();
-    private int rewindCounter = 0, equalBoardStateCounter = 0;
     //Move history, even = white moves, odd = black moves
     private ArrayList<Move> moveHistory = new ArrayList<>();
     //List of all the dead pieces
@@ -204,7 +203,6 @@ public class ChessMainRevamp extends Application {
             isBlackAI = false;
             boardHistory.clear();
             moveHistory.clear();
-            rewindCounter = 0;
             createStartMenuScene();
         });
 
@@ -418,7 +416,6 @@ public class ChessMainRevamp extends Application {
             boardHistory.clear();
             moveHistory.clear();
             deadPieces.clear();
-            equalBoardStateCounter = 0;
             drawChessGridPane();
             mainStage.setScene(gameScene);
 
@@ -449,8 +446,6 @@ public class ChessMainRevamp extends Application {
      */
     private void createHighscoreScene() {
         final Stage dialog = new Stage();
-
-
 
         VBox hsRoot = new VBox();
         hsRoot.setSpacing(5);
@@ -553,7 +548,6 @@ public class ChessMainRevamp extends Application {
             boardHistory.clear();
             moveHistory.clear();
             deadPieces.clear();
-            equalBoardStateCounter = 0;
             //Removes game over pane
             gamePlayPane.setBottom(null);
             drawChessGridPane();
@@ -691,40 +685,26 @@ public class ChessMainRevamp extends Application {
             Tooltip tp = new Tooltip("Undo a move");
             Tooltip.install(backButton, tp);
         });
-        if (rewindCounter >= boardHistory.size()-1 || chessDataBoard.currentPlayer().isInCheckmate() ||
+        if (boardHistory.size() < 3 || chessDataBoard.currentPlayer().isInCheckmate() ||
                 chessDataBoard.currentPlayer().isInStalemate()) {
             backButton.setDisable(true);
         }
         backButton.setOnAction(event -> {
-            chessDataBoard = boardHistory.get((boardHistory.size()-1)-(++rewindCounter));
-            // removes taken piece when undoing an attack move
-            if (deadPieces.size() > 0) {
-                Move lastMove = moveHistory.get(moveHistory.size() - rewindCounter);
+            for (int i = 0; i < 2; i++) {
+                boardHistory.remove(boardHistory.size()-1);
+                Move lastMove = moveHistory.get(moveHistory.size()-1);
                 if (lastMove.isAttack()) {
                     deadPieces.remove(lastMove.getAttackedPiece());
                     drawTakenPiecesPane();
                 }
+                moveHistory.remove(moveHistory.size()-1);
             }
-            drawChessGridPane();
-        });
-
-        //button for redoing a move
-        image = new ImageView(resources.redo);
-        image.setFitHeight(buttonSize);
-        image.setPreserveRatio(true);
-        Button forwardButton = new Button("", image);
-        forwardButton.setOnMouseEntered(event -> {
-            Tooltip tp = new Tooltip("Redo a move");
-            Tooltip.install(forwardButton, tp);
-        });
-        if (rewindCounter <= 0) forwardButton.setDisable(true);
-        forwardButton.setOnAction(event -> {
-            chessDataBoard = boardHistory.get((boardHistory.size()-1)-(--rewindCounter));
+            chessDataBoard = boardHistory.get(boardHistory.size()-1);
             drawChessGridPane();
         });
 
         //extra button styling
-        HBox buttonContainer = new HBox(backButton, hintButton, forwardButton);
+        HBox buttonContainer = new HBox(backButton, hintButton);
         buttonContainer.setAlignment(Pos.CENTER);
         buttonContainer.setPadding(new Insets((screenHeight/500)*200, 0, 0 , 0));
         buttonContainer.setSpacing(5);
@@ -798,9 +778,9 @@ public class ChessMainRevamp extends Application {
 
             Color colorOfTile = assignTileColor();
             boolean animateTile = false;
-            if (moveHistory.size()-rewindCounter >= 1 && lastMoveHighlightEnabled) {
+            if (!moveHistory.isEmpty() && lastMoveHighlightEnabled) {
                 //highlight the previous move
-                Move m = moveHistory.get((moveHistory.size()-1)-rewindCounter);
+                Move m = moveHistory.get(moveHistory.size()-1);
                 Coordinate to = m.getDestinationCoordinate();
                 Coordinate from = m.getCurrentCoordinate();
                 if (coordinateId.equals(from)) colorOfTile = Color.rgb(255, 255, 160);
@@ -1020,13 +1000,6 @@ public class ChessMainRevamp extends Application {
             if (newBoard.getMoveStatus().isDone()) {
                 playSound("DropPieceNew.wav",0.4);
                 //clear out undone boards and moves
-                if (rewindCounter > 0) {
-                    for (int i=0; i<rewindCounter; i++) {
-                        boardHistory.remove(boardHistory.size()-1);
-                        if (!moveHistory.isEmpty()) moveHistory.remove(moveHistory.size()-1);
-                    }
-                    rewindCounter=0;
-                }
                 chessDataBoard = newBoard.getTransitionBoard();
                 moveHistory.add(move);
                 boardHistory.add(chessDataBoard);
@@ -1072,13 +1045,6 @@ public class ChessMainRevamp extends Application {
             if (newBoard.getMoveStatus().isDone()) {
                 playSound("DropPieceNew.wav",1);
                 //clear out undone boards and moves
-                if (rewindCounter > 0) {
-                    for (int i=0; i<rewindCounter; i++) {
-                        boardHistory.remove(boardHistory.size()-1);
-                        if (!moveHistory.isEmpty()) moveHistory.remove(moveHistory.size()-1);
-                    }
-                    rewindCounter=0;
-                }
                 chessDataBoard = newBoard.getTransitionBoard();
                 moveHistory.add(AIMove);
                 boardHistory.add(chessDataBoard);
@@ -1125,7 +1091,6 @@ public class ChessMainRevamp extends Application {
         int counter = 0;
         for (Board b : boardHistory) {
             if (chessDataBoard.toString().equals(b.toString())) counter++;
-            System.out.println(counter);
             if (counter >= 4) return true;
         }
         return false;

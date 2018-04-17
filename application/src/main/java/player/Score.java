@@ -98,58 +98,29 @@ public class Score {
     }
 
     /**
-     * Reads highscore.txt to a hashmap containing usernames as key and rating as value
+     * Reads highscore from MLab server. Iterates through all saved database entries
      */
     public void readHighscore(){
-
-        //In case the highscore.txt does not exist
-        File f = new File("highscore.txt");
-        if(!f.exists()) {
-            try {
-                boolean created = f.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        try (BufferedReader br = new BufferedReader(new FileReader("highscore.txt"))) {
-            String line;
-            String[] temp;
-            while((line = br.readLine()) != null){
-                temp = line.split(" ");
-                int rating = Integer.parseInt((temp[1]));
-                Stats stats = readStats(temp[2]);
-                userRating.put(temp[0], rating);
-                userStats.put(temp[0], stats);
-            }
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-        /*
         MongoClientURI uri  = new MongoClientURI("mongodb://ccuser:ccpass@ds129706.mlab.com:29706/ccdb");
         MongoClient client = new MongoClient(uri);
         MongoDatabase db = client.getDatabase(uri.getDatabase());
         MongoCollection<Document> highscore = db.getCollection("highscore");
 
-
-        Document findQuery = new Document("", new Document("$gte",10));
-        Document orderBy = new Document("score", 1);
-        MongoCursor<Document> cursor = highscore.find(findQuery).sort(orderBy).iterator();
+        MongoCursor<Document> cursor = highscore.find().iterator();
 
         try {
             while (cursor.hasNext()) {
                 Document doc = cursor.next();
-                System.out.println(doc.get("playername") + ", " + doc.get("score") +" " +doc.get("win") + doc.get("draw") + doc.get("draw"));
+                int rating = (int) doc.get("score");
+                Stats stats = readStats(doc.get("stats").toString());
+                userRating.put(doc.get("playername").toString(), rating);
+                userStats.put(doc.get("playername").toString(), stats);
             }
         } finally {
             cursor.close();
         }
-
         client.close();
-*/
+
     }
 
     /**

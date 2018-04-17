@@ -135,7 +135,7 @@ public class MiniMax implements MoveStrategy {
                         max(moveTransition.getTransitionBoard(), calculateQuiescenceDepth(moveTransition, searchDepth), alpha, currentLowestValue));
 
                 // alpha beta break off
-                if (currentLowestValue <= alpha) break;
+                if (currentLowestValue <= alpha) return alpha;
             }
         }
         return currentLowestValue;
@@ -164,7 +164,7 @@ public class MiniMax implements MoveStrategy {
                         min(moveTransition.getTransitionBoard(), calculateQuiescenceDepth(moveTransition, searchDepth), currentHighestValue, beta));
 
                 // alpha beta break off
-                if (beta <= currentHighestValue) break;
+                if (beta <= currentHighestValue) return beta;
             }
         }
         return currentHighestValue;

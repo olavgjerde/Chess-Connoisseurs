@@ -351,6 +351,26 @@ public class Board {
         return board;
     }
 
+    public static Board testBoard() {
+        Builder builder = new Builder();
+
+        builder.setPiece(new Rook(new Coordinate(3,1), Alliance.WHITE));
+        builder.setPiece(new Bishop(new Coordinate(4,1), Alliance.WHITE));
+        builder.setPiece(new Queen(new Coordinate(4,4), Alliance.WHITE));
+        builder.setPiece(new Pawn(new Coordinate(4,5), Alliance.WHITE));
+        builder.setPiece(new Pawn(new Coordinate(5,6), Alliance.WHITE));
+        builder.setPiece(new Pawn(new Coordinate(0,6), Alliance.WHITE));
+        builder.setPiece(new Pawn(new Coordinate(7,6), Alliance.WHITE));
+        builder.setPiece(new King(new Coordinate(4,7), Alliance.WHITE));
+        builder.setPiece(new Knight(new Coordinate(5,7), Alliance.WHITE));
+        builder.setPiece(new Rook(new Coordinate(7,7), Alliance.WHITE));
+
+        builder.setPiece(new King(new Coordinate(7,5 ), Alliance.BLACK, false, false));
+        builder.setMoveMaker(Alliance.WHITE);
+
+        return builder.build();
+    }
+
     /**
      * Helper class for constructing chessboards given a defined layout
      */

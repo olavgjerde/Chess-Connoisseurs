@@ -617,8 +617,8 @@ public class ChessMainRevamp extends Application {
         Text moveHistoryText = new Text("PREVIOUS MOVE: \n");
         if (!moveHistory.isEmpty()) {
             moveHistoryText = new Text("PREVIOUS MOVE: \n" + moveHistory.get(moveHistory.size() - 1).toString());
-            if (boardHistory.get(boardHistory.size() - 1).currentPlayer().isInCheck()) moveHistoryText.setText(moveHistoryText.getText() + "+");
-            else if (boardHistory.get(boardHistory.size() - 1).currentPlayer().isInCheckmate()) moveHistoryText.setText(moveHistoryText.getText() + "#");
+            if (boardHistory.get(boardHistory.size() - 1).currentPlayer().isInCheckmate()) moveHistoryText.setText(moveHistoryText.getText() + "#");
+            else if (boardHistory.get(boardHistory.size() - 1).currentPlayer().isInCheck()) moveHistoryText.setText(moveHistoryText.getText() + "+");
         }
         moveHistoryText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
 

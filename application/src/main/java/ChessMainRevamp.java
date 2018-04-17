@@ -1,4 +1,6 @@
 import board.*;
+import board.Move.MoveFactory;
+import board.Move.PawnPromotion;
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -18,20 +20,16 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-import javafx.stage.Modality;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
+import javafx.stage.*;
 import javafx.util.Duration;
 import pieces.Alliance;
 import pieces.Piece;
+import pieces.Piece.PieceType;
 import player.MoveTransition;
 import player.Score;
 import player.basicAI.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class ChessMainRevamp extends Application {
     //Main window stage for application
@@ -207,7 +205,7 @@ public class ChessMainRevamp extends Application {
         });
 
         MenuItem highScores = new MenuItem("Highscores");
-        highScores.setOnAction(event -> createHighscoreScene());
+        highScores.setOnAction(event -> createHighscoreWindow());
 
         MenuItem exit = new MenuItem("Exit");
         exit.setOnAction(event -> System.exit(0));
@@ -412,12 +410,10 @@ public class ChessMainRevamp extends Application {
                 boardIsRandom = true;
                 chessDataBoard = Board.createRandomBoard();
             }
-
             boardHistory.clear();
             moveHistory.clear();
             deadPieces.clear();
             drawChessGridPane();
-            mainStage.setScene(gameScene);
 
             boardHistory.add(chessDataBoard);
             // Set GameMusic
@@ -425,6 +421,8 @@ public class ChessMainRevamp extends Application {
                 soundClipManager.clear();
                 soundClipManager = new SoundClipManager("GameMusic.wav",true,0.05, playSound);
             }
+
+            mainStage.setScene(gameScene);
 
             //Set off ai vs ai match
             if (isWhiteAI) {
@@ -444,7 +442,7 @@ public class ChessMainRevamp extends Application {
     /**
      * Shows the highscore scene for the application
      */
-    private void createHighscoreScene() {
+    private void createHighscoreWindow() {
         final Stage dialog = new Stage();
 
         VBox hsRoot = new VBox();
@@ -768,6 +766,69 @@ public class ChessMainRevamp extends Application {
     }
 
     /**
+     * Shoes a pop menu where the player can choose what type of piece they want to promote to
+     * @return PieceType which the user selected
+     */
+    private PieceType showPromotionMenu() {
+        Stage menuStage = new Stage();
+        menuStage.initStyle(StageStyle.UNDECORATED);
+        FlowPane menuRoot = new FlowPane();
+        menuRoot.setAlignment(Pos.CENTER);
+        menuRoot.setPadding(new Insets(0));
+
+        //Give buttons a size in relation to screen dimensions
+        double buttonSize = ((screenHeight + screenWidth) * 4 / (BoardUtils.getWidth() * BoardUtils.getHeight()));
+
+        //Fetch images for promotion and scale them to fit within buttons
+        ImageView q = chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE ? new ImageView(resources.WQ) : new ImageView(resources.BQ),
+                k = chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE ? new ImageView(resources.WN) : new ImageView(resources.BN),
+                b = chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE ? new ImageView(resources.WB) : new ImageView(resources.BB),
+                r = chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE ? new ImageView(resources.WR) : new ImageView(resources.BR);
+        for (ImageView image : Arrays.asList(q,k,b,r)) {
+            image.setPreserveRatio(true);
+            image.setFitWidth(buttonSize / 4);
+        }
+
+        Button queen = new Button("QUEEN", q), knight = new Button("KNIGHT", k),
+                bishop = new Button("BISHOP", b), rook = new Button("ROOK", r);
+        menuRoot.getChildren().addAll(queen, knight, bishop, rook);
+
+        //Style buttons
+        menuRoot.setPrefWrapLength(buttonSize);
+        for (Button button : Arrays.asList(queen, knight, bishop, rook)) {
+            button.setPrefWidth(buttonSize);
+            button.setPrefHeight(buttonSize / 2);
+            button.setFocusTraversable(false);
+        }
+
+        final PieceType[] x = new PieceType[1];
+        queen.setOnAction(event -> {
+            x[0] = PieceType.QUEEN;
+            menuStage.close();
+        });
+        knight.setOnAction(event -> {
+            x[0] = PieceType.KNIGHT;
+            menuStage.close();
+        });
+        bishop.setOnAction(event -> {
+            x[0] = PieceType.BISHOP;
+            menuStage.close();
+        });
+        rook.setOnAction(event -> {
+            x[0] = PieceType.ROOK;
+            menuStage.close();
+        });
+
+        Scene menuScene = new Scene(menuRoot, bishop.getPrefWidth()*2+10, bishop.getPrefHeight()*2+10);
+        menuStage.setScene(menuScene);
+        menuStage.initModality(Modality.APPLICATION_MODAL);
+        menuStage.setResizable(false);
+        menuStage.showAndWait();
+
+        return x[0];
+    }
+
+    /**
      * This class extends the StackPane class and embeds the connection between
      * the tiles on data representation of the board and the gui representation of the board.
      */
@@ -988,48 +1049,63 @@ public class ChessMainRevamp extends Application {
                         drawChessGridPane();
                     }
                 }
-                if (destinationCoordinate != null) attemptMove();
+                if (destinationCoordinate != null) attemptHumanMove();
             }
         }
+    }
 
-        /**
-         * Attempts to make a move from the tile (startCoordinate) which is selected. If the move is illegal nothing happens.
-         */
-        private void attemptMove() {
-            final Move move = Move.MoveFactory.createMove(chessDataBoard, startCoordinate.getTileCoord(), destinationCoordinate.getTileCoord());
-            final MoveTransition newBoard = chessDataBoard.currentPlayer().makeMove(move);
+    /**
+     * Attempts to make a move from the tile (startCoordinate) which is selected. If the move is illegal nothing happens.
+     */
+    private void attemptHumanMove() {
+        Move move = MoveFactory.createMove(chessDataBoard, startCoordinate.getTileCoord(), destinationCoordinate.getTileCoord());
+        MoveTransition newBoard = chessDataBoard.currentPlayer().makeMove(move);
 
-            if (newBoard.getMoveStatus().isDone()) {
-                playSound("DropPieceNew.wav",0.4);
-                //clear out undone boards and moves
-                chessDataBoard = newBoard.getTransitionBoard();
-                moveHistory.add(move);
-                boardHistory.add(chessDataBoard);
-                if (move.isAttack()) {
-                    deadPieces.add(move.getAttackedPiece());
-                    Platform.runLater(ChessMainRevamp.this::drawTakenPiecesPane);
+        if (newBoard.getMoveStatus().isDone()) {
+            //Let user select type of piece for promotion
+            if (move instanceof PawnPromotion) {
+                PieceType userSelectedType = showPromotionMenu();
+                List<PawnPromotion> availablePromotions = MoveFactory.getPromotionMoves(chessDataBoard, startCoordinate.getTileCoord(), destinationCoordinate.getTileCoord());
+                for (PawnPromotion promotion : availablePromotions) {
+                    if (promotion.getUpgradeType() == userSelectedType &&
+                        promotion.getDestinationCoordinate().equals(destinationCoordinate.getTileCoord())) {
+                        // changes the move that altered the board (since this is also a promotion, its safe)
+                        newBoard = chessDataBoard.currentPlayer().makeMove(promotion);
+                        move = promotion;
+                        break;
+                    }
                 }
             }
 
-            //Reset user move related variables
-            startCoordinate = null;
-            destinationCoordinate = null;
-            userMovedPiece = null;
-            drawChessGridPane();
-
-            if (gameIsOver()) {
-                gameOverCalculations();
-            } else {
-                Thread AIThread = new Thread(new Task() {
-                    @Override
-                    protected Object call() {
-                        makeAIMove();
-                        return null;
-                    }
-                });
-                AIThread.setPriority(Thread.MAX_PRIORITY);
-                AIThread.start();
+            playSound("DropPieceNew.wav",0.4);
+            //clear out undone boards and moves
+            chessDataBoard = newBoard.getTransitionBoard();
+            moveHistory.add(move);
+            boardHistory.add(chessDataBoard);
+            if (move.isAttack()) {
+                deadPieces.add(move.getAttackedPiece());
+                Platform.runLater(ChessMainRevamp.this::drawTakenPiecesPane);
             }
+        }
+
+        //Reset user move related variables
+        startCoordinate = null;
+        destinationCoordinate = null;
+        userMovedPiece = null;
+        drawChessGridPane();
+
+        if (gameIsOver()) {
+            gameOverCalculations();
+        } else {
+            Thread AIThread = new Thread(new Task() {
+                @Override
+                protected Object call() {
+                    makeAIMove();
+                    return null;
+                }
+            });
+            AIThread.setPriority(Thread.MAX_PRIORITY);
+            AIThread.start();
         }
     }
 

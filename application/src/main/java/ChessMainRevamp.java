@@ -201,12 +201,6 @@ public class ChessMainRevamp extends Application {
 
         MenuItem newGame = new MenuItem("New game");
         newGame.setOnAction(event -> {
-            soundClipManager.clear();
-            //Stop AI calculation from running in the background
-            isWhiteAI = false;
-            isBlackAI = false;
-            boardHistory.clear();
-            moveHistory.clear();
             createStartMenuScene();
         });
 
@@ -229,8 +223,12 @@ public class ChessMainRevamp extends Application {
         moveHistory.clear();
         deadPieces.clear();
         aiAlliance = null;
+        //Stop AI calculation from running in the background
+        isWhiteAI = false;
+        isBlackAI = false;
 
         //Play menu music
+        if (playSound && soundClipManager != null) soundClipManager.clear();
         soundClipManager = new SoundClipManager("MenuMusic.wav", true,0.2, playSound);
 
         //Menu Text
@@ -532,7 +530,6 @@ public class ChessMainRevamp extends Application {
         //Buttons
         Button newGame = new Button("NEW GAME"), newRound = new Button("NEXT ROUND"), quit = new Button("QUIT");
         newGame.setOnAction(e -> {
-            soundClipManager.clear();
             //This option allows user/settings change
             createStartMenuScene();
         });
@@ -555,7 +552,7 @@ public class ChessMainRevamp extends Application {
             }
 
             //Play game-music
-            soundClipManager.clear();
+            if (playSound && soundClipManager != null) soundClipManager.clear();
             soundClipManager = new SoundClipManager("GameMusic.wav", true,0.05, playSound);
         });
         quit.setOnAction(e -> System.exit(0));

@@ -161,40 +161,12 @@ public enum Alliance {
      * Return the piece-square value for the given coordinate
      * @param coordinate where the piece is placed
      * @return value of piece placement
-     * @see <a href="https://chessprogramming.wikispaces.com/Simplified%20evaluation%20function">Piece-square value</a>
+     * @see <a href="https://chessprogramming.wikispaces.com/Simplified%20evaluation%20function">Piece-square values</a>
      */
     public abstract int pawnSquareValue(Coordinate coordinate);
-
-    /**
-     * Return the piece-square value for the given coordinate
-     * @param coordinate where the piece is placed
-     * @return value of piece placement
-     * @see <a href="https://chessprogramming.wikispaces.com/Simplified%20evaluation%20function">Piece-square value</a>
-     */
     public abstract int knightSquareValue(Coordinate coordinate);
-
-    /**
-     * Return the piece-square value for the given coordinate
-     * @param coordinate where the piece is placed
-     * @return value of piece placement
-     * @see <a href="https://chessprogramming.wikispaces.com/Simplified%20evaluation%20function">Piece-square value</a>
-     */
     public abstract int bishopSquareValue(Coordinate coordinate);
-
-    /**
-     * Return the piece-square value for the given coordinate
-     * @param coordinate where the piece is placed
-     * @return value of piece placement
-     * @see <a href="https://chessprogramming.wikispaces.com/Simplified%20evaluation%20function">Piece-square value</a>
-     */
     public abstract int rookSquareValue(Coordinate coordinate);
-
-    /**
-     * Return the piece-square value for the given coordinate
-     * @param coordinate where the piece is placed
-     * @return value of piece placement
-     * @see <a href="https://chessprogramming.wikispaces.com/Simplified%20evaluation%20function">Piece-square value</a>
-     */
     public abstract int queenSquareValue(Coordinate coordinate);
 
     /**
@@ -202,7 +174,7 @@ public enum Alliance {
      * @param coordinate where the piece is placed
      * @param isEndGame to fetch the position values for endgame or not
      * @return value of piece placement
-     * @see <a href="https://chessprogramming.wikispaces.com/Simplified%20evaluation%20function">Piece-square value</a>
+     * @see <a href="https://chessprogramming.wikispaces.com/Simplified%20evaluation%20function">Piece-square values</a>
      */
     public abstract int kingSquareValue(Coordinate coordinate, boolean isEndGame);
 

@@ -6,7 +6,7 @@ import pieces.Piece;
 /**
  * Load all the resources into memory
  */
-public class ResourceLoader {
+class ResourceLoader {
 
     //Pieces
     final Image BB, BK ,BN, BP, BQ, BR, WB, WK, WN, WP, WQ, WR;
@@ -17,8 +17,7 @@ public class ResourceLoader {
     //sounds
     //TODO
 
-    public ResourceLoader() {
-
+    ResourceLoader() {
         BB = new Image("/images/" + "BB" + ".png");
         BK = new Image("/images/" + "BK" + ".png");
         BN = new Image("/images/" + "BN" + ".png");
@@ -36,10 +35,9 @@ public class ResourceLoader {
         hint = new Image("/images/GUI/hint.png");
         redo = new Image("/images/GUI/redo.png");
         undo = new Image("/images/GUI/undo.png");
-
     }
 
-    public Image getPieceImage(Piece p) {
+    Image getPieceImage(Piece p) {
         Alliance pieceAlliance = p.getPieceAlliance();
         boolean isWhite = pieceAlliance == Alliance.WHITE;
         switch (p.getPieceType()) {

@@ -189,7 +189,7 @@ public abstract class Player {
      */
     public MoveTransition makeMove(Move move) {
         if (!isMoveLegal(move)) {
-            // return same board
+            // return unchanged board in move transition
             return new MoveTransition(this.board, move, MoveStatus.ILLEGAL_MOVE);
         }
 

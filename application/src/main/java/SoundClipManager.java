@@ -3,10 +3,10 @@ import javafx.scene.media.MediaPlayer;
 
 import java.net.URISyntaxException;
 
-public class SoundClipManager {
+class SoundClipManager {
     private MediaPlayer mediaPlayer;
 
-    public SoundClipManager(String sound, boolean repeat, double volume, boolean enableSound) {
+    SoundClipManager(String sound, boolean repeat, double volume, boolean enableSound) {
         // If player has muted sounds in options do nothing
         if (!enableSound) {
             return;
@@ -32,7 +32,7 @@ public class SoundClipManager {
         }
     }
 
-    public void clear() {
+    void clear() {
         mediaPlayer.dispose();
     }
 }

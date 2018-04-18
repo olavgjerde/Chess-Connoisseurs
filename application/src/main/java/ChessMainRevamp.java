@@ -73,7 +73,7 @@ public class ChessMainRevamp extends Application {
     //Sound handler
     private SoundClipManager soundClipManager;
     private boolean playSound = true;
-    //resources
+    //Resources
     private ResourceLoader resources = new ResourceLoader();
 
     @Override
@@ -113,12 +113,10 @@ public class ChessMainRevamp extends Application {
         gameScene.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
             screenWidth = newSceneWidth.intValue();
             Platform.runLater(this::drawChessGridPane);
-            Platform.runLater(this::drawTakenPiecesPane);
         });
         gameScene.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> {
             screenHeight = newSceneHeight.intValue();
             Platform.runLater(this::drawChessGridPane);
-            Platform.runLater(this::drawTakenPiecesPane);
         });
         mainStage.setOnCloseRequest(e -> System.exit(0));
 
@@ -838,7 +836,7 @@ public class ChessMainRevamp extends Application {
      * the tiles on data representation of the board and the gui representation of the board.
      */
     private class ChessTile extends StackPane {
-        final double TILE_SIZE = ((screenHeight + screenWidth) * 2.6 / (BoardUtils.getWidth() * BoardUtils.getHeight()));
+        private final double TILE_SIZE = ((screenHeight + screenWidth) * 2.6 / (BoardUtils.getWidth() * BoardUtils.getHeight()));
         private final Coordinate coordinateId;
 
         private ChessTile(Coordinate coordinateId) {
@@ -847,16 +845,14 @@ public class ChessMainRevamp extends Application {
             Color colorOfTile = assignTileColor();
             boolean animateTile = false;
             if (!moveHistory.isEmpty() && lastMoveHighlightEnabled) {
-                //highlight the previous move
+                //Highlight the previous move
                 Move m = moveHistory.get(moveHistory.size()-1);
-                Coordinate to = m.getDestinationCoordinate();
-                Coordinate from = m.getCurrentCoordinate();
+                Coordinate to = m.getDestinationCoordinate(), from = m.getCurrentCoordinate();
                 if (coordinateId.equals(from)) colorOfTile = Color.rgb(255, 255, 160);
-                else if (coordinateId.equals(to))
-                    if (m.isAttack())
-                        colorOfTile = Color.rgb(255, 155, 155);
-                    else
-                        colorOfTile = Color.rgb(255, 255, 160);
+                else if (coordinateId.equals(to)) {
+                    if (m.isAttack()) colorOfTile = Color.rgb(255, 155, 155);
+                    else colorOfTile = Color.rgb(255, 255, 160);
+                }
             }
             if (availableMoveHighlightEnabled && startCoordinate != null) {
                 //Highlight selected tile
@@ -887,7 +883,6 @@ public class ChessMainRevamp extends Application {
             rectangle.setBlendMode(BlendMode.HARD_LIGHT);
             rectangle.setArcHeight(12);
             rectangle.setArcWidth(12);
-
             //Add fade animation to tile
             if (animateTile) {
                 FadeTransition fade = new FadeTransition(Duration.millis(1300), rectangle);
@@ -909,9 +904,8 @@ public class ChessMainRevamp extends Application {
             this.getChildren().add(rectangle);
 
             assignTileLabel();
+            assignTilePieceImage(chessDataBoard.getTile(coordinateId));
 
-            if (!chessDataBoard.getTile(coordinateId).isEmpty())
-                assignTilePieceImage(chessDataBoard.getTile(coordinateId));
             this.setOnMouseClicked(e -> onClickHandler(coordinateId));
         }
 
@@ -922,9 +916,6 @@ public class ChessMainRevamp extends Application {
          * @return a list of legal moves avaiable from a given tile
          */
         private Collection<Coordinate> listLegalMoves(Tile tile) {
-            //Collection<Move> temp = board.getTile(c).getPiece().calculateLegalMoves(board);
-            //Note: this is a bit heavy on the system, since we are making every move and checking
-            //the status of it to remove highlighting tiles which sets the player in check
             List<Move> temp = new ArrayList<>(chessDataBoard.currentPlayer().getLegalMovesForPiece(tile.getPiece()));
             List<Coordinate> coordinatesToHighlight = new ArrayList<>();
             for (Move move : temp) {
@@ -936,13 +927,14 @@ public class ChessMainRevamp extends Application {
         }
 
         /**
-         * Assign an image to the tile, given the tiles content
+         * Assign an image to the tile, given the tiles content. Does not add an image if the tile is empty.
          *
          * @param tile to draw
          */
         private void assignTilePieceImage(Tile tile) {
+            if (tile.isEmpty()) return;
             ImageView icon = new ImageView(resources.getPieceImage(tile.getPiece()));
-            icon.setFitHeight(TILE_SIZE - 35);
+            icon.setFitHeight(TILE_SIZE - 30);
             icon.setPreserveRatio(true);
             this.getChildren().add(icon);
         }
@@ -951,9 +943,7 @@ public class ChessMainRevamp extends Application {
          * assign labels to the tile, should only be called when we are at a tile that is in the rightmost column or the lower row
          */
         private void assignTileLabel() {
-
-            Text xLabel = new Text("");
-            Text yLabel = new Text("");
+            Text xLabel = new Text(""), yLabel = new Text("");
 
             //if human plays black against CPU we flip
             if (isWhiteAI && !isBlackAI) {
@@ -966,8 +956,7 @@ public class ChessMainRevamp extends Application {
                     String label = ((char)(coordinateId.getX()+65)) + "";
                     xLabel = new Text(label);
                 }
-            }
-            else {
+            } else {
                 //the rightmost column
                 if (coordinateId.getX() == 0) {
                     yLabel = new Text(String.valueOf(Math.abs(coordinateId.getY() - BoardUtils.getHeight())));
@@ -998,8 +987,7 @@ public class ChessMainRevamp extends Application {
             if (assignTileColor() == Color.LIGHTGRAY) {
                 xLabel.setFill(Color.DARKGRAY.darker().darker());
                 yLabel.setFill(Color.DARKGRAY.darker().darker());
-            }
-            else {
+            } else {
                 xLabel.setFill(Color.LIGHTGRAY);
                 yLabel.setFill(Color.LIGHTGRAY);
             }
@@ -1012,11 +1000,7 @@ public class ChessMainRevamp extends Application {
          * Assign a color to the tile based on its coordinates
          */
         private Color assignTileColor() {
-            if ((coordinateId.getY() % 2) == (coordinateId.getX() % 2)) {
-                return Color.LIGHTGRAY;
-            } else {
-                return Color.DARKGRAY;
-            }
+            return (coordinateId.getY() % 2 == coordinateId.getX() % 2) ?  Color.LIGHTGRAY : Color.DARKGREY;
         }
 
         /**

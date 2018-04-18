@@ -32,10 +32,10 @@ public class Board {
         this.blackPieces = calculateActivePieces(builder, Alliance.BLACK);
         this.enPassantPawn = builder.enPassantPawn;
 
-        Collection<Move> whiteStandardLegalMoves = calculateLegalMoves(this.whitePieces);
-        Collection<Move> blackStandardLegalMoves = calculateLegalMoves(this.blackPieces);
-        this.whitePlayer = new WhitePlayer(this, whiteStandardLegalMoves, blackStandardLegalMoves);
-        this.blackPlayer = new BlackPlayer(this, blackStandardLegalMoves, whiteStandardLegalMoves);
+        Collection<Move> whiteLegalMoves = calculateLegalMoves(this.whitePieces);
+        Collection<Move> blackLegalMoves = calculateLegalMoves(this.blackPieces);
+        this.whitePlayer = new WhitePlayer(this, whiteLegalMoves, blackLegalMoves);
+        this.blackPlayer = new BlackPlayer(this, blackLegalMoves, whiteLegalMoves);
 
         this.currentPlayer = builder.nextMoveMaker.choosePlayerByAlliance(this.whitePlayer, this.blackPlayer);
         this.transitionMove = builder.transitionMove;
@@ -216,6 +216,10 @@ public class Board {
         return builder.build();
     }
 
+    /**
+     * Uses the AI to create a random starting point for the game
+     * @return board with X number of pre-made moves
+     */
     public static Board createRandomBoard() {
         Board board = Board.createStandardBoard();
         final MoveStrategy AI = new MiniMax(1, 0, true, false);

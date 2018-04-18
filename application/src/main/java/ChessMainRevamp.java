@@ -85,14 +85,15 @@ public class ChessMainRevamp extends Application {
     @Override
     public void start(Stage primaryStage) {
         this.mainStage = primaryStage;
+        primaryStage.setWidth(screenWidth / 1.8);
+        primaryStage.setHeight(screenHeight / 1.55);
+
         this.gamePlayPane = new BorderPane();
         this.chessGridPane = new GridPane();
         this.statusPane = new VBox();
-
-        // add menu bar
+        // add menu, status and chess-grid pane
         MenuBar menuBar = populateMenuBar();
         gamePlayPane.setTop(menuBar);
-        // add parts to gameplay pane
         gamePlayPane.setRight(statusPane);
         gamePlayPane.setCenter(chessGridPane);
         // style chess grid pane
@@ -107,23 +108,21 @@ public class ChessMainRevamp extends Application {
         statusPane.setSpacing(10);
 
         // construct game scene
-        this.gameScene = new Scene(gamePlayPane, screenWidth = screenWidth / 1.8, screenHeight = screenHeight / 1.55);
+        this.gameScene = new Scene(gamePlayPane);
 
         // listeners for window size change
-        gameScene.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
+        mainStage.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
             screenWidth = newSceneWidth.intValue();
-            Platform.runLater(this::drawChessGridPane);
+            if (chessDataBoard != null) Platform.runLater(this::drawChessGridPane);
         });
-        gameScene.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> {
+        mainStage.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> {
             screenHeight = newSceneHeight.intValue();
-            Platform.runLater(this::drawChessGridPane);
+            if (chessDataBoard != null) Platform.runLater(this::drawChessGridPane);
         });
         mainStage.setOnCloseRequest(e -> System.exit(0));
-
         mainStage.setTitle("Connoisseur Chess");
-        createStartMenuScene();
 
-        mainStage.show();
+        createStartMenuScene();
     }
 
     /**
@@ -200,9 +199,7 @@ public class ChessMainRevamp extends Application {
         Menu fileMenu = new Menu("File");
 
         MenuItem newGame = new MenuItem("New game");
-        newGame.setOnAction(event -> {
-            createStartMenuScene();
-        });
+        newGame.setOnAction(event -> createStartMenuScene());
 
         MenuItem highScores = new MenuItem("Highscores");
         highScores.setOnAction(event -> createHighscoreWindow());
@@ -250,8 +247,8 @@ public class ChessMainRevamp extends Application {
 
         //Text fields
         TextField whitePlayerNameField = new TextField("Player1"), blackPlayerNameField = new TextField("Player2");
-        whitePlayerNameField.setMaxWidth(gameScene.getWidth() / 4);
-        blackPlayerNameField.setMaxWidth(gameScene.getWidth() / 4);
+        whitePlayerNameField.setMaxWidth(mainStage.getWidth() / 4);
+        blackPlayerNameField.setMaxWidth(mainStage.getWidth() / 4);
 
         //Options for AI
         final ToggleGroup aiOptions = new ToggleGroup();
@@ -352,9 +349,9 @@ public class ChessMainRevamp extends Application {
         //Add confirm button last
         settingsRoot.getChildren().addAll(createStartMenuConfirmButton(whiteOptions, blackOptions, aiOptions, boardStateOptions,
                                                                        whitePlayerNameField, blackPlayerNameField));
-        Scene settingsScene = new Scene(settingsRoot, gameScene.getWidth(), gameScene.getHeight());
         //Switch to this start menu scene
-        mainStage.setScene(settingsScene);
+        mainStage.setScene(new Scene(settingsRoot));
+        mainStage.show();
     }
 
     /**
@@ -426,7 +423,7 @@ public class ChessMainRevamp extends Application {
 
             boardHistory.add(chessDataBoard);
 
-            // Set GameMusic
+            //Set GameMusic
             if (playSound) {
                 soundClipManager.clear();
                 soundClipManager = new SoundClipManager("GameMusic.wav",true,0.05, playSound);
@@ -506,9 +503,8 @@ public class ChessMainRevamp extends Application {
      */
     private void createGameOverPane() {
         //Text box - HBox
-        HBox gameOverRoot = new HBox();
+        FlowPane gameOverRoot = new FlowPane();
         gameOverRoot.setPadding(new Insets(3,0,2,0));
-        gameOverRoot.setSpacing(5);
         gameOverRoot.setAlignment(Pos.CENTER);
 
         //Text
@@ -516,15 +512,15 @@ public class ChessMainRevamp extends Application {
         if (chessDataBoard.currentPlayer().isInCheckmate()) title = new Text("CHECKMATE - ");
         else if (chessDataBoard.currentPlayer().isInStalemate()) title = new Text("STALEMATE - ");
         else if (checkForDrawByRepetition()) title = new Text("DRAW - ");
-        title.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth/650 * 13));
+        title.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth/70));
 
         Text t1 = new Text("UPDATED SCORES: ");
-        t1.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth/650 * 13));
+        t1.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth/70));
         Text t2 = new Text(whitePlayerName + ": " + whitePlayerScore + " /");
         Text t3 = new Text(blackPlayerName + ": " + blackPlayerScore + " ");
         int length = t2.getText().length() + t3.getText().length();
-        t2.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, screenWidth/650 * 15 - length/5));
-        t3.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, screenWidth/650 * 15 - length/5));
+        t2.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, screenWidth/70 - length/50));
+        t3.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, screenWidth/70 - length/50));
         gameOverRoot.getChildren().addAll(title, t1, t2, t3);
 
         //Buttons
@@ -790,7 +786,7 @@ public class ChessMainRevamp extends Application {
         }
 
         Button queen = new Button("QUEEN", q), knight = new Button("KNIGHT", k),
-                bishop = new Button("BISHOP", b), rook = new Button("ROOK", r);
+               bishop = new Button("BISHOP", b), rook = new Button("ROOK", r);
         menuRoot.getChildren().addAll(queen, knight, bishop, rook);
 
         //Style buttons
@@ -819,10 +815,15 @@ public class ChessMainRevamp extends Application {
             menuStage.close();
         });
 
-        Scene menuScene = new Scene(menuRoot, bishop.getPrefWidth()*2+10, bishop.getPrefHeight()*2+10);
-        menuStage.setScene(menuScene);
+        //Scaling and positioning
+        menuStage.setWidth(bishop.getPrefWidth()*2 + 10);
+        menuStage.setHeight(bishop.getPrefHeight()*2 + 10);
+        menuStage.setX(mainStage.getX() + mainStage.getWidth() / 2 - menuStage.getWidth() / 2);
+        menuStage.setY(mainStage.getY() + mainStage.getHeight() / 2 - menuStage.getHeight() / 2);
+        //Window settings
         menuStage.initModality(Modality.APPLICATION_MODAL);
         menuStage.setResizable(false);
+        menuStage.setScene(new Scene(menuRoot));
         menuStage.showAndWait();
 
         return x[0];

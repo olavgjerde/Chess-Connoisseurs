@@ -6,11 +6,22 @@ import com.mongodb.*;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import org.bson.BSON;
 import org.bson.Document;
+import org.bson.types.ObjectId;
+
 import java.util.List;
 
 
 import java.net.UnknownHostException;
+
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Updates.combine;
+import static com.mongodb.client.model.Updates.currentDate;
+import static com.mongodb.client.model.Updates.set;
 
 
 public class Score {
@@ -124,9 +135,10 @@ public class Score {
     }
 
     /**
-     * Uses the hashMap userRating to write out the highscore.txt
+     * //TODO: FIX AND CLEAN
      */
     private void writeHighscore(){
+
         try {
             PrintWriter out = new PrintWriter(new File("highscore.txt"));
             for (String s : userRating.keySet()) {
@@ -138,28 +150,44 @@ public class Score {
             System.out.println("FileNotFound");
         }
 
-        /*
-        MongoClientURI uri  = new MongoClientURI("mongodb://ccuser:ccpass@ds129706.mlab.com:29706/ccdb");
+
+     /*   MongoClientURI uri  = new MongoClientURI("mongodb://ccuser:ccpass@ds129706.mlab.com:29706/ccdb");
         MongoClient client = new MongoClient(uri);
         MongoDatabase db = client.getDatabase(uri.getDatabase());
         MongoCollection<Document> highscore = db.getCollection("highscore");
-        highscore.insertMany(highscoreDB);
-
+        MongoCursor<Document> cursor = highscore.find().iterator();
 
             for (String s : userRating.keySet()) {
-               // String line = s + " " + userRating.get(s) + " " + userStats.get(s).getStats() + "\n";
-                highscoreDB.add(new Document("playername", s)
-                        .append("score", userRating.get(s))
-                    .append("win", userStats.get(s).getStats())
-                        .append("draw", 0)
-                        .append("loss", 0)
+                while (cursor.hasNext()) {
+                    Document doc = cursor.next();
 
-                );
+                   if (doc.containsValue(s)) {
+                        highscore.replaceOne(eq("_id", new ObjectId("5ad5d4131252d6204423dfa0")),
+                                        new Document("playername", s)
+                                        .append("score", userRating.get(s))
+                                        .append("stats", userStats.get(s).getStats()));
+                    } else {
+                        highscoreDB.add(new Document("playername", s)
+                                .append("score", userRating.get(s))
+                                .append("stats", userStats.get(s).getStats()));
+                        highscore.insertMany(highscoreDB);
+                    }
+                }
             }
 
             client.close();*/
 
     }
+    //TODO: remove this before moving to master
+    //Template for inserting
+    /*        highscoreDB.add(new Document("playername", s)
+                                    .append("score", userRating.get(s))
+                                    .append("stats", userStats.get(s).getStats()));
+    *
+    * */
+
+
+
 
     private Stats readStats(String stats){
         String[] temp = stats.split("/");

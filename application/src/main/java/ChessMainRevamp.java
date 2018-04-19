@@ -626,7 +626,7 @@ public class ChessMainRevamp extends Application {
 
             Color circleColor = Color.FORESTGREEN;
             if (boardScore < 0) circleColor = Color.DARKRED;
-            Circle circle = new Circle(((screenHeight + screenWidth)/ (BoardUtils.getWidth() * BoardUtils.getHeight())) - 20, circleColor);
+            Circle circle = new Circle(screenWidth / 100, circleColor);
             //Add fade to circle
             FadeTransition fade = new FadeTransition(Duration.millis(1300), circle);
             fade.setFromValue(1.0);

@@ -107,7 +107,7 @@ public class ChessMainRevamp extends Application {
         statusPane.setSpacing(10);
 
         // construct game scene
-        this.gameScene = new Scene(gamePlayPane, screenWidth, screenHeight);
+        this.gameScene = new Scene(gamePlayPane);
 
         // listeners for window size change
         mainStage.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
@@ -832,7 +832,7 @@ public class ChessMainRevamp extends Application {
      * the tiles on data representation of the board and the gui representation of the board.
      */
     private class ChessTile extends StackPane {
-        private final double TILE_SIZE = ((screenHeight + screenWidth) * 2.45 / (BoardUtils.getWidth() * BoardUtils.getHeight()));
+        private final double TILE_SIZE = ((screenHeight * 6.6) / (BoardUtils.getWidth() * BoardUtils.getHeight()));
         private final Coordinate coordinateId;
 
         private ChessTile(Coordinate coordinateId) {

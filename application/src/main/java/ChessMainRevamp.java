@@ -170,7 +170,7 @@ public class ChessMainRevamp extends Application {
         CheckMenuItem toggleBoardStatus = new CheckMenuItem("Show board status");
         toggleBoardStatus.setOnAction(event -> {
             boardStatusEnabled = !boardStatusEnabled;
-            if (boardStatusEnabled) drawStatusPane();
+            drawStatusPane();
         });
         toggleBoardStatus.setSelected(true);
 

@@ -235,13 +235,9 @@ public class ChessMainRevamp extends Application {
 
         //Settings root pane
         VBox settingsRoot = new VBox(new HBox(),new HBox(), new HBox(), new HBox(), aiDifficulty, new HBox());
-        settingsRoot.setAlignment(Pos.TOP_CENTER);
+        settingsRoot.setAlignment(Pos.CENTER);
         settingsRoot.setSpacing(5);
-
-        // Set background
-        BackgroundImage backgroundImage = new BackgroundImage(resources.BackGround,BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
-                BackgroundSize.DEFAULT);
-        settingsRoot.setBackground(new Background(backgroundImage));
+        settingsRoot.setStyle("-fx-background-color: radial-gradient(center 50% 50% , radius 100% , #ffebcd, #008080);");
 
         //Center sub panes of root pane
         for (Node x : settingsRoot.getChildren()) {

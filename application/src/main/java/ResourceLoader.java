@@ -35,8 +35,8 @@ class ResourceLoader {
         hint = new Image("/images/GUI/hint.png");
         undo = new Image("/images/GUI/undo.png");
 
-        ConnoisseurChess = new Image("/images/" + "ConnoisseurChess" + ".png");
-        BackGround = new Image("/images/" + "BackGround" + ".png");
+        ConnoisseurChess = new Image("/images/GUI/" + "ConnoisseurChess" + ".png");
+        BackGround = new Image("/images/GUI/" + "BackGround" + ".png");
     }
 
     Image getPieceImage(Piece p) {

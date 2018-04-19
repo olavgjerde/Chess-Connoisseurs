@@ -5,7 +5,6 @@ import java.net.URISyntaxException;
 
 class SoundClipManager {
     private MediaPlayer mediaPlayer;
-
     SoundClipManager(String sound, boolean repeat, double volume, boolean enableSound) {
         // If player has muted sounds in options do nothing
         if (!enableSound) {

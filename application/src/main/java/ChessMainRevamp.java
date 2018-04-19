@@ -226,7 +226,7 @@ public class ChessMainRevamp extends Application {
 
         //Play menu music
         if (playSound && soundClipManager != null) soundClipManager.clear();
-        soundClipManager = new SoundClipManager("MenuMusic.wav", true,0.2, playSound);
+        soundClipManager = new SoundClipManager("MenuMusic.wav", true,0.08, playSound);
 
         //Menu Text
         Text whiteOptionsText = new Text("WHITE PLAYER"), blackOptionsText = new Text("BLACK PLAYER"), aiDifficulty = new Text("AI DIFFICULTY");
@@ -1197,6 +1197,6 @@ public class ChessMainRevamp extends Application {
         Platform.runLater(this::createGameOverPane);
         //Play game over sound
         soundClipManager.clear();
-        playSound("GameOverSound.wav",0.4);
+        playSound("GameOverSound.wav",0.2);
     }
 }

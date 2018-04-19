@@ -85,8 +85,8 @@ public class ChessMainRevamp extends Application {
     @Override
     public void start(Stage primaryStage) {
         this.mainStage = primaryStage;
-        primaryStage.setWidth(screenWidth = screenWidth / 1.8);
-        primaryStage.setHeight(screenHeight = screenHeight / 1.5);
+        primaryStage.setWidth(screenWidth = screenWidth / 1.6);
+        primaryStage.setHeight(screenHeight = screenHeight / 1.4);
         this.gamePlayPane = new BorderPane();
         this.chessGridPane = new GridPane();
         this.statusPane = new VBox();
@@ -559,7 +559,6 @@ public class ChessMainRevamp extends Application {
         buttonContainer.getChildren().addAll(newGame, newRound, quit);
 
         gameOverRoot.getChildren().addAll(buttonContainer);
-
         gamePlayPane.setBottom(gameOverRoot);
     }
 

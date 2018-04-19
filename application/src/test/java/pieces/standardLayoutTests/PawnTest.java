@@ -7,6 +7,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import pieces.Alliance;
 import pieces.Pawn;
+import pieces.Piece;
+import pieces.Piece.PieceType;
 import pieces.Rook;
 import player.MoveTransition;
 
@@ -198,7 +200,7 @@ class PawnTest {
         builder.setMoveMaker(Alliance.BLACK);
         Board board = builder.build();
 
-        PawnPromotion estimatedPawnPromotion = new PawnPromotion(new PawnMove(board, blackPawn, BoardUtils.getCoordinateFromAlgebraicNotation("e1")));
+        PawnPromotion estimatedPawnPromotion = new PawnPromotion(new PawnMove(board, blackPawn, BoardUtils.getCoordinateFromAlgebraicNotation("e1")), PieceType.QUEEN);
 
         assertTrue(blackPawn.calculateLegalMoves(board).contains(estimatedPawnPromotion));
     }
@@ -214,7 +216,7 @@ class PawnTest {
         builder.setMoveMaker(Alliance.WHITE);
         Board board = builder.build();
 
-        PawnPromotion estimatedPawnPromotion = new PawnPromotion(new PawnMove(board, whitePawn, BoardUtils.getCoordinateFromAlgebraicNotation("e8")));
+        PawnPromotion estimatedPawnPromotion = new PawnPromotion(new PawnMove(board, whitePawn, BoardUtils.getCoordinateFromAlgebraicNotation("e8")), PieceType.QUEEN);
 
         assertTrue(whitePawn.calculateLegalMoves(board).contains(estimatedPawnPromotion));
     }
@@ -233,7 +235,7 @@ class PawnTest {
         builder.setMoveMaker(Alliance.BLACK);
         Board board = builder.build();
 
-        PawnPromotion estimatedPawnPromotion = new PawnPromotion(new PawnAttackMove(board, blackPawn, BoardUtils.getCoordinateFromAlgebraicNotation("f1"), whiteRook));
+        PawnPromotion estimatedPawnPromotion = new PawnPromotion(new PawnAttackMove(board, blackPawn, BoardUtils.getCoordinateFromAlgebraicNotation("f1"), whiteRook), PieceType.QUEEN);
 
         assertTrue(blackPawn.calculateLegalMoves(board).contains(estimatedPawnPromotion));
     }
@@ -252,7 +254,7 @@ class PawnTest {
         builder.setMoveMaker(Alliance.WHITE);
         Board board = builder.build();
 
-        PawnPromotion estimatedPawnPromotion = new PawnPromotion(new PawnAttackMove(board, whitePawn, BoardUtils.getCoordinateFromAlgebraicNotation("f8"), blackRook));
+        PawnPromotion estimatedPawnPromotion = new PawnPromotion(new PawnAttackMove(board, whitePawn, BoardUtils.getCoordinateFromAlgebraicNotation("f8"), blackRook), PieceType.QUEEN);
 
         assertTrue(whitePawn.calculateLegalMoves(board).contains(estimatedPawnPromotion));
     }

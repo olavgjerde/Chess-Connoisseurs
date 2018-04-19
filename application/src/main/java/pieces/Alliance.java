@@ -32,6 +32,39 @@ public enum Alliance {
         }
 
         @Override
+        public int pawnSquareValue(Coordinate coordinate) {
+            return WHITE_PAWN_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+        }
+
+        @Override
+        public int knightSquareValue(Coordinate coordinate) {
+            return WHITE_KNIGHT_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+        }
+
+        @Override
+        public int bishopSquareValue(Coordinate coordinate) {
+            return WHITE_BISHOP_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+        }
+
+        @Override
+        public int rookSquareValue(Coordinate coordinate) {
+            return WHITE_ROOK_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+        }
+
+        @Override
+        public int queenSquareValue(Coordinate coordinate) {
+            return WHITE_QUEEN_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+        }
+
+        @Override
+        public int kingSquareValue(Coordinate coordinate, boolean isEndGame) {
+            int locationValue;
+            if (isEndGame) locationValue = WHITE_KING_PREFERRED_ENDGAME_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+            else locationValue = WHITE_KING_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+            return locationValue;
+        }
+
+        @Override
         public String toString() {
             return "White";
         }
@@ -55,6 +88,39 @@ public enum Alliance {
         @Override
         public Player choosePlayerByAlliance(WhitePlayer whitePlayer, BlackPlayer blackPlayer) {
             return blackPlayer;
+        }
+
+        @Override
+        public int pawnSquareValue(Coordinate coordinate) {
+            return BLACK_PAWN_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+        }
+
+        @Override
+        public int knightSquareValue(Coordinate coordinate) {
+            return BLACK_KNIGHT_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+        }
+
+        @Override
+        public int bishopSquareValue(Coordinate coordinate) {
+            return BLACK_BISHOP_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+        }
+
+        @Override
+        public int rookSquareValue(Coordinate coordinate) {
+            return BLACK_ROOK_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+        }
+
+        @Override
+        public int queenSquareValue(Coordinate coordinate) {
+            return BLACK_QUEEN_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+        }
+
+        @Override
+        public int kingSquareValue(Coordinate coordinate, boolean isEndGame) {
+            int locationValue;
+            if (isEndGame) locationValue = BLACK_KING_PREFERRED_ENDGAME_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+            else locationValue = BLACK_KING_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+            return locationValue;
         }
 
         @Override
@@ -91,5 +157,179 @@ public enum Alliance {
      */
     public abstract Player choosePlayerByAlliance(WhitePlayer whitePlayer, BlackPlayer blackPlayer);
 
+    /**
+     * Return the piece-square value for the given coordinate
+     * @param coordinate where the piece is placed
+     * @return value of piece placement
+     * @see <a href="https://chessprogramming.wikispaces.com/Simplified%20evaluation%20function">Piece-square values</a>
+     */
+    public abstract int pawnSquareValue(Coordinate coordinate);
+    public abstract int knightSquareValue(Coordinate coordinate);
+    public abstract int bishopSquareValue(Coordinate coordinate);
+    public abstract int rookSquareValue(Coordinate coordinate);
+    public abstract int queenSquareValue(Coordinate coordinate);
+
+    /**
+     * Return the piece-square value for the given coordinate
+     * @param coordinate where the piece is placed
+     * @param isEndGame to fetch the position values for endgame or not
+     * @return value of piece placement
+     * @see <a href="https://chessprogramming.wikispaces.com/Simplified%20evaluation%20function">Piece-square values</a>
+     */
+    public abstract int kingSquareValue(Coordinate coordinate, boolean isEndGame);
+
+    private final static int[] WHITE_PAWN_PREFERRED_COORDINATES = {
+            0,  0,  0,  0,  0,  0,  0,  0,
+            50, 50, 50, 50, 50, 50, 50, 50,
+            10, 10, 20, 30, 30, 20, 10, 10,
+            5,  5, 10, 25, 25, 10,  5,  5,
+            0,  0,  0, 20, 20,  0,  0,  0,
+            5, -5,-10,  0,  0,-10, -5,  5,
+            5, 10, 10,-20,-20, 10, 10,  5,
+            0,  0,  0,  0,  0,  0,  0,  0
+    };
+
+    private final static int[] BLACK_PAWN_PREFERRED_COORDINATES = {
+            0,  0,  0,  0,  0,  0,  0,  0,
+            5, 10, 10,-20,-20, 10, 10,  5,
+            5, -5,-10,  0,  0,-10, -5,  5,
+            0,  0,  0, 20, 20,  0,  0,  0,
+            5,  5, 10, 25, 25, 10,  5,  5,
+            10, 10, 20, 30, 30, 20, 10, 10,
+            50, 50, 50, 50, 50, 50, 50, 50,
+            0,  0,  0,  0,  0,  0,  0,  0
+    };
+
+    private final static int[] WHITE_KNIGHT_PREFERRED_COORDINATES = {
+            -50,-40,-30,-30,-30,-30,-40,-50,
+            -40,-20,  0,  0,  0,  0,-20,-40,
+            -30,  0, 10, 15, 15, 10,  0,-30,
+            -30,  5, 15, 20, 20, 15,  5,-30,
+            -30,  0, 15, 20, 20, 15,  0,-30,
+            -30,  5, 10, 15, 15, 10,  5,-30,
+            -40,-20,  0,  5,  5,  0,-20,-40,
+            -50,-40,-30,-30,-30,-30,-40,-50
+    };
+
+    private final static int[] BLACK_KNIGHT_PREFERRED_COORDINATES = {
+            -50,-40,-30,-30,-30,-30,-40,-50,
+            -40,-20,  0,  5,  5,  0,-20,-40,
+            -30,  5, 10, 15, 15, 10,  5,-30,
+            -30,  0, 15, 20, 20, 15,  0,-30,
+            -30,  5, 15, 20, 20, 15,  5,-30,
+            -30,  0, 10, 15, 15, 10,  0,-30,
+            -40,-20,  0,  0,  0,  0,-20,-40,
+            -50,-40,-30,-30,-30,-30,-40,-50
+    };
+
+    private final static int[] WHITE_BISHOP_PREFERRED_COORDINATES = {
+            -20,-10,-10,-10,-10,-10,-10,-20,
+            -10,  0,  0,  0,  0,  0,  0,-10,
+            -10,  0,  5, 10, 10,  5,  0,-10,
+            -10,  5,  5, 10, 10,  5,  5,-10,
+            -10,  0, 10, 10, 10, 10,  0,-10,
+            -10, 10, 10, 10, 10, 10, 10,-10,
+            -10,  5,  0,  0,  0,  0,  5,-10,
+            -20,-10,-10,-10,-10,-10,-10,-20
+    };
+
+    private final static int[] BLACK_BISHOP_PREFERRED_COORDINATES = {
+            -20,-10,-10,-10,-10,-10,-10,-20,
+            -10,  5,  0,  0,  0,  0,  5,-10,
+            -10, 10, 10, 10, 10, 10, 10,-10,
+            -10,  0, 10, 10, 10, 10,  0,-10,
+            -10,  5,  5, 10, 10,  5,  5,-10,
+            -10,  0,  5, 10, 10,  5,  0,-10,
+            -10,  0,  0,  0,  0,  0,  0,-10,
+            -20,-10,-10,-10,-10,-10,-10,-20
+    };
+
+    private final static int[] WHITE_ROOK_PREFERRED_COORDINATES = {
+            0,  0,  0,  0,  0,  0,  0,  0,
+            5, 20, 20, 20, 20, 20, 20,  5,
+            -5,  0,  0,  0,  0,  0,  0, -5,
+            -5,  0,  0,  0,  0,  0,  0, -5,
+            -5,  0,  0,  0,  0,  0,  0, -5,
+            -5,  0,  0,  0,  0,  0,  0, -5,
+            -5,  0,  0,  0,  0,  0,  0, -5,
+            0,  0,  0,  5,  5,  0,  0,  0
+    };
+
+    private final static int[] BLACK_ROOK_PREFERRED_COORDINATES = {
+            0,  0,  0,  5,  5,  0,  0,  0,
+            -5,  0,  0,  0,  0,  0,  0, -5,
+            -5,  0,  0,  0,  0,  0,  0, -5,
+            -5,  0,  0,  0,  0,  0,  0, -5,
+            -5,  0,  0,  0,  0,  0,  0, -5,
+            -5,  0,  0,  0,  0,  0,  0, -5,
+            5, 20, 20, 20, 20, 20, 20,  5,
+            0,  0,  0,  0,  0,  0,  0,  0
+    };
+
+    private final static int[] WHITE_QUEEN_PREFERRED_COORDINATES = {
+            -20,-10,-10, -5, -5,-10,-10,-20,
+            -10,  0,  0,  0,  0,  0,  0,-10,
+            -10,  0,  5,  5,  5,  5,  0,-10,
+            -5,  0,  5,  5,  5,  5,  0, -5,
+            0,  0,  5,  5,  5,  5,  0, -5,
+            -10,  5,  5,  5,  5,  5,  0,-10,
+            -10,  0,  5,  0,  0,  0,  0,-10,
+            -20,-10,-10, -5, -5,-10,-10,-20
+    };
+
+    private final static int[] BLACK_QUEEN_PREFERRED_COORDINATES = {
+            -20,-10,-10, -5, -5,-10,-10,-20,
+            -10,  0,  5,  0,  0,  0,  0,-10,
+            -10,  5,  5,  5,  5,  5,  0,-10,
+            0,  0,  5,  5,  5,  5,  0, -5,
+            0,  0,  5,  5,  5,  5,  0, -5,
+            -10,  0,  5,  5,  5,  5,  0,-10,
+            -10,  0,  0,  0,  0,  0,  0,-10,
+            -20,-10,-10, -5, -5,-10,-10,-20
+    };
+
+    private final static int[] WHITE_KING_PREFERRED_COORDINATES = {
+            -30,-40,-40,-50,-50,-40,-40,-30,
+            -30,-40,-40,-50,-50,-40,-40,-30,
+            -30,-40,-40,-50,-50,-40,-40,-30,
+            -30,-40,-40,-50,-50,-40,-40,-30,
+            -20,-30,-30,-40,-40,-30,-30,-20,
+            -10,-20,-20,-20,-20,-20,-20,-10,
+            20, 20,  0,  0,  0,  0, 20, 20,
+            20, 30, 10,  0,  0, 10, 30, 20
+    };
+
+    private final static int[] WHITE_KING_PREFERRED_ENDGAME_COORDINATES = {
+            -50,-40,-30,-20,-20,-30,-40,-50,
+            -30,-20,-10,  0,  0,-10,-20,-30,
+            -30,-10, 20, 30, 30, 20,-10,-30,
+            -30,-10, 30, 40, 40, 30,-10,-30,
+            -30,-10, 30, 40, 40, 30,-10,-30,
+            -30,-10, 20, 30, 30, 20,-10,-30,
+            -30,-30,  0,  0,  0,  0,-30,-30,
+            -50,-30,-30,-30,-30,-30,-30,-50
+    };
+
+    public final static int[] BLACK_KING_PREFERRED_COORDINATES = {
+            20, 30, 10,  0,  0, 10, 30, 20,
+            20, 20,  0,  0,  0,  0, 20, 20,
+            -10,-20,-20,-20,-20,-20,-20,-10,
+            -20,-30,-30,-40,-40,-30,-30,-20,
+            -30,-40,-40,-50,-50,-40,-40,-30,
+            -30,-40,-40,-50,-50,-40,-40,-30,
+            -30,-40,-40,-50,-50,-40,-40,-30,
+            -30,-40,-40,-50,-50,-40,-40,-30
+    };
+
+    public final static int[] BLACK_KING_PREFERRED_ENDGAME_COORDINATES = {
+            -50,-30,-30,-30,-30,-30,-30,-50,
+            -30,-30,  0,  0,  0,  0,-30,-30,
+            -30,-10, 20, 30, 30, 20,-10,-30,
+            -30,-10, 30, 40, 40, 30,-10,-30,
+            -30,-10, 30, 40, 40, 30,-10,-30,
+            -30,-10, 20, 30, 30, 20,-10,-30,
+            -30,-20,-10,  0,  0,-10,-20,-30,
+            -50,-40,-30,-20,-20,-30,-40,-50
+    };
 
 }

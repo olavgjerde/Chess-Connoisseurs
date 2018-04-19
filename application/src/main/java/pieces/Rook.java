@@ -71,6 +71,11 @@ public class Rook extends Piece {
     }
 
     @Override
+    public int locationValue(boolean isEndGame) {
+        return this.pieceAlliance.rookSquareValue(this.pieceCoordinate);
+    }
+
+    @Override
     public String toString() {
         return PieceType.ROOK.toString();
     }

@@ -74,4 +74,9 @@ public class Bishop extends Piece {
     public String toString() {
         return PieceType.BISHOP.toString();
     }
+
+    @Override
+    public int locationValue(boolean isEndGame) {
+        return this.pieceAlliance.bishopSquareValue(this.pieceCoordinate);
+    }
 }

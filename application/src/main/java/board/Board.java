@@ -2,10 +2,14 @@ package board;
 
 import pieces.*;
 import player.BlackPlayer;
+import player.MoveTransition;
 import player.Player;
 import player.WhitePlayer;
+import player.basicAI.MiniMax;
+import player.basicAI.MoveStrategy;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * This class represents a chessboard.
@@ -20,6 +24,7 @@ public class Board {
     private final BlackPlayer blackPlayer;
     private final Player currentPlayer;
     private final Pawn enPassantPawn;
+    private final Move transitionMove;
 
     public Board(Builder builder) {
         this.gameBoard = createGameBoard(builder);
@@ -27,12 +32,13 @@ public class Board {
         this.blackPieces = calculateActivePieces(builder, Alliance.BLACK);
         this.enPassantPawn = builder.enPassantPawn;
 
-        final Collection<Move> whiteStandardLegalMoves = calculateLegalMoves(this.whitePieces);
-        final Collection<Move> blackStandardLegalMoves = calculateLegalMoves(this.blackPieces);
-        this.whitePlayer = new WhitePlayer(this, whiteStandardLegalMoves, blackStandardLegalMoves);
-        this.blackPlayer = new BlackPlayer(this, blackStandardLegalMoves, whiteStandardLegalMoves);
+        Collection<Move> whiteLegalMoves = calculateLegalMoves(this.whitePieces);
+        Collection<Move> blackLegalMoves = calculateLegalMoves(this.blackPieces);
+        this.whitePlayer = new WhitePlayer(this, whiteLegalMoves, blackLegalMoves);
+        this.blackPlayer = new BlackPlayer(this, blackLegalMoves, whiteLegalMoves);
 
         this.currentPlayer = builder.nextMoveMaker.choosePlayerByAlliance(this.whitePlayer, this.blackPlayer);
+        this.transitionMove = builder.transitionMove;
     }
 
     /**
@@ -57,7 +63,7 @@ public class Board {
      * @return a list of active pieces of a given alliance
      */
     private static Collection<Piece> calculateActivePieces(Builder builder, Alliance alliance) {
-        final List<Piece> activePieces = new ArrayList<>();
+        final List<Piece> activePieces = new ArrayList<>(BoardUtils.getWidth()*2);
         for (Piece piece : builder.boardConfig.values()) {
             if (piece.getPieceAlliance() == alliance) {
                 activePieces.add(piece);
@@ -76,7 +82,7 @@ public class Board {
         for (Piece piece : pieces) {
             legalMoves.addAll(piece.calculateLegalMoves(this));
         }
-        return Collections.unmodifiableList(legalMoves);
+        return legalMoves;
     }
 
     /**
@@ -142,6 +148,13 @@ public class Board {
     }
 
     /**
+     * @return the move that changed this board into its current state
+     */
+    public Move getTransitionMove() {
+        return transitionMove;
+    }
+
+    /**
      * Constructs a text visualisation of the board
      * @return a string representation of the board-object
      */
@@ -204,12 +217,65 @@ public class Board {
     }
 
     /**
+     * Uses the AI to create a random starting point for the game
+     * @return board with X number of pre-made moves
+     */
+    public static Board createRandomBoard() {
+        Board board = Board.createStandardBoard();
+        final MoveStrategy AI = new MiniMax(1, 0, true, false);
+
+        // create empty board to hold last board before change
+        Board boardBeforeChange = new Board(new Builder().setMoveMaker(Alliance.WHITE));
+        int i;
+        int numberOfMoves = ThreadLocalRandom.current().nextInt(5, 35);
+        for (i = 0; i < numberOfMoves; i++) {
+           Move aiMove = AI.execute(board);
+           MoveTransition moveChange = board.currentPlayer().makeMove(aiMove);
+           if (moveChange.getMoveStatus().isDone()) {
+               boardBeforeChange = board;
+               board = moveChange.getTransitionBoard();
+           }
+        }
+
+        // revert to last board if last move made Alliance black
+        if (board.currentPlayer().getAlliance() != Alliance.WHITE) {
+            i--;
+            board = boardBeforeChange;
+        }
+
+        // check that player is not put in checkmate when the ai makes its next move
+        MoveStrategy smarterAI = new MiniMax(4, 100, true, false);
+        Move aiNextMove = smarterAI.execute(board);
+        Board nextIterationBoard = null;
+        if (board.currentPlayer().makeMove(aiNextMove).getMoveStatus().isDone()) {
+            nextIterationBoard = aiNextMove.execute();
+        } else {
+            // ai could not move, re-roll board
+            System.out.println("Illegal board state: reshuffling board");
+            createRandomBoard();
+        }
+
+        if (nextIterationBoard != null &&
+            (board.currentPlayer().isInCheckmate() || board.currentPlayer().isInStalemate() ||
+             board.currentPlayer().getOpponent().isInCheck() || board.currentPlayer().getOpponent().isInStalemate() ||
+             nextIterationBoard.currentPlayer().isInCheck())) {
+
+            System.out.println("Illegal board state: reshuffling board");
+            createRandomBoard();
+        }
+
+        System.out.println("Board shuffled with " + i + " AI moves");
+        return board;
+    }
+
+    /**
      * Helper class for constructing chessboards given a defined layout
      */
     public static class Builder {
         Map<Coordinate, Piece> boardConfig;
         Alliance nextMoveMaker;
         Pawn enPassantPawn;
+        Move transitionMove = null;
 
         /**
          * Construct a Builder object with an empty map.
@@ -244,6 +310,15 @@ public class Board {
          */
         public void setEnPassantPawn(Pawn enPassantPawn) {
             this.enPassantPawn = enPassantPawn;
+        }
+
+        /**
+         * Set the move that made a change to the board
+         * @param transitionMove the move that changes the board
+         */
+        public Builder setMoveTransition(final Move transitionMove) {
+            this.transitionMove = transitionMove;
+            return this;
         }
 
         /**

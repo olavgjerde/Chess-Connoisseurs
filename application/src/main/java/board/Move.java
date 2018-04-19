@@ -1,9 +1,10 @@
 package board;
 
-import pieces.Pawn;
-import pieces.Piece;
-import pieces.Rook;
+import pieces.*;
+import pieces.Piece.PieceType;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static board.Board.*;
@@ -35,7 +36,7 @@ public abstract class Move {
         this.movedPiece = null;
         this.isFirstMove = false;
     }
-
+    
     /**
      * @return the piece which is to be moved in a given Move object
      */
@@ -92,9 +93,7 @@ public abstract class Move {
         final Builder builder = new Builder();
         // place all of the current player's pieces that has not been moved
         for (Piece piece : this.board.currentPlayer().getActivePieces()) {
-            if (!this.movedPiece.equals(piece)) {
-                builder.setPiece(piece);
-            }
+            if (!this.movedPiece.equals(piece)) builder.setPiece(piece);
         }
         // place all of the opponent player's pieces that has not been moved
         for (Piece piece : this.board.currentPlayer().getOpponent().getActivePieces()) {
@@ -104,14 +103,31 @@ public abstract class Move {
         builder.setPiece(this.movedPiece.movePiece(this));
         // the next move shall be made by the opponent
         builder.setMoveMaker(this.board.currentPlayer().getOpponent().getAlliance());
+        // this move changed the board
+        builder.setMoveTransition(this);
         return builder.build();
     }
 
     /**
      * @return Board object which the move is operating on
      */
-    private Board getBoard() {
+    public Board getBoard() {
         return this.board;
+    }
+
+    /**
+     * This helps differentiate equal pieces that may be moving to the same position
+     * @return column index
+     * @see <a href="https://en.wikipedia.org/wiki/Portable_Game_Notation">Disambiguation</a>
+     */
+    public String disambiguationColumn() {
+        for (Move move : board.currentPlayer().getLegalMoves()) {
+            if (move.getDestinationCoordinate().equals(this.destinationCoordinate) && !this.equals(move) &&
+                this.movedPiece.getPieceType().equals(move.getMovedPiece().getPieceType())) {
+                return BoardUtils.getAlgebraicNotationFromCoordinate(this.movedPiece.getPieceCoordinate()).substring(0, 1);
+            }
+        }
+        return "";
     }
 
     @Override
@@ -152,7 +168,8 @@ public abstract class Move {
             public boolean isDone() {
                 return false;
             }
-        }, LEAVES_PLAYER_IN_CHECK {
+        },
+        LEAVES_PLAYER_IN_CHECK {
             @Override
             public boolean isDone() {
                 return false;
@@ -169,7 +186,7 @@ public abstract class Move {
      * Represents an illeagal move, with coordinates that does not exist in the bound of a regular board
      */
     public static final class NullMove extends Move {
-        NullMove() {
+        public NullMove() {
             super(null, new Coordinate(-1,-1));
         }
 
@@ -189,27 +206,13 @@ public abstract class Move {
         }
 
         @Override
-        public Board execute() {
-            final Builder builder = new Builder();
-            for (Piece piece : this.board.currentPlayer().getActivePieces()) {
-                if (!this.movedPiece.equals(piece)) builder.setPiece(piece);
-            }
-            for (Piece piece : this.board.currentPlayer().getOpponent().getActivePieces()) {
-                builder.setPiece(piece);
-            }
-            builder.setPiece(this.movedPiece.movePiece(this));
-            builder.setMoveMaker(this.board.currentPlayer().getOpponent().getAlliance());
-            return builder.build();
-        }
-
-        @Override
         public boolean equals(Object o) {
             return this == o || o instanceof MajorMove && super.equals(o);
         }
 
         @Override
         public String toString() {
-            return movedPiece.getPieceType() + BoardUtils.getAlgebraicNotationFromCoordinate(destinationCoordinate);
+            return movedPiece.getPieceType() + disambiguationColumn() + BoardUtils.getAlgebraicNotationFromCoordinate(destinationCoordinate);
         }
     }
 
@@ -242,10 +245,13 @@ public abstract class Move {
         final Move decoratedMove;
         final Pawn promotedPawn;
 
-        public PawnPromotion(Move decoratedMove) {
+        final PieceType upgradeType;
+
+        public PawnPromotion(Move decoratedMove, PieceType upgradeType) {
             super(decoratedMove.getBoard(), decoratedMove.getMovedPiece(), decoratedMove.getDestinationCoordinate());
             this.decoratedMove = decoratedMove;
             this.promotedPawn = (Pawn) decoratedMove.getMovedPiece();
+            this.upgradeType = upgradeType;
         }
 
         @Override
@@ -258,8 +264,19 @@ public abstract class Move {
             for (Piece piece : pawnMovedBoard.currentPlayer().getOpponent().getActivePieces()) {
                 builder.setPiece(piece);
             }
-            builder.setPiece(this.promotedPawn.getPromotionPiece().movePiece(this));
+
+            Piece upgradePiece;
+            switch (upgradeType) {
+                case QUEEN: {upgradePiece = new Queen(decoratedMove.getDestinationCoordinate(), promotedPawn.getPieceAlliance(), false); break;}
+                case KNIGHT: {upgradePiece = new Knight(decoratedMove.getDestinationCoordinate(), promotedPawn.getPieceAlliance(), false); break;}
+                case BISHOP: {upgradePiece = new Bishop(decoratedMove.getDestinationCoordinate(), promotedPawn.getPieceAlliance(), false); break;}
+                case ROOK: {upgradePiece = new Rook(decoratedMove.getDestinationCoordinate(), promotedPawn.getPieceAlliance(), false); break;}
+                default: upgradePiece = new Queen(decoratedMove.getDestinationCoordinate(), promotedPawn.getPieceAlliance(), false);
+            }
+            builder.setPiece(upgradePiece);
+
             builder.setMoveMaker(pawnMovedBoard.currentPlayer().getAlliance());
+            builder.setMoveTransition(this);
             return builder.build();
         }
 
@@ -273,11 +290,17 @@ public abstract class Move {
             return this.decoratedMove.getAttackedPiece();
         }
 
+        /**
+         * Method specific to PawnPromotions
+         * @return the piece type that this move promotes to
+         */
+        public PieceType getUpgradeType() {
+            return upgradeType;
+        }
+
         @Override
         public String toString() {
-            return BoardUtils.getAlgebraicNotationFromCoordinate(this.movedPiece.getPieceCoordinate()) + "-" +
-                    BoardUtils.getAlgebraicNotationFromCoordinate(this.destinationCoordinate) + "=" +
-                    this.promotedPawn.getPromotionPiece();
+            return BoardUtils.getAlgebraicNotationFromCoordinate(this.destinationCoordinate) + "=" + upgradeType;
         }
 
         @Override
@@ -318,6 +341,7 @@ public abstract class Move {
             // record pawn that executed a jump move -> this piece can be taken by an "en passant" move
             builder.setEnPassantPawn(movedPawn);
             builder.setMoveMaker(this.board.currentPlayer().getOpponent().getAlliance());
+            builder.setMoveTransition(this);
             return builder.build();
         }
     }
@@ -362,6 +386,7 @@ public abstract class Move {
             // set a new rook that represents the one involved in the castling
             builder.setPiece(new Rook(this.castleRookDestination, this.castleRook.getPieceAlliance(), false));
             builder.setMoveMaker(this.board.currentPlayer().getOpponent().getAlliance());
+            builder.setMoveTransition(this);
             return builder.build();
         }
 
@@ -399,7 +424,7 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return "0-0";
+            return "O-O";
         }
     }
 
@@ -419,7 +444,7 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return "0-0-0";
+            return "O-O-O";
         }
     }
 
@@ -455,6 +480,7 @@ public abstract class Move {
             }
             builder.setPiece(this.movedPiece.movePiece(this));
             builder.setMoveMaker(this.board.currentPlayer().getOpponent().getAlliance());
+            builder.setMoveTransition(this);
             return builder.build();
         }
 
@@ -489,7 +515,7 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return movedPiece.getPieceType() + "x" + BoardUtils.getAlgebraicNotationFromCoordinate(this.destinationCoordinate);
+            return movedPiece.getPieceType() + disambiguationColumn() + "x" + BoardUtils.getAlgebraicNotationFromCoordinate(this.destinationCoordinate);
         }
     }
 
@@ -558,6 +584,14 @@ public abstract class Move {
                 }
             }
             return NULL_MOVE;
+        }
+
+        public static List<PawnPromotion> getPromotionMoves(Board board, Coordinate currentCoordinate, Coordinate destinationCoordinate) {
+            List<PawnPromotion> promotionMoves = new ArrayList<>();
+            for (Move move : board.getAllLegalMoves()) {
+                if (move instanceof PawnPromotion) promotionMoves.add((PawnPromotion) move);
+            }
+            return promotionMoves;
         }
     }
 }

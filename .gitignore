@@ -2,7 +2,7 @@
 *bin/
 *.sty
 *.iml
-*.highscore.txr
+*.highscore.txt
 
 # Compiled class file
 *.class
@@ -17,7 +17,6 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
 *.war
 *.ear
 *.zip

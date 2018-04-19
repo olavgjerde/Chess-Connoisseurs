@@ -51,3 +51,47 @@ Works based on Black Widow-chess must use the same license, hence our license is
 
   Available on: [https://www.shareicon.net/pack/developer-kit](https://www.shareicon.net/pack/developer-kit)
   
+##### Music and Sounds
++ DropPieceNew.wav
+
+Title: chess pieces, Author: simone_ds 
+
+Available at:[https://freesound.org/people/simone_ds/sounds/366065/](https://freesound.org/people/simone_ds/sounds/366065/)
+
+Licensed under Creative Commons "Attribution 1.0" [https://creativecommons.org/publicdomain/zero/1.0/](https://creativecommons.org/publicdomain/zero/1.0/)
+
+ 
++ ButtonClick.wav
+
+Title: Click1, Author: annabloom
+ 
+Available at:[https://freesound.org/people/annabloom/sounds/219069/](https://freesound.org/people/annabloom/sounds/219069/) 
+
+Licensed under Creative Commons "Attribution 3.0" [https://creativecommons.org/licenses/by-nc/3.0/](https://creativecommons.org/licenses/by-nc/3.0/)
+
+
++ MenuMusic.wav
+
+Title: Mario's way, Author: Gianni Caratelli 
+
+Available at:[https://freesound.org/people/xsgianni/sounds/388079/](https://freesound.org/people/xsgianni/sounds/388079/) 
+
+Licensed under Creative Commons "Attribution 3.0" [https://creativecommons.org/licenses/by-nc/3.0/](https://creativecommons.org/licenses/by-nc/3.0/)
+
+
++ GameOverSound.wav
+
+Title: Tropical Musical sound 3, Author: 2011 Varazuvi™ (www.varazuvi.com)
+ 
+Available at:[https://freesound.org/people/Soughtaftersounds/sounds/145464/](https://freesound.org/people/Soughtaftersounds/sounds/145464/)
+
+Licensed under Creative Commons "Attribution 3.0" [https://creativecommons.org/licenses/by/3.0/](https://creativecommons.org/licenses/by/3.0/)
+
+
++ GameMusic.wav
+
+Title: Nodens (Field Song), Author: axtoncrolley 
+
+Available at:[https://freesound.org/people/axtoncrolley/sounds/172707/](https://freesound.org/people/axtoncrolley/sounds/172707/) 
+
+Licensed under Creative Commons "Attribution 1.0" [https://creativecommons.org/publicdomain/zero/1.0/](https://creativecommons.org/publicdomain/zero/1.0/)

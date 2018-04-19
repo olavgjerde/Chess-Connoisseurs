@@ -181,7 +181,7 @@ public class ChessMainRevamp extends Application {
                 playSound = false;
             } else {
                 playSound = true;
-                soundClipManager = new SoundClipManager("GameMusic.wav", true,0.08, true);
+                soundClipManager = new SoundClipManager("GameMusic.wav", true,0.2, true);
             }
         });
         toggleMute.setSelected(true);
@@ -564,7 +564,7 @@ public class ChessMainRevamp extends Application {
 
             //Play game-music
             if (playSound && soundClipManager != null) soundClipManager.clear();
-            soundClipManager = new SoundClipManager("GameMusic.wav", true,0.05, playSound);
+            soundClipManager = new SoundClipManager("GameMusic.wav", true,0.2, playSound);
         });
         quit.setOnAction(e -> System.exit(0));
 

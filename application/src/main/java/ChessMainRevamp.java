@@ -606,13 +606,13 @@ public class ChessMainRevamp extends Application {
 
         Text title = new Text("GAME STATS");
         //Title styling
-        title.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, screenWidth/650 * 20));
+        title.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, screenWidth/50));
         //Player names and scores
         Text whitePlayerText = new Text(whitePlayerName + ": " + whitePlayerScore + " | " + whitePlayerStats);
         Text blackPlayerText = new Text(blackPlayerName + ": " + blackPlayerScore + " | " + blackPlayerStats);
         //Player names and scores styling
-        whitePlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (screenWidth/650 * 14)-whitePlayerText.getText().length()/4));
-        blackPlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (screenWidth/650 * 14)-blackPlayerText.getText().length()/4));
+        whitePlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (screenWidth/85)-whitePlayerText.getText().length()/50));
+        blackPlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (screenWidth/85)-blackPlayerText.getText().length()/50));
         whitePlayerText.setUnderline(true);
         blackPlayerText.setUnderline(true);
 
@@ -626,7 +626,7 @@ public class ChessMainRevamp extends Application {
 
             Color circleColor = Color.FORESTGREEN;
             if (boardScore < 0) circleColor = Color.DARKRED;
-            Circle circle = new Circle(((screenHeight + screenWidth) * 1 / (BoardUtils.getWidth() * BoardUtils.getHeight())) - 20, circleColor);
+            Circle circle = new Circle(((screenHeight + screenWidth)/ (BoardUtils.getWidth() * BoardUtils.getHeight())) - 20, circleColor);
             //Add fade to circle
             FadeTransition fade = new FadeTransition(Duration.millis(1300), circle);
             fade.setFromValue(1.0);
@@ -636,7 +636,7 @@ public class ChessMainRevamp extends Application {
             fade.play();
 
             Text boardStatusText = new Text("The AI thinks your chances are: ");
-            boardStatusText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 7));
+            boardStatusText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/95));
             boardStatusText.setFill(Color.WHITE);
 
             HBox boardStatusBox = new HBox();
@@ -652,11 +652,11 @@ public class ChessMainRevamp extends Application {
             if (boardHistory.get(boardHistory.size() - 1).currentPlayer().isInCheckmate()) moveHistoryText.setText(moveHistoryText.getText() + "#");
             else if (boardHistory.get(boardHistory.size() - 1).currentPlayer().isInCheck()) moveHistoryText.setText(moveHistoryText.getText() + "+");
         }
-        moveHistoryText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
+        moveHistoryText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/85));
 
         //Display if the current player is in check
         Text currentPlayerInCheck = new Text((chessDataBoard.currentPlayer().getAlliance() + " in check: \n" + chessDataBoard.currentPlayer().isInCheck()).toUpperCase());
-        currentPlayerInCheck.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/650 * 10));
+        currentPlayerInCheck.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/85));
 
         statusPane.getChildren().addAll(moveHistoryText, currentPlayerInCheck, createStatusPaneButtonBox());
 

@@ -85,25 +85,24 @@ public class ChessMainRevamp extends Application {
     @Override
     public void start(Stage primaryStage) {
         this.mainStage = primaryStage;
-        primaryStage.setWidth(screenWidth / 1.8);
-        primaryStage.setHeight(screenHeight / 1.55);
-
+        primaryStage.setWidth(screenWidth = screenWidth / 1.6);
+        primaryStage.setHeight(screenHeight = screenHeight / 1.4);
         this.gamePlayPane = new BorderPane();
         this.chessGridPane = new GridPane();
         this.statusPane = new VBox();
+
         // add menu, status and chess-grid pane
         MenuBar menuBar = populateMenuBar();
         gamePlayPane.setTop(menuBar);
         gamePlayPane.setRight(statusPane);
-        gamePlayPane.setCenter(chessGridPane);
-        // style chess grid pane
+        gamePlayPane.setCenter(chessGridPane);// style chess grid pane
         chessGridPane.setAlignment(Pos.CENTER);
         chessGridPane.setStyle("-fx-background-color: radial-gradient(radius 180%, darkslategray, derive(black, -30%), derive(darkslategray, 30%));");
         chessGridPane.setVgap(5);
         chessGridPane.setHgap(5);
         // style status pane
         statusPane.setStyle("-fx-border-color: black; -fx-background-color: radial-gradient(radius 180%, black, derive(darkslategray, -30%));");
-        statusPane.setPadding(new Insets(30));
+        statusPane.setPadding(new Insets(30, 30, 0, 30));
         statusPane.setAlignment(Pos.TOP_CENTER);
         statusPane.setSpacing(10);
 
@@ -112,11 +111,11 @@ public class ChessMainRevamp extends Application {
 
         // listeners for window size change
         mainStage.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
-            screenWidth = newSceneWidth.intValue();
+            screenWidth = newSceneWidth.doubleValue();
             if (chessDataBoard != null) Platform.runLater(this::drawChessGridPane);
         });
         mainStage.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> {
-            screenHeight = newSceneHeight.intValue();
+            screenHeight = newSceneHeight.doubleValue();
             if (chessDataBoard != null) Platform.runLater(this::drawChessGridPane);
         });
         mainStage.setOnCloseRequest(e -> System.exit(0));
@@ -171,7 +170,7 @@ public class ChessMainRevamp extends Application {
         CheckMenuItem toggleBoardStatus = new CheckMenuItem("Show board status");
         toggleBoardStatus.setOnAction(event -> {
             boardStatusEnabled = !boardStatusEnabled;
-            drawStatusPane();
+            if (boardStatusEnabled) drawStatusPane();
         });
         toggleBoardStatus.setSelected(true);
 
@@ -410,7 +409,7 @@ public class ChessMainRevamp extends Application {
                 scoreSystem.addUsername(whitePlayerName);
                 scoreSystem.updateHighscore(whitePlayerName, rating);
             } else {
-                whitePlayerName = whitePlayerNameField.getText().replaceAll("\\s","");
+                whitePlayerName = whitePlayerNameField.getText();
                 scoreSystem.addUsername(whitePlayerName);
             }
             if (isBlackAI) {
@@ -532,15 +531,15 @@ public class ChessMainRevamp extends Application {
         if (chessDataBoard.currentPlayer().isInCheckmate()) title = new Text("CHECKMATE - ");
         else if (chessDataBoard.currentPlayer().isInStalemate()) title = new Text("STALEMATE - ");
         else if (checkForDrawByRepetition()) title = new Text("DRAW - ");
-        title.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth/70));
+        title.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth/85));
 
         Text t1 = new Text("UPDATED SCORES: ");
-        t1.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth/70));
+        t1.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth/85));
         Text t2 = new Text(whitePlayerName + ": " + whitePlayerScore + " /");
         Text t3 = new Text(blackPlayerName + ": " + blackPlayerScore + " ");
         int length = t2.getText().length() + t3.getText().length();
-        t2.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, screenWidth/70 - length/50));
-        t3.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, screenWidth/70 - length/50));
+        t2.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, screenWidth/85 - length/50));
+        t3.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, screenWidth/85 - length/50));
         gameOverRoot.getChildren().addAll(title, t1, t2, t3);
 
         //Buttons
@@ -580,7 +579,6 @@ public class ChessMainRevamp extends Application {
         buttonContainer.getChildren().addAll(newGame, newRound, quit);
 
         gameOverRoot.getChildren().addAll(buttonContainer);
-
         gamePlayPane.setBottom(gameOverRoot);
     }
 
@@ -854,7 +852,7 @@ public class ChessMainRevamp extends Application {
      * the tiles on data representation of the board and the gui representation of the board.
      */
     private class ChessTile extends StackPane {
-        private final double TILE_SIZE = ((screenHeight + screenWidth) * 2.6 / (BoardUtils.getWidth() * BoardUtils.getHeight()));
+        private final double TILE_SIZE = ((screenHeight * 6.6) / (BoardUtils.getWidth() * BoardUtils.getHeight()));
         private final Coordinate coordinateId;
 
         private ChessTile(Coordinate coordinateId) {
@@ -1216,7 +1214,7 @@ public class ChessMainRevamp extends Application {
         Platform.runLater(this::drawStatusPane);
         Platform.runLater(this::createGameOverPane);
         //Play game over sound
-        soundClipManager.clear();
+        if (playSound) soundClipManager.clear();
         playSound("GameOverSound.wav",0.2);
     }
 }

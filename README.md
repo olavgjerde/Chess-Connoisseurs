@@ -47,9 +47,13 @@ Works based on Black Widow-chess must use the same license, hence our license is
 
   License: [https://creativecommons.org/licenses/by-sa/3.0/](https://creativecommons.org/licenses/by-sa/3.0/)
   
-+ GUI artwork from developer kit by Burak OZTURK
++ GUI artwork from Free toolbar icons by Aha-soft
 
-  Available on: [https://www.shareicon.net/pack/developer-kit](https://www.shareicon.net/pack/developer-kit)
+  Available on: [https://www.iconfinder.com/iconsets/16x16-free-toolbar-icons](https://www.iconfinder.com/iconsets/16x16-free-toolbar-icons)
+  
+  License: Free for commercial use (Include link to authors website) 
+  
+  For more information see: [https://docs.google.com/spreadsheets/u/1/d/1E8X2_xmJkkoeZwa1HPNG6jT3ytAZlcAgzTDRX0jDF-Q/pubhtml?gid=0&single=true](https://docs.google.com/spreadsheets/u/1/d/1E8X2_xmJkkoeZwa1HPNG6jT3ytAZlcAgzTDRX0jDF-Q/pubhtml?gid=0&single=true)
   
 ##### Music and Sounds
 + DropPieceNew.wav

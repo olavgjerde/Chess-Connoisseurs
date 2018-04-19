@@ -12,7 +12,7 @@ class ResourceLoader {
     final Image BB, BK ,BN, BP, BQ, BR, WB, WK, WN, WP, WQ, WR;
 
     //GUI images
-    final Image hint, redo, undo;
+    final Image hint, undo;
 
     //sounds
     //TODO
@@ -33,7 +33,6 @@ class ResourceLoader {
         WR = new Image("/images/" + "WR" + ".png");
 
         hint = new Image("/images/GUI/hint.png");
-        redo = new Image("/images/GUI/redo.png");
         undo = new Image("/images/GUI/undo.png");
     }
 

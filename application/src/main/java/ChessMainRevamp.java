@@ -226,7 +226,7 @@ public class ChessMainRevamp extends Application {
 
         //Play menu music
         if (playSound && soundClipManager != null) soundClipManager.clear();
-        soundClipManager = new SoundClipManager("MenuMusic.wav", true,0.08, playSound);
+        soundClipManager = new SoundClipManager("MenuMusic.wav", true,0.2, playSound);
 
         //Menu Text
         Text whiteOptionsText = new Text("WHITE PLAYER"), blackOptionsText = new Text("BLACK PLAYER"), aiDifficulty = new Text("AI DIFFICULTY");
@@ -235,9 +235,15 @@ public class ChessMainRevamp extends Application {
         aiDifficulty.setFont(new Font(18));
 
         //Settings root pane
-        VBox settingsRoot = new VBox(new HBox(), new HBox(), new HBox(), aiDifficulty, new HBox());
-        settingsRoot.setAlignment(Pos.CENTER);
+        VBox settingsRoot = new VBox(new HBox(),new HBox(), new HBox(), new HBox(), aiDifficulty, new HBox());
+        settingsRoot.setAlignment(Pos.TOP_CENTER);
         settingsRoot.setSpacing(5);
+
+        // Set background
+        BackgroundImage backgroundImage = new BackgroundImage(resources.BackGround,BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
+                BackgroundSize.DEFAULT);
+        settingsRoot.setBackground(new Background(backgroundImage));
+
         //Center sub panes of root pane
         for (Node x : settingsRoot.getChildren()) {
             if (x instanceof HBox) {
@@ -327,18 +333,30 @@ public class ChessMainRevamp extends Application {
         boardStateOption2.setSelected(false);
         boardStateOption2.setOnAction(e -> playSound("ButtonClick.wav", 1));
 
-        //White option pane
+        // Load images for menu
+        ImageView logo = new ImageView(resources.ConnoisseurChess);
+        ImageView whiteKing = new ImageView(resources.WK);
+        ImageView blackKing = new ImageView(resources.BK);
+        whiteKing.setFitHeight(50);
+        whiteKing.setFitWidth(50);
+        blackKing.setFitHeight(50);
+        blackKing.setFitWidth(50);
+
+        // Title Logo pane
         if (settingsRoot.getChildren().get(0) instanceof HBox)
-            ((HBox) settingsRoot.getChildren().get(0)).getChildren().addAll(whiteOptionsText, whitePlayerNameField, whiteHumanOption, whiteAiOption);
-        //Black option pane
+            ((HBox) settingsRoot.getChildren().get(0)).getChildren().addAll(logo);
+        //White option pane
         if (settingsRoot.getChildren().get(1) instanceof HBox)
-            ((HBox) settingsRoot.getChildren().get(1)).getChildren().addAll(blackOptionsText, blackPlayerNameField, blackHumanOption, blackAiOption);
-        //Board option pane
+            ((HBox) settingsRoot.getChildren().get(1)).getChildren().addAll(whiteKing, whiteOptionsText, whitePlayerNameField, whiteHumanOption, whiteAiOption);
+        //Black option pane
         if (settingsRoot.getChildren().get(2) instanceof HBox)
-            ((HBox) settingsRoot.getChildren().get(2)).getChildren().addAll(boardStateOption1, boardStateOption2);
+            ((HBox) settingsRoot.getChildren().get(2)).getChildren().addAll(blackKing,blackOptionsText, blackPlayerNameField, blackHumanOption, blackAiOption);
+        //Board option pane
+        if (settingsRoot.getChildren().get(3) instanceof HBox)
+            ((HBox) settingsRoot.getChildren().get(3)).getChildren().addAll(boardStateOption1, boardStateOption2);
         //Ai option pane
-        if (settingsRoot.getChildren().get(4) instanceof HBox)
-            ((HBox) settingsRoot.getChildren().get(4)).getChildren().addAll(aiOptionList);
+        if (settingsRoot.getChildren().get(5) instanceof HBox)
+            ((HBox) settingsRoot.getChildren().get(5)).getChildren().addAll(aiOptionList);
         //Sub pane styling
         for (Node x : settingsRoot.getChildren()) {
             if (x instanceof HBox) {
@@ -346,6 +364,8 @@ public class ChessMainRevamp extends Application {
                 ((HBox) x).setSpacing(5);
             }
         }
+        // Set logo padding
+        ((HBox) settingsRoot.getChildren().get(0)).setPadding(new Insets(40,0,15,0));
         //Add confirm button last
         settingsRoot.getChildren().addAll(createStartMenuConfirmButton(whiteOptions, blackOptions, aiOptions, boardStateOptions,
                                                                        whitePlayerNameField, blackPlayerNameField));
@@ -426,7 +446,7 @@ public class ChessMainRevamp extends Application {
             //Set GameMusic
             if (playSound) {
                 soundClipManager.clear();
-                soundClipManager = new SoundClipManager("GameMusic.wav",true,0.05, playSound);
+                soundClipManager = new SoundClipManager("GameMusic.wav",true,0.2, playSound);
             }
 
             mainStage.setScene(gameScene);
@@ -762,7 +782,7 @@ public class ChessMainRevamp extends Application {
     }
 
     /**
-     * Shoes a pop menu where the player can choose what type of piece they want to promote to
+     * Shows a pop menu where the player can choose what type of piece they want to promote to
      * @return PieceType which the user selected
      */
     private PieceType showPromotionMenu() {
@@ -1075,7 +1095,7 @@ public class ChessMainRevamp extends Application {
             }
 
             //Play sound for moving piece
-            playSound("DropPieceNew.wav",0.4);
+            playSound("DropPieceNew.wav",0.8);
         }
 
         //Reset user move related variables that were used for making this move

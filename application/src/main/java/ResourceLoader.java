@@ -9,7 +9,7 @@ import pieces.Piece;
 class ResourceLoader {
 
     //Pieces
-    final Image BB, BK ,BN, BP, BQ, BR, WB, WK, WN, WP, WQ, WR;
+    final Image BB, BK ,BN, BP, BQ, BR, WB, WK, WN, WP, WQ, WR, ConnoisseurChess, BackGround;
 
     //GUI images
     final Image hint, redo, undo;
@@ -35,6 +35,9 @@ class ResourceLoader {
         hint = new Image("/images/GUI/hint.png");
         redo = new Image("/images/GUI/redo.png");
         undo = new Image("/images/GUI/undo.png");
+
+        ConnoisseurChess = new Image("/images/" + "ConnoisseurChess" + ".png");
+        BackGround = new Image("/images/" + "BackGround" + ".png");
     }
 
     Image getPieceImage(Piece p) {

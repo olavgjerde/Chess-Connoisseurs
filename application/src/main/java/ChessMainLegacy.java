@@ -31,7 +31,7 @@ import player.basicAI.*;
 
 import java.util.*;
 
-public class ChessMain extends Application {
+public class ChessMainLegacy extends Application {
     //Main window stage for application
     private Stage mainStage;
     //Scene for main game interaction

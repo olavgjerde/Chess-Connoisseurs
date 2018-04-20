@@ -80,13 +80,13 @@ public class ChessMain extends Application {
     public void init() {
         scoreSystem = new Score();
         scoreSystem.readHighscore();
+        screenWidth = screenWidth / 1.6;
+        screenHeight = screenHeight / 1.4;
     }
 
     @Override
     public void start(Stage primaryStage) {
         this.mainStage = primaryStage;
-        primaryStage.setWidth(screenWidth = screenWidth / 1.6);
-        primaryStage.setHeight(screenHeight = screenHeight / 1.4);
         this.gamePlayPane = new BorderPane();
         this.chessGridPane = new GridPane();
         this.statusPane = new VBox();
@@ -107,14 +107,14 @@ public class ChessMain extends Application {
         statusPane.setSpacing(10);
 
         // construct game scene
-        this.gameScene = new Scene(gamePlayPane);
+        this.gameScene = new Scene(gamePlayPane, screenWidth, screenHeight);
 
         // listeners for window size change
-        mainStage.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
+        gameScene.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
             screenWidth = newSceneWidth.doubleValue();
             if (chessDataBoard != null) Platform.runLater(this::drawChessGridPane);
         });
-        mainStage.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> {
+        gameScene.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> {
             screenHeight = newSceneHeight.doubleValue();
             if (chessDataBoard != null) Platform.runLater(this::drawChessGridPane);
         });
@@ -248,8 +248,8 @@ public class ChessMain extends Application {
 
         //Text fields
         TextField whitePlayerNameField = new TextField("Player1"), blackPlayerNameField = new TextField("Player2");
-        whitePlayerNameField.setMaxWidth(mainStage.getWidth() / 4);
-        blackPlayerNameField.setMaxWidth(mainStage.getWidth() / 4);
+        whitePlayerNameField.setMaxWidth(screenWidth / 4);
+        blackPlayerNameField.setMaxWidth(screenWidth / 4);
 
         //Options for AI
         final ToggleGroup aiOptions = new ToggleGroup();
@@ -364,8 +364,10 @@ public class ChessMain extends Application {
         //Add confirm button last
         settingsRoot.getChildren().addAll(createStartMenuConfirmButton(whiteOptions, blackOptions, aiOptions, boardStateOptions,
                                                                        whitePlayerNameField, blackPlayerNameField));
+
+        Scene startMenuScene = new Scene(settingsRoot, screenWidth, screenHeight);
         //Switch to this start menu scene
-        mainStage.setScene(new Scene(settingsRoot));
+        mainStage.setScene(startMenuScene);
         mainStage.show();
     }
 

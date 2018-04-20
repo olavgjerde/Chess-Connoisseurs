@@ -151,7 +151,7 @@ public class ChessGUI extends Application {
         blackImage.setPreserveRatio(true);
         Text blackOptionText = new Text("BLACK PLAYER");
         blackOptionText.setFont(new Font(30));
-        TextField blackNameField = new TextField("Player1");
+        TextField blackNameField = new TextField("Player2");
         blackNameField.setMaxWidth(sceneWidth / 4);
         // Buttons for black
         final ToggleGroup blackOptions = new ToggleGroup();

@@ -33,6 +33,14 @@ class GameStateManager {
     //List of all the dead pieces
     private List<Piece> takenPieces = new ArrayList<>();
 
+    /**
+     * Constructor for GameStateManager class
+     *
+     * @param isWhiteAI     if white ai is playing
+     * @param isBlackAI     if black ai is playing
+     * @param aiDepth       depth that ai should use for its search
+     * @param boardIsRandom if chess board should be random or not
+     */
     GameStateManager(boolean isWhiteAI, boolean isBlackAI, int aiDepth, boolean boardIsRandom) {
         this.isWhiteAI = isWhiteAI;
         this.isBlackAI = isBlackAI;
@@ -102,21 +110,27 @@ class GameStateManager {
     }
 
     /**
-     * Undoes the current players last move if more than
+     * Undo the current players last move if more than
      * 3 moves have been made on the current board
      */
     void undoMove() {
-        if (boardHistory.size() >= 3) {
-            for (int i = 0; i < 2; i++) {
-                boardHistory.remove(boardHistory.size() - 1);
-                Move lastMove = moveHistory.get(moveHistory.size() - 1);
-                if (lastMove.isAttack()) {
-                    takenPieces.remove(lastMove.getAttackedPiece());
-                }
-                moveHistory.remove(moveHistory.size() - 1);
-            }
-            chessDataBoard = boardHistory.get(boardHistory.size() - 1);
+        if (boardHistory.size() < 3 || moveHistory.isEmpty()) return;
+        for (int i = 0; i < 2; i++) {
+            boardHistory.remove(boardHistory.size() - 1);
+            Move lastMove = moveHistory.get(moveHistory.size() - 1);
+            if (lastMove.isAttack()) takenPieces.remove(lastMove.getAttackedPiece());
+            moveHistory.remove(lastMove);
         }
+        this.chessDataBoard = boardHistory.get(boardHistory.size() - 1);
+    }
+
+    /**
+     * Checks if undo is allowed on the board
+     *
+     * @return true if undo is allowed, false otherwise
+     */
+    boolean undoIsIllegal() {
+        return boardHistory.size() < 3 || (!isBlackAI && !isWhiteAI);
     }
 
     /**
@@ -156,17 +170,6 @@ class GameStateManager {
     }
 
     /**
-     * Runs the AI board evaluation function on the current board
-     *
-     * @return the score the board was given
-     */
-    int getBoardEvaluation() {
-        BoardEvaluator boardEvaluator = new RegularBoardEvaluator(true);
-        int score = boardEvaluator.evaluate(chessDataBoard, 4);
-        return chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE ? score : score * -1;
-    }
-
-    /**
      * @return true if black ai is enabled, false otherwise
      */
     boolean isBlackAI() {
@@ -192,19 +195,19 @@ class GameStateManager {
      *
      * @return true if there are no further moves for the player
      */
-    boolean gameIsOver() {
+    boolean isGameOver() {
         boolean checkmate = chessDataBoard.currentPlayer().isInCheckmate();
         boolean stalemate = chessDataBoard.currentPlayer().isInStalemate();
-        boolean repetition = checkForDrawByRepetition();
+        boolean repetition = isDraw();
         return checkmate || stalemate || repetition;
     }
 
     /**
-     * check if a single board state is repeated within the last 5 turns to check if its a draw
+     * Check if a single board state is repeated within the last 5 turns to check if its a draw
      *
      * @return true if its a draw, false otherwise
      */
-    boolean checkForDrawByRepetition() {
+    boolean isDraw() {
         int counter = 0;
         for (Board b : boardHistory) {
             if (chessDataBoard.toString().equals(b.toString())) counter++;
@@ -214,20 +217,21 @@ class GameStateManager {
     }
 
     /**
-     * Find the tile on the chess Board given a coordinate
-     *
-     * @param coordinate of tile
-     * @return tile on the given coordinate
-     */
-    Tile getTile(Coordinate coordinate) {
-        return chessDataBoard.getTile(coordinate);
-    }
-
-    /**
      * @return the depth the AI is using for its searches
      */
     int getAiDepth() {
         return this.aiDepth;
+    }
+
+    /**
+     * Runs the AI board evaluation function on the current board
+     *
+     * @return the score the board was given
+     */
+    int getBoardEvaluation() {
+        BoardEvaluator boardEvaluator = new RegularBoardEvaluator(true);
+        int score = boardEvaluator.evaluate(chessDataBoard, 4);
+        return chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE ? score : score * -1;
     }
 
     /**
@@ -244,11 +248,12 @@ class GameStateManager {
     }
 
     /**
+     * Get the last move
+     *
      * @return the last move that happened on the board
      */
     Move getLastMove() {
-        if (!moveHistory.isEmpty()) return moveHistory.get(moveHistory.size() - 1);
-        return null;
+        return moveHistory.isEmpty() ? null : moveHistory.get(moveHistory.size() - 1);
     }
 
     /**
@@ -271,12 +276,22 @@ class GameStateManager {
     }
 
     /**
+     * Find the tile on the chess Board given a coordinate
+     *
+     * @param coordinate of tile
+     * @return tile on the given coordinate
+     */
+    Tile getTile(Coordinate coordinate) {
+        return chessDataBoard.getTile(coordinate);
+    }
+
+    /**
      * Makes a list of all legal moves available to the current player from the given board tile
      *
      * @param tile tile on the board
      * @return a list of legal moves available from a given tile
      */
-    Collection<Coordinate> listLegalMovesForPosition(Tile tile) {
+    Collection<Coordinate> getLegalMovesFromTile(Tile tile) {
         List<Move> temp = new ArrayList<>(this.chessDataBoard.currentPlayer().getLegalMovesForPiece(tile.getPiece()));
         List<Coordinate> coordinatesToHighlight = new ArrayList<>();
         for (Move move : temp) {

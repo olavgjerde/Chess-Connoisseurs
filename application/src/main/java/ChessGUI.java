@@ -8,8 +8,6 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -44,7 +42,7 @@ public class ChessGUI extends Application {
     //Game state manager is set after confirming on start menu
     private static GameStateManager gameStateManager;
     //Player movement
-    private Tile startCoordinate, destinationCoordinate;
+    private Tile startTile, destinationTile;
     private Piece userMovedPiece;
     //Hint coordinates
     private Coordinate hintStartCoordinate, hintDestinationCoordinate;
@@ -521,8 +519,8 @@ public class ChessGUI extends Application {
         });
         hintButton.setOnAction(event -> {
             //Empty any ongoing player move
-            startCoordinate = null;
-            destinationCoordinate = null;
+            startTile = null;
+            destinationTile = null;
             userMovedPiece = null;
             //Let AI find "best" move
             Move hintMove = gameStateManager.getHint(4, 1000);
@@ -549,6 +547,7 @@ public class ChessGUI extends Application {
             gameStateManager.undoMove();
             drawChessPane();
         });
+        if (gameStateManager.undoIsIllegal()) backButton.setDisable(true);
 
         //Extra button styling
         HBox buttonContainer = new HBox(backButton, hintButton);
@@ -560,9 +559,10 @@ public class ChessGUI extends Application {
             x.setFocusTraversable(false);
             //Disable buttons
             if ((gameStateManager.isBlackAI() && gameStateManager.isWhiteAI()) ||
-                    !(gameStateManager.isBlackAI() && gameStateManager.isWhiteAI()) ||
-                    gameStateManager.currentPlayerInCheckMate() ||
-                    gameStateManager.currentPlayerInStaleMate()) {
+                    (gameStateManager.currentPlayerAlliance() == Alliance.WHITE && gameStateManager.isWhiteAI() ||
+                            gameStateManager.currentPlayerAlliance() == Alliance.BLACK && gameStateManager.isBlackAI()) ||
+                    gameStateManager.currentPlayerInCheckMate() || gameStateManager.currentPlayerInStaleMate()) {
+
                 x.setDisable(true);
             }
         }
@@ -769,7 +769,7 @@ public class ChessGUI extends Application {
         Text title = new Text("GAME OVER - ");
         if (gameStateManager.currentPlayerInCheckMate()) title = new Text("CHECKMATE - ");
         else if (gameStateManager.currentPlayerInStaleMate()) title = new Text("STALEMATE - ");
-        else if (gameStateManager.checkForDrawByRepetition()) title = new Text("DRAW - ");
+        else if (gameStateManager.isDraw()) title = new Text("DRAW - ");
         title.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth / 85));
         Text t1 = new Text("UPDATED SCORES: ");
         t1.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth / 85));
@@ -845,11 +845,11 @@ public class ChessGUI extends Application {
                     else colorOfTile = Color.rgb(255, 255, 160);
                 }
             }
-            if (availableMoveHighlightEnabled && startCoordinate != null) {
+            if (availableMoveHighlightEnabled && startTile != null) {
                 //Highlight selected tile
-                if (coordinateId.equals(startCoordinate.getTileCoord())) colorOfTile = Color.LIGHTGREEN;
+                if (coordinateId.equals(startTile.getTileCoord())) colorOfTile = Color.LIGHTGREEN;
                 //Highlight legal moves
-                if (gameStateManager.listLegalMovesForPosition(startCoordinate).contains(coordinateId)) {
+                if (gameStateManager.getLegalMovesFromTile(startTile).contains(coordinateId)) {
                     animateTile = true;
                     colorOfTile = Color.LIGHTBLUE;
                     //Highlight attack-moves
@@ -987,38 +987,38 @@ public class ChessGUI extends Application {
                     gameStateManager.currentPlayerAlliance() == Alliance.BLACK && gameStateManager.isBlackAI())
                 return;
 
-            if (startCoordinate == null) {
+            if (startTile == null) {
                 //User select
-                startCoordinate = gameStateManager.getTile(coordinateId);
-                if (startCoordinate.getPiece() != null) {
-                    if (startCoordinate.getPiece().getPieceAlliance() == gameStateManager.currentPlayerAlliance()) {
-                        userMovedPiece = startCoordinate.getPiece();
+                startTile = gameStateManager.getTile(coordinateId);
+                if (startTile.getPiece() != null) {
+                    if (startTile.getPiece().getPieceAlliance() == gameStateManager.currentPlayerAlliance()) {
+                        userMovedPiece = startTile.getPiece();
                         drawChessPane();
                     } else {
-                        startCoordinate = null;
+                        startTile = null;
                     }
                 } else {
-                    startCoordinate = null;
+                    startTile = null;
                 }
-            } else if (startCoordinate.equals(gameStateManager.getTile(inputCoordinate))) {
+            } else if (startTile.equals(gameStateManager.getTile(inputCoordinate))) {
                 //User deselect
-                startCoordinate = null;
+                startTile = null;
                 drawChessPane();
             } else {
                 //User select 'destination'
-                destinationCoordinate = gameStateManager.getTile(inputCoordinate);
+                destinationTile = gameStateManager.getTile(inputCoordinate);
 
                 //User selected own piece as destination; let user switch between own pieces on the fly
-                if (destinationCoordinate.getPiece() != null && userMovedPiece != null) {
-                    if (destinationCoordinate.getPiece().getPieceAlliance() == userMovedPiece.getPieceAlliance()) {
-                        startCoordinate = destinationCoordinate;
-                        destinationCoordinate = null;
+                if (destinationTile.getPiece() != null && userMovedPiece != null) {
+                    if (destinationTile.getPiece().getPieceAlliance() == userMovedPiece.getPieceAlliance()) {
+                        startTile = destinationTile;
+                        destinationTile = null;
                         drawChessPane();
                     }
                 }
 
                 //Attempt move
-                if (destinationCoordinate != null) doHumanMove();
+                if (destinationTile != null) doHumanMove();
             }
         }
     }
@@ -1027,17 +1027,17 @@ public class ChessGUI extends Application {
      * Attempts to make a move based on the user input
      */
     private void doHumanMove() {
-        boolean moved = gameStateManager.makeMove(startCoordinate.getTileCoord(), destinationCoordinate.getTileCoord());
+        boolean moved = gameStateManager.makeMove(startTile.getTileCoord(), destinationTile.getTileCoord());
         //Reset user move related variables that were used for making this move
-        startCoordinate = null;
-        destinationCoordinate = null;
+        startTile = null;
+        destinationTile = null;
         userMovedPiece = null;
         //Redraw
         Platform.runLater(this::drawChessPane);
         //Play sound for moving piece
         if (moved) playSound("DropPieceNew.wav", 1);
 
-        if (gameStateManager.gameIsOver()) gameOverCalculations();
+        if (gameStateManager.isGameOver()) gameOverCalculations();
         else doAiMove();
     }
 
@@ -1055,10 +1055,10 @@ public class ChessGUI extends Application {
                 //Play sound for moving piece
                 if (moved) playSound("DropPieceNew.wav", 1);
 
-                if (gameStateManager.gameIsOver()) {
+                if (gameStateManager.isGameOver()) {
                     gameOverCalculations();
                 } else if (gameStateManager.currentPlayerAlliance() == Alliance.WHITE && gameStateManager.isWhiteAI() ||
-                           gameStateManager.currentPlayerAlliance() == Alliance.BLACK && gameStateManager.isBlackAI()) {
+                        gameStateManager.currentPlayerAlliance() == Alliance.BLACK && gameStateManager.isBlackAI()) {
                     doAiMove();
                 }
                 return null;
@@ -1074,7 +1074,7 @@ public class ChessGUI extends Application {
             @Override
             protected Object call() {
                 int[] scores;
-                if (gameStateManager.currentPlayerInStaleMate() || gameStateManager.checkForDrawByRepetition()) {
+                if (gameStateManager.currentPlayerInStaleMate() || gameStateManager.isDraw()) {
                     scores = scoreSystem.matchRating(whitePlayerName, blackPlayerName, 0.5, 0.5);
                     if (gameStateManager.isWhiteAI() && gameStateManager.isBlackAI()) {
                         scoreSystem.addDraw(whitePlayerName);

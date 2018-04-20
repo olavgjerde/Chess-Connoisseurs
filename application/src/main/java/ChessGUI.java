@@ -55,7 +55,7 @@ public class ChessGUI extends Application {
     //Sound and resource manager
     private static ResourceLoader resources = new ResourceLoader();
     private static SoundClipManager soundClipManager;
-    private final double SOUNDTRACK_VOLUME = 0.2;
+    private final double SOUNDTRACK_VOLUME = 0.14;
 
     @Override
     public void init() {

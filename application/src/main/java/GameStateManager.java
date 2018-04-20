@@ -49,6 +49,8 @@ class GameStateManager {
 
         if (boardIsRandom) this.chessDataBoard = Board.createRandomBoard();
         else this.chessDataBoard = Board.createStandardBoard();
+        //Add first board
+        boardHistory.add(chessDataBoard);
     }
 
     /**

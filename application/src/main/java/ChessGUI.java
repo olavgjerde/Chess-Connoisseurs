@@ -342,15 +342,7 @@ public class ChessGUI extends Application {
         primaryStage.setScene(new Scene(gamePlayPane, screenWidth, screenHeight));
 
         //Set off white AI (in case of human vs white ai / ai vs ai)
-        if (gameStateManager.isWhiteAI()) {
-            new Thread(new Task() {
-                @Override
-                protected Object call() {
-                    doAiMove();
-                    return null;
-                }
-            }).start();
-        }
+        if (gameStateManager.isWhiteAI()) doAiMove();
     }
 
     /**
@@ -797,15 +789,7 @@ public class ChessGUI extends Application {
             //Redraw
             drawChessPane();
             //Makes the first move in new round if AI is white
-            if (gameStateManager.isWhiteAI()) {
-                new Thread(new Task() {
-                    @Override
-                    protected Object call() {
-                        doAiMove();
-                        return null;
-                    }
-                }).start();
-            }
+            if (gameStateManager.isWhiteAI()) doAiMove();
             //Play game-music
             if (playSound && soundClipManager != null) soundClipManager.clear();
             soundClipManager = new SoundClipManager("GameMusic.wav", true, SOUNDTRACK_VOLUME, playSound);

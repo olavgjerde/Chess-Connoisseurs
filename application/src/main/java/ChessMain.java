@@ -87,6 +87,9 @@ public class ChessMain extends Application {
     @Override
     public void start(Stage primaryStage) {
         this.mainStage = primaryStage;
+        mainStage.setWidth(screenWidth);
+        mainStage.setHeight(screenHeight);
+
         this.gamePlayPane = new BorderPane();
         this.chessGridPane = new GridPane();
         this.statusPane = new VBox();
@@ -107,14 +110,14 @@ public class ChessMain extends Application {
         statusPane.setSpacing(10);
 
         // construct game scene
-        this.gameScene = new Scene(gamePlayPane, screenWidth, screenHeight);
+        this.gameScene = new Scene(gamePlayPane);
 
         // listeners for window size change
-        gameScene.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
+        mainStage.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
             screenWidth = newSceneWidth.doubleValue();
             if (chessDataBoard != null) Platform.runLater(this::drawChessGridPane);
         });
-        gameScene.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> {
+        mainStage.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> {
             screenHeight = newSceneHeight.doubleValue();
             if (chessDataBoard != null) Platform.runLater(this::drawChessGridPane);
         });
@@ -122,6 +125,7 @@ public class ChessMain extends Application {
         mainStage.setTitle("Connoisseur Chess");
 
         createStartMenuScene();
+        mainStage.show();
     }
 
     /**
@@ -365,10 +369,10 @@ public class ChessMain extends Application {
         settingsRoot.getChildren().addAll(createStartMenuConfirmButton(whiteOptions, blackOptions, aiOptions, boardStateOptions,
                                                                        whitePlayerNameField, blackPlayerNameField));
 
-        Scene startMenuScene = new Scene(settingsRoot, screenWidth, screenHeight);
         //Switch to this start menu scene
-        mainStage.setScene(startMenuScene);
-        mainStage.show();
+        mainStage.setScene(new Scene(settingsRoot));
+        mainStage.setWidth(screenWidth);
+        mainStage.setHeight(screenHeight);
     }
 
     /**
@@ -436,9 +440,6 @@ public class ChessMain extends Application {
                 boardIsRandom = true;
                 chessDataBoard = Board.createRandomBoard();
             }
-            drawChessGridPane();
-
-            boardHistory.add(chessDataBoard);
 
             //Set GameMusic
             if (playSound) {
@@ -446,7 +447,12 @@ public class ChessMain extends Application {
                 soundClipManager = new SoundClipManager("GameMusic.wav",true,0.2, playSound);
             }
 
+            drawChessGridPane();
+            boardHistory.add(chessDataBoard);
+
             mainStage.setScene(gameScene);
+            mainStage.setWidth(screenWidth);
+            mainStage.setHeight(screenHeight);
 
             //Set off ai vs ai match
             if (isWhiteAI) {

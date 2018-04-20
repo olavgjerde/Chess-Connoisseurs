@@ -62,10 +62,8 @@ public class ChessMain extends Application {
     private boolean isWhiteAI, isBlackAI;
     //Ai alliance (NB! if AI vs AI this will be overwritten)
     private Alliance aiAlliance;
-    //Keep count of board history (board states)
-    private ArrayList<Board> boardHistory = new ArrayList<>();
-    //Move history, even = white moves, odd = black moves
-    private ArrayList<Move> moveHistory = new ArrayList<>();
+    //keeps track of all the previous moves and boards
+    private BoardStateManager boardStateManager;
     //List of all the dead pieces
     private ArrayList<Piece> deadPieces = new ArrayList<>();
     //Toggle random board
@@ -219,8 +217,7 @@ public class ChessMain extends Application {
      */
     private void createStartMenuScene() {
         //Reset last games settings
-        boardHistory.clear();
-        moveHistory.clear();
+        if (boardStateManager != null) boardStateManager.clear();
         deadPieces.clear();
         aiAlliance = null;
         //Stop AI calculation from running in the background
@@ -446,9 +443,8 @@ public class ChessMain extends Application {
                 soundClipManager.clear();
                 soundClipManager = new SoundClipManager("GameMusic.wav",true,0.2, playSound);
             }
-
+            boardStateManager = new BoardStateManager(chessDataBoard);
             drawChessGridPane();
-            boardHistory.add(chessDataBoard);
 
             mainStage.setScene(gameScene);
             mainStage.setWidth(screenWidth);
@@ -534,7 +530,7 @@ public class ChessMain extends Application {
         Text title = new Text("GAME OVER - ");
         if (chessDataBoard.currentPlayer().isInCheckmate()) title = new Text("CHECKMATE - ");
         else if (chessDataBoard.currentPlayer().isInStalemate()) title = new Text("STALEMATE - ");
-        else if (checkForDrawByRepetition()) title = new Text("DRAW - ");
+        else if (boardStateManager.isDraw()) title = new Text("DRAW - ");
         title.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth/85));
 
         Text t1 = new Text("UPDATED SCORES: ");
@@ -558,8 +554,7 @@ public class ChessMain extends Application {
             else chessDataBoard = Board.createStandardBoard();
 
             //Clear info about previous board states
-            boardHistory.clear();
-            moveHistory.clear();
+            boardStateManager.clear();
             deadPieces.clear();
             //Removes game over pane
             gamePlayPane.setBottom(null);
@@ -655,10 +650,11 @@ public class ChessMain extends Application {
 
         //Show the previous moves made
         Text moveHistoryText = new Text("PREVIOUS MOVE: \n");
-        if (!moveHistory.isEmpty()) {
-            moveHistoryText = new Text("PREVIOUS MOVE: \n" + moveHistory.get(moveHistory.size() - 1).toString());
-            if (boardHistory.get(boardHistory.size() - 1).currentPlayer().isInCheckmate()) moveHistoryText.setText(moveHistoryText.getText() + "#");
-            else if (boardHistory.get(boardHistory.size() - 1).currentPlayer().isInCheck()) moveHistoryText.setText(moveHistoryText.getText() + "+");
+        if (boardStateManager.getLastMove() != null) {
+            Move lastMove = boardStateManager.getLastMove();
+            moveHistoryText = new Text("PREVIOUS MOVE: \n" + lastMove.toString());
+            if (chessDataBoard.currentPlayer().isInCheckmate()) moveHistoryText.setText(moveHistoryText.getText() + "#");
+            else if (chessDataBoard.currentPlayer().isInCheck()) moveHistoryText.setText(moveHistoryText.getText() + "+");
         }
         moveHistoryText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth/85));
 
@@ -720,17 +716,14 @@ public class ChessMain extends Application {
         });
         backButton.setOnAction(event -> {
             for (int i = 0; i < 2; i++) {
-                boardHistory.remove(boardHistory.size()-1);
-                Move lastMove = moveHistory.get(moveHistory.size()-1);
-                if (lastMove.isAttack()) {
-                    deadPieces.remove(lastMove.getAttackedPiece());
-                }
-                moveHistory.remove(moveHistory.size()-1);
+                Move lastMove = boardStateManager.getLastMove();
+                if (lastMove.isAttack()) deadPieces.remove(lastMove.getAttackedPiece());
+                boardStateManager.undo();
             }
-            chessDataBoard = boardHistory.get(boardHistory.size()-1);
+            chessDataBoard = boardStateManager.getLastBoardState();
             drawChessGridPane();
         });
-        if (boardHistory.size() < 3 || (!isBlackAI && !isWhiteAI)) {
+        if (boardStateManager.boardHistorySize() < 3 || (!isBlackAI && !isWhiteAI)) {
             backButton.setDisable(true);
         }
 
@@ -864,9 +857,9 @@ public class ChessMain extends Application {
 
             Color colorOfTile = assignTileColor();
             boolean animateTile = false;
-            if (!moveHistory.isEmpty() && lastMoveHighlightEnabled) {
+            if ((boardStateManager.getLastMove() != null) && lastMoveHighlightEnabled) {
                 //Highlight the previous move
-                Move m = moveHistory.get(moveHistory.size()-1);
+                Move m = boardStateManager.getLastMove();
                 Coordinate to = m.getDestinationCoordinate(), from = m.getCurrentCoordinate();
                 if (coordinateId.equals(from)) colorOfTile = Color.rgb(255, 255, 160);
                 else if (coordinateId.equals(to)) {
@@ -1090,8 +1083,7 @@ public class ChessMain extends Application {
             }
 
             chessDataBoard = newBoard.getTransitionBoard();
-            moveHistory.add(move);
-            boardHistory.add(chessDataBoard);
+            boardStateManager.update(chessDataBoard, move);
             if (move.isAttack()) {
                 deadPieces.add(move.getAttackedPiece());
             }
@@ -1135,8 +1127,7 @@ public class ChessMain extends Application {
                 playSound("DropPieceNew.wav",1);
                 //clear out undone boards and moves
                 chessDataBoard = newBoard.getTransitionBoard();
-                moveHistory.add(AIMove);
-                boardHistory.add(chessDataBoard);
+                boardStateManager.update(chessDataBoard, AIMove);
                 if (AIMove.isAttack()) {
                     deadPieces.add(AIMove.getAttackedPiece());
                 }
@@ -1165,21 +1156,8 @@ public class ChessMain extends Application {
     private boolean gameIsOver(){
         boolean checkmate = chessDataBoard.currentPlayer().isInCheckmate();
         boolean stalemate = chessDataBoard.currentPlayer().isInStalemate();
-        boolean repetition = checkForDrawByRepetition();
+        boolean repetition = boardStateManager.isDraw();
         return checkmate || stalemate || repetition;
-    }
-
-    /**
-     * check if a single board state is repeated within the last 5 turns to check if its a draw
-     * @return true if its a draw, false otherwise
-     */
-    private boolean checkForDrawByRepetition(){
-        int counter = 0;
-        for (Board b : boardHistory) {
-            if (chessDataBoard.toString().equals(b.toString())) counter++;
-            if (counter >= 4) return true;
-        }
-        return false;
     }
 
     /**
@@ -1188,7 +1166,7 @@ public class ChessMain extends Application {
     private void gameOverCalculations(){
         int[] scores;
 
-        if(chessDataBoard.currentPlayer().isInStalemate() || checkForDrawByRepetition()){
+        if(chessDataBoard.currentPlayer().isInStalemate() || boardStateManager.isDraw()){
             scores = scoreSystem.matchRating(whitePlayerName, blackPlayerName, 0.5, 0.5);
             if(isWhiteAI && isBlackAI){
                 scoreSystem.addDraw(whitePlayerName);

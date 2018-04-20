@@ -32,7 +32,6 @@ public class Score {
     private HashMap<String, Integer> userRating = new HashMap<>();
     private HashMap<String, Stats> userStats = new HashMap<>();
 
-
     /**
      * takes the old rating of both players, and the result of the game for both players,
      * 1 for win, 0.5 for draw and 0 for loss
@@ -147,7 +146,6 @@ public class Score {
 
     }
 
-
     private void writeHighscore() {
 
         List<Document> highscoreDB = new ArrayList<Document>();
@@ -170,7 +168,6 @@ public class Score {
         client.close();
 
     }
-
 
     private Stats readStats(String stats) {
         String[] temp = stats.split("/");

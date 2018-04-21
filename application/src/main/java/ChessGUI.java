@@ -1002,7 +1002,7 @@ public class ChessGUI extends Application {
                 }
 
                 //Attempt move
-                if (destinationTile != null) doHumanMove();
+                if (destinationTile != null && !gameStateManager.isGameOver()) doHumanMove();
             }
         }
     }
@@ -1057,6 +1057,10 @@ public class ChessGUI extends Application {
         new Thread(new Task() {
             @Override
             protected Object call() {
+                //Play game over sound
+                if (playSound) soundClipManager.clear();
+                playSound("GameOverSound.wav", SOUNDTRACK_VOLUME);
+
                 int[] scores;
                 if (gameStateManager.currentPlayerInStaleMate() || gameStateManager.isDraw()) {
                     scores = scoreSystem.matchRating(whitePlayerName, blackPlayerName, 0.5, 0.5);
@@ -1085,10 +1089,6 @@ public class ChessGUI extends Application {
 
                 Platform.runLater(ChessGUI.this::drawChessPane);
                 Platform.runLater(ChessGUI.this::showGameOverPane);
-                //Play game over sound
-                if (playSound) soundClipManager.clear();
-                playSound("GameOverSound.wav", SOUNDTRACK_VOLUME);
-
                 return null;
             }
         }).start();

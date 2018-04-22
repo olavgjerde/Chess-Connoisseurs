@@ -100,8 +100,8 @@ public class ChessGUI extends Application {
      */
     private void showStartMenu(double sceneWidth, double sceneHeight) {
         VBox menuBox = new VBox();
-        menuBox.setMaxWidth(sceneWidth / 2);
-        menuBox.setMaxHeight(sceneHeight / 2);
+        menuBox.setMaxWidth(sceneWidth / 1.6);
+        menuBox.setMaxHeight(sceneHeight / 1.6);
         menuBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.85); -fx-background-radius: 10;");
         menuBox.setAlignment(Pos.CENTER);
         menuBox.setSpacing(10);
@@ -125,7 +125,7 @@ public class ChessGUI extends Application {
         Text whiteOptionText = new Text("WHITE PLAYER");
         whiteOptionText.setFont(new Font(30));
         TextField whiteNameField = new TextField("Player1");
-        whiteNameField.setMaxWidth(sceneWidth / 4);
+        whiteNameField.setMaxWidth(menuBox.getMaxWidth() / 4);
         // Buttons for white
         final ToggleGroup whiteOptions = new ToggleGroup();
         RadioButton whiteHumanOption = new RadioButton("Human");
@@ -149,7 +149,7 @@ public class ChessGUI extends Application {
         Text blackOptionText = new Text("BLACK PLAYER");
         blackOptionText.setFont(new Font(30));
         TextField blackNameField = new TextField("Player2");
-        blackNameField.setMaxWidth(sceneWidth / 4);
+        blackNameField.setMaxWidth(menuBox.getMaxWidth() / 4);
         // Buttons for black
         final ToggleGroup blackOptions = new ToggleGroup();
         RadioButton blackHumanOption = new RadioButton("Human");
@@ -186,19 +186,19 @@ public class ChessGUI extends Application {
         aiOptionBox.setSpacing(5);
         final ToggleGroup aiOptions = new ToggleGroup();
         String[] levelPrefix = {"Easy", "Intermediate", "Expert", "Experimental"};
-        List<RadioButton> difficulityButtons = new ArrayList<>();
+        List<RadioButton> difficultyButtons = new ArrayList<>();
         for (int i = 0; i < levelPrefix.length; i++) {
-            difficulityButtons.add(new RadioButton(levelPrefix[i]));
-            if (levelPrefix[i].equals("Intermediate")) difficulityButtons.get(i).setSelected(true);
-            difficulityButtons.get(i).setUserData(i + 2);
-            difficulityButtons.get(i).setDisable(true);
-            difficulityButtons.get(i).setToggleGroup(aiOptions);
-            difficulityButtons.get(i).setOnAction(event -> playSound("ButtonClick.wav", 1));
+            difficultyButtons.add(new RadioButton(levelPrefix[i]));
+            if (levelPrefix[i].equals("Intermediate")) difficultyButtons.get(i).setSelected(true);
+            difficultyButtons.get(i).setUserData(i + 2);
+            difficultyButtons.get(i).setDisable(true);
+            difficultyButtons.get(i).setToggleGroup(aiOptions);
+            difficultyButtons.get(i).setOnAction(event -> playSound("ButtonClick.wav", 1));
         }
         Text aiDifficulty = new Text("AI DIFFICULTY");
         aiDifficulty.setFont(new Font(18));
         // Add to aiOptionBox then to root pane for scene
-        aiOptionBox.getChildren().addAll(difficulityButtons);
+        aiOptionBox.getChildren().addAll(difficultyButtons);
         menuBox.getChildren().addAll(aiDifficulty, aiOptionBox);
 
         // Button events
@@ -206,27 +206,27 @@ public class ChessGUI extends Application {
             playSound("ButtonClick.wav", 1);
             whiteNameField.setDisable(false);
             whiteNameField.setText("Player1");
-            for (RadioButton x : difficulityButtons)
+            for (RadioButton x : difficultyButtons)
                 if (!blackAiOption.isSelected()) x.setDisable(true);
         });
         blackHumanOption.setOnAction(e -> {
             playSound("ButtonClick.wav", 1);
             blackNameField.setDisable(false);
             blackNameField.setText("Player2");
-            for (RadioButton x : difficulityButtons)
+            for (RadioButton x : difficultyButtons)
                 if (!whiteAiOption.isSelected()) x.setDisable(true);
         });
         whiteAiOption.setOnAction(e -> {
             playSound("ButtonClick.wav", 1);
             whiteNameField.setDisable(true);
             whiteNameField.setText("CPU");
-            for (RadioButton x : difficulityButtons) x.setDisable(false);
+            for (RadioButton x : difficultyButtons) x.setDisable(false);
         });
         blackAiOption.setOnAction(e -> {
             playSound("ButtonClick.wav", 1);
             blackNameField.setDisable(true);
             blackNameField.setText("CPU");
-            for (RadioButton x : difficulityButtons) x.setDisable(false);
+            for (RadioButton x : difficultyButtons) x.setDisable(false);
         });
         boardStateOption1.setOnAction(event -> playSound("ButtonClick.wav", 1));
         boardStateOption2.setOnAction(event -> playSound("ButtonClick.wav", 1));
@@ -261,11 +261,11 @@ public class ChessGUI extends Application {
      */
     private void spawnBackgroundCircle(Pane circleContainer) {
         Color[] colors = {
-                new Color(0.2,0.5,0.8,1.0).saturate().brighter().brighter(),
-                new Color(0.3,0.2,0.7,1.0).saturate().brighter().brighter(),
-                new Color(0.8,0.3,0.9,1.0).saturate().brighter().brighter(),
-                new Color(0.4,0.3,0.9,1.0).saturate().brighter().brighter(),
-                new Color(0.2,0.5,0.7,1.0).saturate().brighter().brighter(),};
+                new Color(0.1,0.6,0.5,1.0).saturate().brighter().brighter(),
+                new Color(0.2,0.3,0.3,1.0).saturate().brighter().brighter(),
+                new Color(0.4,0.4,0.4,1.0).saturate().brighter().brighter(),
+                new Color(0.2,0.4,0.4,1.0).saturate().brighter().brighter(),
+                new Color(0.1,0.6,0.3,1.0).saturate().brighter().brighter()};
         Circle circle = new Circle(0);
         circle.setManaged(false);
         //Pick randomly from color array

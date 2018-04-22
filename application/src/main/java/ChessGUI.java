@@ -816,70 +816,15 @@ public class ChessGUI extends Application {
 
         private ChessTile(Coordinate coordinateId) {
             this.coordinateId = coordinateId;
-
-            Color colorOfTile = assignTileColor();
-            boolean animateTile = false;
-            if (gameStateManager.getLastMove() != null && lastMoveHighlightEnabled) {
-                //Highlight the previous move
-                Move m = gameStateManager.getLastMove();
-                Coordinate to = m.getDestinationCoordinate(), from = m.getCurrentCoordinate();
-                if (coordinateId.equals(from)) colorOfTile = Color.rgb(255, 255, 160);
-                else if (coordinateId.equals(to)) {
-                    if (m.isAttack()) colorOfTile = Color.rgb(255, 155, 155);
-                    else colorOfTile = Color.rgb(255, 255, 160);
-                }
-            }
-            if (availableMoveHighlightEnabled && startTile != null) {
-                //Highlight selected tile
-                if (coordinateId.equals(startTile.getTileCoord())) colorOfTile = Color.LIGHTGREEN;
-                //Highlight legal moves
-                if (gameStateManager.getLegalMovesFromTile(startTile).contains(coordinateId)) {
-                    animateTile = true;
-                    colorOfTile = Color.LIGHTBLUE;
-                    //Highlight attack-moves
-                    if (gameStateManager.getTile(coordinateId).getPiece() != null) {
-                        if (gameStateManager.getTile(coordinateId).getPiece().getPieceAlliance() !=
-                                gameStateManager.currentPlayerAlliance()) {
-                            colorOfTile = Color.rgb(225, 215, 240);
-                        }
-                    }
-                }
-            } else if (hintStartCoordinate != null && hintDestinationCoordinate != null) {
-                //Highlight hint move
-                if (coordinateId.equals(hintStartCoordinate)) colorOfTile = Color.LIGHTGREEN;
-                else if (coordinateId.equals(hintDestinationCoordinate)) {
-                    animateTile = true;
-                    colorOfTile = Color.GREENYELLOW;
-                } else if (coordinateId.equals(hintDestinationCoordinate)) colorOfTile = Color.GREENYELLOW;
-            }
-
-            Rectangle rectangle = new Rectangle(TILE_SIZE, TILE_SIZE, colorOfTile);
+            
+            Rectangle rectangle = new Rectangle(TILE_SIZE, TILE_SIZE, assignTileColor());
             rectangle.setBlendMode(BlendMode.HARD_LIGHT);
             rectangle.setArcHeight(12);
             rectangle.setArcWidth(12);
-            //Add fade animation to tile
-            if (animateTile) {
-                FadeTransition fade = new FadeTransition(Duration.millis(1300), rectangle);
-                fade.setFromValue(1.0);
-                fade.setToValue(0.6);
-                fade.setCycleCount(Timeline.INDEFINITE);
-                fade.setAutoReverse(true);
-                fade.play();
-                //Add rotation animation to tile
-                if (hintStartCoordinate != null && hintDestinationCoordinate != null) {
-                    RotateTransition rotate = new RotateTransition(Duration.millis(2300), rectangle);
-                    rotate.setByAngle(180);
-                    rotate.setCycleCount(Timeline.INDEFINITE);
-                    rotate.setAutoReverse(true);
-                    rotate.play();
-                }
-            }
-
+            assignTileAnimation(rectangle);
             this.getChildren().add(rectangle);
-
             assignTileLabel();
             assignTilePieceImage(gameStateManager.getTile(coordinateId));
-
             this.setOnMouseClicked(e -> onClickHandler(coordinateId));
         }
 
@@ -897,7 +842,7 @@ public class ChessGUI extends Application {
         }
 
         /**
-         * assign labels to the tile, should only be called when we are at a tile that is in the rightmost column or the lower row
+         * Assign labels to the tile, should only be called when we are at a tile that is in the rightmost column or the lower row
          */
         private void assignTileLabel() {
             Text xLabel = new Text(""), yLabel = new Text("");
@@ -957,7 +902,55 @@ public class ChessGUI extends Application {
          * Assign a color to the tile based on its coordinates
          */
         private Color assignTileColor() {
-            return (coordinateId.getY() % 2 == coordinateId.getX() % 2) ? Color.LIGHTGRAY : Color.DARKGREY;
+            Color tileColor = (coordinateId.getY() % 2 == coordinateId.getX() % 2) ? Color.LIGHTGRAY : Color.DARKGREY;
+
+            Move lastMove = gameStateManager.getLastMove();
+            if (lastMoveHighlightEnabled && lastMove != null) {
+                Coordinate from = lastMove.getCurrentCoordinate(), to = lastMove.getDestinationCoordinate();
+                if (coordinateId.equals(from)) tileColor = Color.rgb(255, 255, 160);
+                else if (coordinateId.equals(to)) {
+                    if (lastMove.isAttack()) tileColor = Color.rgb(255, 155, 155);
+                    else tileColor = Color.rgb(255, 255, 160);
+                }
+            }
+            if (availableMoveHighlightEnabled && startTile != null) {
+                if (coordinateId.equals(startTile.getTileCoord())) tileColor = Color.LIGHTGREEN;
+                else if (gameStateManager.getLegalMovesFromTile(startTile).contains(coordinateId)) {
+                    tileColor = Color.LIGHTBLUE;
+                    Piece pieceAtCoordinate = gameStateManager.getTile(coordinateId).getPiece();
+                    if (pieceAtCoordinate != null && pieceAtCoordinate.getPieceAlliance() != gameStateManager.currentPlayerAlliance()) {
+                        tileColor = Color.rgb(225, 215, 240);
+                    }
+                }
+            } else if (hintStartCoordinate != null && hintDestinationCoordinate != null) {
+                if (coordinateId.equals(hintStartCoordinate)) tileColor = Color.LIGHTGREEN;
+                else if (coordinateId.equals(hintDestinationCoordinate)) tileColor = Color.GREENYELLOW;
+            }
+
+            return tileColor;
+        }
+
+        /**
+         * Add an animation to the tile based on its colors
+         * @param rectangle to add animation to
+         */
+        private void assignTileAnimation(Rectangle rectangle) {
+            if (rectangle.getFill().equals(Color.LIGHTBLUE) || rectangle.getFill().equals(Color.rgb(225, 215, 240)) ||
+                rectangle.getFill().equals(Color.GREENYELLOW)) {
+                FadeTransition fade = new FadeTransition(Duration.millis(1300), rectangle);
+                fade.setFromValue(1.0);
+                fade.setToValue(0.6);
+                fade.setCycleCount(Timeline.INDEFINITE);
+                fade.setAutoReverse(true);
+                fade.play();
+                if (this.coordinateId.equals(hintDestinationCoordinate)) {
+                    RotateTransition rotate = new RotateTransition(Duration.millis(2300), rectangle);
+                    rotate.setByAngle(180);
+                    rotate.setCycleCount(Timeline.INDEFINITE);
+                    rotate.setAutoReverse(true);
+                    rotate.play();
+                }
+            }
         }
 
         /**

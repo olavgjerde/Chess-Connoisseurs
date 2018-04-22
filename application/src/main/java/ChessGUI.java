@@ -4,8 +4,6 @@ import javafx.animation.RotateTransition;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.binding.DoubleBinding;
-import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -331,15 +329,12 @@ public class ChessGUI extends Application {
         gamePlayPane.setRight(drawStatusPane());
         gamePlayPane.setLeft(drawTakenPiecesPane());
         gamePlayPane.setCenter(drawChessPane());
-
         //Play game music
         if (playSound) {
             soundClipManager.clear();
             soundClipManager = new SoundClipManager("GameMusic.wav", true, SOUNDTRACK_VOLUME, playSound);
         }
-
         primaryStage.setScene(new Scene(gamePlayPane, screenWidth, screenHeight));
-
         //Set off white AI (in case of human vs white ai / ai vs ai)
         if (gameStateManager.isWhiteAI()) doAiMove();
     }
@@ -572,10 +567,6 @@ public class ChessGUI extends Application {
         chessGridPane.setStyle("-fx-background-color: radial-gradient(radius 180%, darkslategray, derive(black, -30%), derive(darkslategray, 30%));");
         chessGridPane.setVgap(5);
         chessGridPane.setHgap(5);
-        //Use setCenter to update root pane when used as a redraw method
-        this.gamePlayPane.setCenter(chessGridPane);
-        //Height property of GridPane which holds all the ChessTiles
-        ReadOnlyDoubleProperty heightProperty = chessGridPane.heightProperty();
         for (int y = 0; y < BoardUtils.getHeight(); y++) {
             for (int x = 0; x < BoardUtils.getWidth(); x++) {
                 int gridPaneX = x, gridPaneY = y;
@@ -584,12 +575,14 @@ public class ChessGUI extends Application {
                     gridPaneX = BoardUtils.getWidth() - (x + 1);
                     gridPaneY = BoardUtils.getHeight() - (y + 1);
                 }
-                chessGridPane.add(new ChessTile(new Coordinate(x, y), heightProperty), gridPaneX, gridPaneY);
+                chessGridPane.add(new ChessTile(new Coordinate(x, y)), gridPaneX, gridPaneY);
             }
         }
         //Update the other panes when redrawing chess pane
         drawStatusPane();
         drawTakenPiecesPane();
+        //Use setCenter to update root pane when used as a redraw method
+        this.gamePlayPane.setCenter(chessGridPane);
         return chessGridPane;
     }
 
@@ -811,22 +804,17 @@ public class ChessGUI extends Application {
      * the tiles on data representation of the board and the gui representation of the board.
      */
     private class ChessTile extends StackPane {
-        private final DoubleBinding heightProperty;
+        final double TILE_SIZE = ((screenHeight * 6.6) / (BoardUtils.getWidth() * BoardUtils.getHeight()));
         private final Coordinate coordinateId;
 
         /**
          * Constructor for ChessTile class
          *
          * @param coordinateId   coordinate of this tile on a chess board
-         * @param heightProperty height-property of the pane which holds the ChessTile as a child node
          */
-        private ChessTile(Coordinate coordinateId, ReadOnlyDoubleProperty heightProperty) {
+        private ChessTile(Coordinate coordinateId) {
             this.coordinateId = coordinateId;
-            this.heightProperty = heightProperty.divide(BoardUtils.getHeight() + 1);
-
-            Rectangle rectangle = new Rectangle(0, 0, assignTileColor());
-            rectangle.heightProperty().bind(this.heightProperty);
-            rectangle.widthProperty().bind(this.heightProperty);
+            Rectangle rectangle = new Rectangle(TILE_SIZE, TILE_SIZE, assignTileColor());
             rectangle.setBlendMode(BlendMode.HARD_LIGHT);
             rectangle.setArcHeight(12);
             rectangle.setArcWidth(12);
@@ -845,7 +833,7 @@ public class ChessGUI extends Application {
         private void assignTilePieceImage(Tile tile) {
             if (tile.isEmpty()) return;
             ImageView icon = new ImageView(resources.getPieceImage(tile.getPiece()));
-            icon.fitHeightProperty().bind(heightProperty.subtract(30));
+            icon.setFitHeight(TILE_SIZE - 30);
             icon.setPreserveRatio(true);
             this.getChildren().add(icon);
         }
@@ -854,7 +842,6 @@ public class ChessGUI extends Application {
          * Assign labels to the tile, should only be called when we are at a tile that is in the rightmost column or the lower row
          */
         private void assignTileLabel() {
-            final double TEXT_SIZE = ((screenHeight * 6.6) / (BoardUtils.getWidth() * BoardUtils.getHeight()));
             Text xLabel = new Text(""), yLabel = new Text("");
 
             //if human plays black against CPU we flip
@@ -880,20 +867,20 @@ public class ChessGUI extends Application {
                 }
             }
 
-            yLabel.setFont(Font.font("Verdana", FontWeight.NORMAL, TEXT_SIZE / 50 * 10));
-            xLabel.setFont(Font.font("Verdana", FontWeight.NORMAL, TEXT_SIZE / 50 * 10));
+            yLabel.setFont(Font.font("Verdana", FontWeight.NORMAL, TILE_SIZE / 50 * 10));
+            xLabel.setFont(Font.font("Verdana", FontWeight.NORMAL, TILE_SIZE / 50 * 10));
 
-            yLabel.setTranslateY(-TEXT_SIZE / 3 - 3);
-            yLabel.setTranslateX(-TEXT_SIZE / 3 - 3);
-            xLabel.setTranslateY(TEXT_SIZE / 3 + 3);
-            xLabel.setTranslateX(TEXT_SIZE / 3 + 3);
+            yLabel.setTranslateY(-TILE_SIZE / 3 - 3);
+            yLabel.setTranslateX(-TILE_SIZE / 3 - 3);
+            xLabel.setTranslateY(TILE_SIZE / 3 + 3);
+            xLabel.setTranslateX(TILE_SIZE / 3 + 3);
 
             //if the board is really small
-            if (TEXT_SIZE < 50) {
-                yLabel.setTranslateY(-TEXT_SIZE / 3 + 3);
-                yLabel.setTranslateX(-TEXT_SIZE / 3 + 3);
-                xLabel.setTranslateY(TEXT_SIZE / 3 - 3);
-                xLabel.setTranslateX(TEXT_SIZE / 3 - 3);
+            if (TILE_SIZE < 50) {
+                yLabel.setTranslateY(-TILE_SIZE / 3 + 3);
+                yLabel.setTranslateX(-TILE_SIZE / 3 + 3);
+                xLabel.setTranslateY(TILE_SIZE / 3 - 3);
+                xLabel.setTranslateX(TILE_SIZE / 3 - 3);
             }
 
             if (assignTileColor() == Color.LIGHTGRAY) {
@@ -903,7 +890,6 @@ public class ChessGUI extends Application {
                 xLabel.setFill(Color.LIGHTGRAY);
                 yLabel.setFill(Color.LIGHTGRAY);
             }
-
             this.getChildren().addAll(xLabel, yLabel);
         }
 

@@ -1,7 +1,5 @@
 import board.*;
-import javafx.animation.FadeTransition;
-import javafx.animation.RotateTransition;
-import javafx.animation.Timeline;
+import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -31,6 +29,7 @@ import pieces.Piece.PieceType;
 import player.Score;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class ChessGUI extends Application {
     private static double screenWidth = Screen.getPrimary().getBounds().getWidth(), screenHeight = Screen.getPrimary().getBounds().getHeight();
@@ -100,11 +99,12 @@ public class ChessGUI extends Application {
      * Shows the start menu for the application
      */
     private void showStartMenu(double sceneWidth, double sceneHeight) {
-        VBox root = new VBox();
-        root.setStyle("-fx-background-color: radial-gradient(center 50% 50% , radius 100% , #ffebcd, #008080);");
-        root.setAlignment(Pos.CENTER);
-        root.setSpacing(10);
-        Scene startMenu = new Scene(root, sceneWidth, sceneHeight);
+        VBox menuBox = new VBox();
+        menuBox.setMaxWidth(sceneWidth / 2);
+        menuBox.setMaxHeight(sceneHeight / 2);
+        menuBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.75); -fx-background-radius: 10;");
+        menuBox.setAlignment(Pos.CENTER);
+        menuBox.setSpacing(10);
 
         //Play menu music
         if (playSound && soundClipManager != null) soundClipManager.clear();
@@ -113,7 +113,7 @@ public class ChessGUI extends Application {
         // Add logo
         ImageView logo = new ImageView(resources.ConnoisseurChess);
         logo.setStyle("-fx-alignment: centre;");
-        root.getChildren().add(logo);
+        menuBox.getChildren().add(logo);
 
         // Add white player fields
         HBox whiteOptionBox = new HBox();
@@ -137,7 +137,7 @@ public class ChessGUI extends Application {
         whiteAiOption.setUserData(true);
         // Add to whiteOptionBox then to root pane for the scene
         whiteOptionBox.getChildren().addAll(whiteImage, whiteOptionText, whiteNameField, whiteHumanOption, whiteAiOption);
-        root.getChildren().add(whiteOptionBox);
+        menuBox.getChildren().add(whiteOptionBox);
 
         // Add black player fields
         HBox blackOptionBox = new HBox();
@@ -161,7 +161,7 @@ public class ChessGUI extends Application {
         blackAiOption.setUserData(true);
         // Add to blackOptionBox then to root pane for the scene
         blackOptionBox.getChildren().addAll(blackImage, blackOptionText, blackNameField, blackHumanOption, blackAiOption);
-        root.getChildren().add(blackOptionBox);
+        menuBox.getChildren().add(blackOptionBox);
 
         // Add buttons for the starting board state
         HBox boardStateBox = new HBox();
@@ -178,7 +178,7 @@ public class ChessGUI extends Application {
         boardStateOption2.setSelected(false);
         // Add to boardStateBox then to root pane for scene
         boardStateBox.getChildren().addAll(boardStateOption1, boardStateOption2);
-        root.getChildren().add(boardStateBox);
+        menuBox.getChildren().add(boardStateBox);
 
         // Create and add difficulty buttons
         HBox aiOptionBox = new HBox();
@@ -199,7 +199,7 @@ public class ChessGUI extends Application {
         aiDifficulty.setFont(new Font(18));
         // Add to aiOptionBox then to root pane for scene
         aiOptionBox.getChildren().addAll(difficulityButtons);
-        root.getChildren().addAll(aiDifficulty, aiOptionBox);
+        menuBox.getChildren().addAll(aiDifficulty, aiOptionBox);
 
         // Button events
         whiteHumanOption.setOnAction(e -> {
@@ -231,8 +231,76 @@ public class ChessGUI extends Application {
         boardStateOption1.setOnAction(event -> playSound("ButtonClick.wav", 1));
         boardStateOption2.setOnAction(event -> playSound("ButtonClick.wav", 1));
 
-        root.getChildren().add(createStartMenuConfirmButton(whiteOptions, blackOptions, aiOptions, boardStateOptions, whiteNameField, blackNameField));
+        menuBox.getChildren().add(createStartMenuConfirmButton(whiteOptions, blackOptions, aiOptions, boardStateOptions, whiteNameField, blackNameField));
+
+        StackPane root = new StackPane(createStartMenuBackground(), menuBox);
+        Scene startMenu = new Scene(root, sceneWidth, sceneHeight);
         primaryStage.setScene(startMenu);
+    }
+
+    /**
+     * Creates a pane with floating circles
+     * (Example use: background for a start menu)
+     *
+     * @return constructed pane
+     */
+    private Pane createStartMenuBackground() {
+        final int CIRCLE_COUNT = 800;
+        Pane backgroundContainer = new Pane();
+        backgroundContainer.setStyle("-fx-background-color: radial-gradient(center 50% 50% , radius 100% , #ffebcd, #008080);");
+        for (int i = 0; i < CIRCLE_COUNT; i++) {
+            spawnBackgroundCircle(backgroundContainer);
+        }
+        return backgroundContainer;
+    }
+
+    /**
+     * Spawns a circle on the pane given as parameter, with different animations and colors
+     * Respawn a new circle if animation has ended
+     * @param circleContainer pane which should contain the circles
+     */
+    private void spawnBackgroundCircle(Pane circleContainer) {
+        Color[] colors = {
+                new Color(0.2,0.5,0.8,1.0).saturate().brighter().brighter(),
+                new Color(0.3,0.2,0.7,1.0).saturate().brighter().brighter(),
+                new Color(0.8,0.3,0.9,1.0).saturate().brighter().brighter(),
+                new Color(0.4,0.3,0.9,1.0).saturate().brighter().brighter(),
+                new Color(0.2,0.5,0.7,1.0).saturate().brighter().brighter(),};
+        Circle circle = new Circle(0);
+        circle.setManaged(false);
+        //Pick randomly from color array
+        circle.setFill(colors[ThreadLocalRandom.current().nextInt(colors.length)]);
+        //Take a random position within window size
+        circle.setCenterX(ThreadLocalRandom.current().nextDouble(screenWidth));
+        circle.setCenterY(ThreadLocalRandom.current().nextDouble(screenHeight));
+        //Add to pane
+        circleContainer.getChildren().add(circle);
+        //Add animation
+        Timeline timeline = new Timeline(
+                new KeyFrame(
+                        Duration.ZERO,
+                        new KeyValue(circle.radiusProperty(), 0),
+                        new KeyValue(circle.centerXProperty(), circle.getCenterX()),
+                        new KeyValue(circle.centerYProperty(), circle.getCenterY()),
+                        new KeyValue(circle.opacityProperty(), 0)),
+                new KeyFrame(
+                        Duration.seconds(5 + ThreadLocalRandom.current().nextDouble() * 5),
+                        new KeyValue(circle.opacityProperty(), ThreadLocalRandom.current().nextDouble()),
+                        new KeyValue(circle.radiusProperty(), ThreadLocalRandom.current().nextDouble() * 20)),
+                new KeyFrame(
+                        Duration.seconds(10 + ThreadLocalRandom.current().nextDouble() * 20),
+                        new KeyValue(circle.radiusProperty(), 0),
+                        new KeyValue(circle.centerXProperty(), ThreadLocalRandom.current().nextDouble() * screenWidth),
+                        new KeyValue(circle.centerYProperty(), ThreadLocalRandom.current().nextDouble() * screenHeight),
+                        new KeyValue(circle.opacityProperty(), 0))
+        );
+        timeline.setCycleCount(1);
+        timeline.setOnFinished(event -> {
+            circleContainer.getChildren().remove(circle);
+            spawnBackgroundCircle(circleContainer);
+        });
+        //Start animation
+        timeline.play();
     }
 
     /**

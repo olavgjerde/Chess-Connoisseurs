@@ -102,7 +102,7 @@ public class ChessGUI extends Application {
         VBox menuBox = new VBox();
         menuBox.setMaxWidth(sceneWidth / 2);
         menuBox.setMaxHeight(sceneHeight / 2);
-        menuBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.75); -fx-background-radius: 10;");
+        menuBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.85); -fx-background-radius: 10;");
         menuBox.setAlignment(Pos.CENTER);
         menuBox.setSpacing(10);
 
@@ -247,7 +247,7 @@ public class ChessGUI extends Application {
     private Pane createStartMenuBackground() {
         final int CIRCLE_COUNT = 800;
         Pane backgroundContainer = new Pane();
-        backgroundContainer.setStyle("-fx-background-color: radial-gradient(center 50% 50% , radius 100% , #ffebcd, #008080);");
+        backgroundContainer.setStyle("-fx-background-color: radial-gradient(center 50% 50% , radius 80% , darkslategray, black);");
         for (int i = 0; i < CIRCLE_COUNT; i++) {
             spawnBackgroundCircle(backgroundContainer);
         }

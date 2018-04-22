@@ -101,7 +101,7 @@ public class ChessGUI extends Application {
     private void showStartMenu(double sceneWidth, double sceneHeight) {
         VBox menuBox = new VBox();
         menuBox.setMaxWidth(sceneWidth / 1.6);
-        menuBox.setMaxHeight(sceneHeight / 1.6);
+        menuBox.setMaxHeight(sceneHeight / 1.5);
         menuBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.85); -fx-background-radius: 10;");
         menuBox.setAlignment(Pos.CENTER);
         menuBox.setSpacing(10);
@@ -123,7 +123,7 @@ public class ChessGUI extends Application {
         whiteImage.setFitHeight(50);
         whiteImage.setPreserveRatio(true);
         Text whiteOptionText = new Text("WHITE PLAYER");
-        whiteOptionText.setFont(new Font(30));
+        whiteOptionText.setFont(new Font("Arial", sceneWidth/60));
         TextField whiteNameField = new TextField("Player1");
         whiteNameField.setMaxWidth(menuBox.getMaxWidth() / 4);
         // Buttons for white
@@ -147,7 +147,7 @@ public class ChessGUI extends Application {
         blackImage.setFitHeight(50);
         blackImage.setPreserveRatio(true);
         Text blackOptionText = new Text("BLACK PLAYER");
-        blackOptionText.setFont(new Font(30));
+        blackOptionText.setFont(new Font("Arial", sceneWidth/60));
         TextField blackNameField = new TextField("Player2");
         blackNameField.setMaxWidth(menuBox.getMaxWidth() / 4);
         // Buttons for black

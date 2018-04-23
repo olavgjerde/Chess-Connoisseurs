@@ -8,7 +8,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.effect.BlendMode;
+import javafx.scene.effect.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -40,6 +40,8 @@ public class ChessGUI extends Application {
     //Player movement
     private Tile startTile, destinationTile;
     private Piece userMovedPiece;
+    //For piece animation (toggles one animation per finished move)
+    private static boolean playMoveAnimation;
     //Hint coordinates
     private Coordinate hintStartCoordinate, hintDestinationCoordinate;
     //Information toggles
@@ -491,7 +493,7 @@ public class ChessGUI extends Application {
      */
     private VBox drawStatusPane() {
         VBox statusPane = new VBox();
-        statusPane.setStyle("-fx-border-color: black; -fx-background-color: radial-gradient(radius 180%, black, derive(darkslategray, -30%));");
+        statusPane.setStyle("-fx-border-color: black; -fx-background-color: radial-gradient(center 50% 50%, radius 140%, derive(darkslategray, -20%), black)");
         statusPane.setPadding(new Insets(30, 30, 0, 30));
         statusPane.setAlignment(Pos.TOP_CENTER);
         statusPane.setSpacing(10);
@@ -632,7 +634,7 @@ public class ChessGUI extends Application {
     private GridPane drawChessPane() {
         GridPane chessGridPane = new GridPane();
         chessGridPane.setAlignment(Pos.CENTER);
-        chessGridPane.setStyle("-fx-background-color: radial-gradient(radius 180%, darkslategray, derive(black, -30%), derive(darkslategray, 30%));");
+        chessGridPane.setStyle("-fx-background-color: radial-gradient(center 50% 50% , radius 80% , darkslategray, black);");
         chessGridPane.setVgap(5);
         chessGridPane.setHgap(5);
         for (int y = 0; y < BoardUtils.getHeight(); y++) {
@@ -659,7 +661,7 @@ public class ChessGUI extends Application {
      */
     private FlowPane drawTakenPiecesPane() {
         FlowPane basePane = new FlowPane();
-        basePane.setStyle("-fx-border-color: black; -fx-background-color: radial-gradient(radius 180%, black, derive(darkslategray, -30%));");
+        basePane.setStyle("-fx-border-color: black; -fx-background-color: radial-gradient(center 50% 50%, radius 120%, derive(darkslategray, -20%), black)");
         basePane.setPrefWrapLength(screenWidth / 25 * 2);
         basePane.setAlignment(Pos.CENTER);
         VBox whitePiecesBox = new VBox();
@@ -886,10 +888,11 @@ public class ChessGUI extends Application {
             rectangle.setBlendMode(BlendMode.HARD_LIGHT);
             rectangle.setArcHeight(12);
             rectangle.setArcWidth(12);
-            assignTileAnimation(rectangle);
-            this.getChildren().add(rectangle);
             assignTileLabel();
-            assignTilePieceImage(gameStateManager.getTile(coordinateId));
+            this.getChildren().add(rectangle);
+            ImageView imageView = assignTilePieceImage(gameStateManager.getTile(coordinateId));
+            assignTileAnimation(rectangle, imageView);
+            if (imageView != null) this.getChildren().add(imageView);
             this.setOnMouseClicked(e -> onClickHandler(coordinateId));
         }
 
@@ -898,12 +901,12 @@ public class ChessGUI extends Application {
          *
          * @param tile to draw
          */
-        private void assignTilePieceImage(Tile tile) {
-            if (tile.isEmpty()) return;
+        private ImageView assignTilePieceImage(Tile tile) {
+            if (tile.isEmpty()) return null;
             ImageView icon = new ImageView(resources.getPieceImage(tile.getPiece()));
             icon.setFitHeight(TILE_SIZE - 30);
             icon.setPreserveRatio(true);
-            this.getChildren().add(icon);
+            return icon;
         }
 
         /**
@@ -994,11 +997,12 @@ public class ChessGUI extends Application {
         }
 
         /**
-         * Add an animation to the tile based on its colors
+         * Add an animation to the tile based on its colors and or position
          *
          * @param rectangle to add animation to
+         * @param image to animate when moving
          */
-        private void assignTileAnimation(Rectangle rectangle) {
+        private void assignTileAnimation(Rectangle rectangle, ImageView image) {
             if (rectangle.getFill().equals(Color.LIGHTBLUE) || rectangle.getFill().equals(Color.rgb(225, 215, 240)) ||
                     rectangle.getFill().equals(Color.GREENYELLOW)) {
                 FadeTransition fade = new FadeTransition(Duration.millis(1300), rectangle);
@@ -1013,6 +1017,35 @@ public class ChessGUI extends Application {
                     rotate.setCycleCount(Timeline.INDEFINITE);
                     rotate.setAutoReverse(true);
                     rotate.play();
+                }
+            }
+            if (gameStateManager.getLastMove() != null && playMoveAnimation) {
+                Move lastMove = gameStateManager.getLastMove();
+                if (this.coordinateId.equals(lastMove.getDestinationCoordinate())) {
+                    ScaleTransition scaleDown = new ScaleTransition(Duration.millis(300), image);
+                    scaleDown.setToY(0.6f);
+                    scaleDown.setToX(0.6f);
+                    scaleDown.play();
+                    scaleDown.setOnFinished(event -> {
+                        ScaleTransition scaleBack = new ScaleTransition(Duration.millis(300), image);
+                        scaleBack.setToY(1f);
+                        scaleBack.setToX(1f);
+                        scaleBack.setOnFinished(event1 -> playMoveAnimation = false);
+                        scaleBack.play();
+                    });
+
+
+                    RotateTransition rotate = new RotateTransition(Duration.millis(600), image);
+                    rotate.setByAngle(360);
+                    rotate.setCycleCount(1);
+                    rotate.setOnFinished(event -> ChessGUI.playMoveAnimation = false);
+                    rotate.play();
+
+
+                    if (lastMove.isAttack()) {
+                        Bloom bloom = new Bloom();
+                        image.setEffect(bloom);
+                    }
                 }
             }
         }
@@ -1069,15 +1102,15 @@ public class ChessGUI extends Application {
      */
     private void doHumanMove() {
         boolean moved = gameStateManager.makeMove(startTile.getTileCoord(), destinationTile.getTileCoord());
+        playMoveAnimation = true;
         //Reset user move related variables that were used for making this move
-        startTile = null;
-        destinationTile = null;
-        userMovedPiece = null;
+        this.startTile = null;
+        this.destinationTile = null;
+        this.userMovedPiece = null;
         //Redraw
         Platform.runLater(this::drawChessPane);
         //Play sound for moving piece
         if (moved) playSound("DropPieceNew.wav", 1);
-
         if (gameStateManager.isGameOver()) gameOverCalculations();
         else doAiMove();
     }
@@ -1091,6 +1124,7 @@ public class ChessGUI extends Application {
             @Override
             protected Object call() {
                 boolean moved = gameStateManager.makeAIMove();
+                playMoveAnimation = true;
                 //Redraw
                 Platform.runLater(ChessGUI.this::drawChessPane);
                 //Play sound for moving piece

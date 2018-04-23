@@ -3,9 +3,12 @@ import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.*;
@@ -18,6 +21,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.scene.transform.Rotate;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -404,7 +408,9 @@ public class ChessGUI extends Application {
             soundClipManager.clear();
             soundClipManager = new SoundClipManager("GameMusic.wav", true, SOUNDTRACK_VOLUME, playSound);
         }
-        primaryStage.setScene(new Scene(gamePlayPane, screenWidth, screenHeight));
+        Scene gameScene = new Scene(gamePlayPane, screenWidth, screenHeight);
+        gameScene.setCamera(new PerspectiveCamera());
+        primaryStage.setScene(gameScene);
         //Set off white AI (in case of human vs white ai / ai vs ai)
         if (gameStateManager.isWhiteAI()) doAiMove();
     }
@@ -1034,13 +1040,13 @@ public class ChessGUI extends Application {
                         scaleBack.play();
                     });
 
-
                     RotateTransition rotate = new RotateTransition(Duration.millis(600), image);
-                    rotate.setByAngle(360);
-                    rotate.setCycleCount(1);
+                    rotate.setAxis(Rotate.Y_AXIS);
+                    rotate.setFromAngle(0);
+                    rotate.setToAngle(360);
+                    rotate.setInterpolator(Interpolator.LINEAR);
                     rotate.setOnFinished(event -> ChessGUI.playMoveAnimation = false);
                     rotate.play();
-
 
                     if (lastMove.isAttack()) {
                         Bloom bloom = new Bloom();

@@ -109,7 +109,7 @@ public class ChessGUI extends Application {
         menuBox.setMaxHeight(sceneHeight / 1.5);
         menuBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.85); -fx-background-radius: 10;");
         menuBox.setAlignment(Pos.CENTER);
-        menuBox.setSpacing(10);
+        menuBox.setSpacing(7);
 
         //Play menu music
         if (playSound && soundClipManager != null) soundClipManager.clear();
@@ -645,10 +645,8 @@ public class ChessGUI extends Application {
 
     /**
      * Draws the chess board where the pieces are displayed
-     *
-     * @return GridPane with elements drawn
      */
-    private GridPane drawChessPane() {
+    private void drawChessPane() {
         GridPane chessGridPane = new GridPane();
         chessGridPane.setAlignment(Pos.CENTER);
         chessGridPane.setVgap(5);
@@ -673,7 +671,6 @@ public class ChessGUI extends Application {
         //Update the other panes when redrawing chess pane
         drawStatusPane();
         drawTakenPiecesPane();
-        return chessGridPane;
     }
 
     /**
@@ -988,7 +985,7 @@ public class ChessGUI extends Application {
          * Assign a color to the tile based on its coordinates
          */
         private Color assignTileColor() {
-            Color tileColor = (coordinateId.getY() % 2 == coordinateId.getX() % 2) ? Color.LIGHTGRAY : Color.DARKGREY;
+            Color tileColor = (coordinateId.getY() % 2 == coordinateId.getX() % 2) ? Color.LIGHTGRAY.saturate() : Color.DARKGREY.saturate();
 
             Move lastMove = gameStateManager.getLastMove();
             if (lastMoveHighlightEnabled && lastMove != null) {

@@ -3,8 +3,6 @@ import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -39,6 +37,7 @@ public class ChessGUI extends Application {
     private static double screenWidth = Screen.getPrimary().getBounds().getWidth(), screenHeight = Screen.getPrimary().getBounds().getHeight();
     private static Stage primaryStage;
     private BorderPane gamePlayPane;
+    private StackPane gameBackgroundContainer;
     //Game state manager is set after confirming on start menu
     private static GameStateManager gameStateManager;
     //Player movement
@@ -255,7 +254,7 @@ public class ChessGUI extends Application {
         Pane backgroundContainer = new Pane();
         backgroundContainer.setStyle("-fx-background-color: radial-gradient(center 50% 50% , radius 80% , darkslategray, black);");
         for (int i = 0; i < CIRCLE_COUNT; i++) {
-            spawnBackgroundCircle(backgroundContainer);
+            spawnBackgroundCircle(backgroundContainer, 1.0);
         }
         return backgroundContainer;
     }
@@ -265,13 +264,13 @@ public class ChessGUI extends Application {
      * Respawn a new circle if animation has ended
      * @param circleContainer pane which should contain the circles
      */
-    private void spawnBackgroundCircle(Pane circleContainer) {
+    private void spawnBackgroundCircle(Pane circleContainer, double startOpacity) {
         Color[] colors = {
-                new Color(0.1,0.6,0.5,1.0).saturate().brighter().brighter(),
-                new Color(0.2,0.3,0.3,1.0).saturate().brighter().brighter(),
-                new Color(0.4,0.4,0.4,1.0).saturate().brighter().brighter(),
-                new Color(0.2,0.4,0.4,1.0).saturate().brighter().brighter(),
-                new Color(0.1,0.6,0.3,1.0).saturate().brighter().brighter()};
+                new Color(0.1,0.6,0.5, startOpacity).saturate().brighter().brighter(),
+                new Color(0.2,0.3,0.3, startOpacity).saturate().brighter().brighter(),
+                new Color(0.4,0.4,0.4, startOpacity).saturate().brighter().brighter(),
+                new Color(0.2,0.4,0.4, startOpacity).saturate().brighter().brighter(),
+                new Color(0.1,0.6,0.3, startOpacity).saturate().brighter().brighter()};
         Circle circle = new Circle(0);
         circle.setManaged(false);
         //Pick randomly from color array
@@ -303,7 +302,7 @@ public class ChessGUI extends Application {
         timeline.setCycleCount(1);
         timeline.setOnFinished(event -> {
             circleContainer.getChildren().remove(circle);
-            spawnBackgroundCircle(circleContainer);
+            spawnBackgroundCircle(circleContainer, 1.0);
         });
         //Start animation
         timeline.play();
@@ -402,7 +401,19 @@ public class ChessGUI extends Application {
         gamePlayPane.setTop(populateMenuBar());
         gamePlayPane.setRight(drawStatusPane());
         gamePlayPane.setLeft(drawTakenPiecesPane());
-        gamePlayPane.setCenter(drawChessPane());
+
+        //Add background pane for chess board and draw the chessboard itself
+        this.gameBackgroundContainer = new StackPane();
+        gameBackgroundContainer.setStyle("-fx-background-color: radial-gradient(center 50% 50% , radius 80% , darkslategray, black);");
+        Pane circleContainer = new Pane();
+        for (int i = 0; i < 100; i++) {
+            spawnBackgroundCircle(circleContainer, 0.5);
+        }
+        gameBackgroundContainer.getChildren().addAll(circleContainer);
+        gamePlayPane.setCenter(gameBackgroundContainer);
+        drawChessPane();
+
+
         //Play game music
         if (playSound) {
             soundClipManager.clear();
@@ -640,7 +651,6 @@ public class ChessGUI extends Application {
     private GridPane drawChessPane() {
         GridPane chessGridPane = new GridPane();
         chessGridPane.setAlignment(Pos.CENTER);
-        chessGridPane.setStyle("-fx-background-color: radial-gradient(center 50% 50% , radius 80% , darkslategray, black);");
         chessGridPane.setVgap(5);
         chessGridPane.setHgap(5);
         for (int y = 0; y < BoardUtils.getHeight(); y++) {
@@ -654,11 +664,15 @@ public class ChessGUI extends Application {
                 chessGridPane.add(new ChessTile(new Coordinate(x, y)), gridPaneX, gridPaneY);
             }
         }
+        //Remove old grid-pane, replace for update
+        if (gameBackgroundContainer.getChildren().size() > 1) {
+            gameBackgroundContainer.getChildren().remove(1);
+        }
+        gameBackgroundContainer.getChildren().add(chessGridPane);
+        this.gamePlayPane.setCenter(gameBackgroundContainer);
         //Update the other panes when redrawing chess pane
         drawStatusPane();
         drawTakenPiecesPane();
-        //Use setCenter to update root pane when used as a redraw method
-        this.gamePlayPane.setCenter(chessGridPane);
         return chessGridPane;
     }
 

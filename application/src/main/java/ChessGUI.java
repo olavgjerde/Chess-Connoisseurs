@@ -1028,11 +1028,11 @@ public class ChessGUI extends Application {
             if (gameStateManager.getLastMove() != null && playMoveAnimation) {
                 Move lastMove = gameStateManager.getLastMove();
                 if (this.coordinateId.equals(lastMove.getDestinationCoordinate())) {
-                    ScaleTransition scaleDown = new ScaleTransition(Duration.millis(300), image);
-                    scaleDown.setToY(0.6f);
-                    scaleDown.setToX(0.6f);
-                    scaleDown.play();
-                    scaleDown.setOnFinished(event -> {
+                    ScaleTransition scaleUp = new ScaleTransition(Duration.millis(300), image);
+                    scaleUp.setToY(1.4f);
+                    scaleUp.setToX(1.4f);
+                    scaleUp.play();
+                    scaleUp.setOnFinished(event -> {
                         ScaleTransition scaleBack = new ScaleTransition(Duration.millis(300), image);
                         scaleBack.setToY(1f);
                         scaleBack.setToX(1f);

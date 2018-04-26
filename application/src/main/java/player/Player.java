@@ -163,7 +163,7 @@ public abstract class Player {
      * @return true if the current player is castled
      */
     public boolean isCastled() {
-        return this.playerKing.isCastled();
+        return this.playerKing != null && this.playerKing.isCastled();
     }
 
     /**

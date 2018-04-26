@@ -268,6 +268,45 @@ public class Board {
         return board;
     }
 
+    public static Board createHordeBoard() {
+        final Builder builder = new Builder();
+        // Black pieces
+        builder.setPiece(new Pawn(new Coordinate(0,0), Alliance.BLACK));
+        builder.setPiece(new Pawn(new Coordinate(1,0), Alliance.BLACK));
+        builder.setPiece(new Pawn(new Coordinate(2,0), Alliance.BLACK));
+        builder.setPiece(new Pawn(new Coordinate(5,0), Alliance.BLACK));
+        builder.setPiece(new Pawn(new Coordinate(6,0), Alliance.BLACK));
+        builder.setPiece(new Pawn(new Coordinate(7,0), Alliance.BLACK));
+        for (int i = 1; i < 4; i++) {
+            for (int j = 0; j < 8; j++) {
+                builder.setPiece(new Pawn(new Coordinate(j, i), Alliance.BLACK));
+            }
+        }
+        builder.setPiece(new Pawn(new Coordinate(3, 4), Alliance.BLACK));
+        builder.setPiece(new Pawn(new Coordinate(4, 4), Alliance.BLACK));
+
+        // White pieces
+        builder.setPiece(new Rook(new Coordinate(0,7), Alliance.WHITE));
+        builder.setPiece(new Knight(new Coordinate(1,7), Alliance.WHITE));
+        builder.setPiece(new Bishop(new Coordinate(2,7), Alliance.WHITE));
+        builder.setPiece(new Queen(new Coordinate(3,7), Alliance.WHITE));
+        builder.setPiece(new King(new Coordinate(4,7), Alliance.WHITE));
+        builder.setPiece(new Bishop(new Coordinate(5,7), Alliance.WHITE));
+        builder.setPiece(new Knight(new Coordinate(6,7), Alliance.WHITE));
+        builder.setPiece(new Rook(new Coordinate(7,7), Alliance.WHITE));
+        builder.setPiece(new Pawn(new Coordinate(0,6), Alliance.WHITE));
+        builder.setPiece(new Pawn(new Coordinate(1,6), Alliance.WHITE));
+        builder.setPiece(new Pawn(new Coordinate(2,6), Alliance.WHITE));
+        builder.setPiece(new Pawn(new Coordinate(3,6), Alliance.WHITE));
+        builder.setPiece(new Pawn(new Coordinate(4,6), Alliance.WHITE));
+        builder.setPiece(new Pawn(new Coordinate(5,6), Alliance.WHITE));
+        builder.setPiece(new Pawn(new Coordinate(6,6), Alliance.WHITE));
+        builder.setPiece(new Pawn(new Coordinate(7,6), Alliance.WHITE));
+        builder.setMoveMaker(Alliance.WHITE);
+
+        return builder.build();
+    }
+
     /**
      * Helper class for constructing chessboards given a defined layout
      */

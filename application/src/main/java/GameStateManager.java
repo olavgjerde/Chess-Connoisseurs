@@ -25,7 +25,7 @@ class GameStateManager {
     private Board chessDataBoard;
     private boolean isWhiteAI, isBlackAI;
     final private int aiDepth;
-    private final boolean boardIsRandom;
+    final private int boardType;
     //Keep count of board history (board states)
     private List<Board> boardHistory = new ArrayList<>();
     //Move history, even = white moves, odd = black moves
@@ -39,15 +39,16 @@ class GameStateManager {
      * @param isWhiteAI     if white ai is playing
      * @param isBlackAI     if black ai is playing
      * @param aiDepth       depth that ai should use for its search
-     * @param boardIsRandom if chess board should be random or not
+     * @param boardType     1 = standard, 2 = random, 3 = horde
      */
-    GameStateManager(boolean isWhiteAI, boolean isBlackAI, int aiDepth, boolean boardIsRandom) {
+    GameStateManager(boolean isWhiteAI, boolean isBlackAI, int aiDepth, int boardType) {
         this.isWhiteAI = isWhiteAI;
         this.isBlackAI = isBlackAI;
         this.aiDepth = aiDepth;
-        this.boardIsRandom = boardIsRandom;
+        this.boardType = boardType;
 
-        if (boardIsRandom) this.chessDataBoard = Board.createRandomBoard();
+        if (boardType == 2) this.chessDataBoard = Board.createRandomBoard();
+        else if (boardType == 3) this.chessDataBoard = Board.createHordeBoard();
         else this.chessDataBoard = Board.createStandardBoard();
         //Add first board
         boardHistory.add(chessDataBoard);
@@ -186,22 +187,28 @@ class GameStateManager {
     }
 
     /**
-     * @return true if the game state manager is using a random board, false otherwise
+     * Get the board type of the current board
+     * 1 = standard, 2 = random, 3 = horde
+     * @return the board type in the form of an int
      */
-    boolean isUsingRandomBoard() {
-        return this.boardIsRandom;
+    public int getBoardType() {
+        return boardType;
     }
 
     /**
      * Check if the game is over
      *
-     * @return true if there are no further moves for the player
+     * @return true if there are no further moves for the player (or all black pieces are gone - horde mode)
      */
     boolean isGameOver() {
         boolean checkmate = chessDataBoard.currentPlayer().isInCheckmate();
         boolean stalemate = chessDataBoard.currentPlayer().isInStalemate();
         boolean repetition = isDraw();
-        return checkmate || stalemate || repetition;
+
+        //For horde mode game over condition
+        boolean allBlackPiecesTaken = chessDataBoard.getBlackPlayer().getActivePieces().isEmpty();
+
+        return checkmate || stalemate || repetition || allBlackPiecesTaken;
     }
 
     /**

@@ -68,7 +68,7 @@ public class Pawn extends Piece {
                     }
                 } else if (relativeX == 0 && relativeY == 2) {
                     // 2 steps (jump)
-                    if ((thisY == 1 && thisAlliance == Alliance.BLACK) || (thisY == BoardUtils.getHeight() - 2 && thisAlliance == Alliance.WHITE)) {
+                    if (((thisY == 1 && thisAlliance == Alliance.BLACK) || (thisY == BoardUtils.getHeight() - 2 && thisAlliance == Alliance.WHITE)) && this.isFirstMove()) {
                         final Coordinate inTheMiddle = new Coordinate(thisX, thisY + thisAlliance.getDirection());
                         if (board.getTile(inTheMiddle).isEmpty() && destinationIsEmpty) {
                             legalMoves.add(new PawnJump(board, this, destination));

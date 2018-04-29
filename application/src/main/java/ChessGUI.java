@@ -48,7 +48,7 @@ public class ChessGUI extends Application {
     //Hint coordinates
     private Coordinate hintStartCoordinate, hintDestinationCoordinate;
     //Information toggles
-    private boolean availableMoveHighlightEnabled = true, lastMoveHighlightEnabled = true, boardStatusEnabled = true, playSound = true;
+    private boolean availableMoveHighlightEnabled = true, lastMoveHighlightEnabled = true, boardStatusEnabled = true, playSound = false;
     //User score related variables
     private Score scoreSystem;
     private String whitePlayerName, whitePlayerStats, blackPlayerName, blackPlayerStats;
@@ -659,16 +659,21 @@ public class ChessGUI extends Application {
 
     /**
      * Draws the pane which will display the pieces taken by the players
+     * @return populated VBox displaying the pieces that have been taken during the current round of chess
      */
-    private FlowPane drawTakenPiecesPane() {
-        FlowPane basePane = new FlowPane();
+    private VBox drawTakenPiecesPane() {
+        VBox basePane = new VBox();
         basePane.setStyle("-fx-border-color: black; -fx-background-color: radial-gradient(center 50% 50%, radius 120%, derive(darkslategray, -20%), black)");
-        basePane.setPrefWrapLength(screenWidth / 25 * 2);
+        basePane.setMaxWidth(screenWidth / 16);
         basePane.setAlignment(Pos.CENTER);
-        VBox whitePiecesBox = new VBox();
-        whitePiecesBox.setAlignment(Pos.TOP_CENTER);
-        VBox blackPieceBox = new VBox();
-        blackPieceBox.setAlignment(Pos.BOTTOM_CENTER);
+
+        final double IMAGE_WIDTH = basePane.getMaxWidth() / 3.5;
+        FlowPane whitePiecesBox = new FlowPane();
+        whitePiecesBox.setPrefWrapLength(IMAGE_WIDTH * 2.1);
+        whitePiecesBox.setAlignment(Pos.CENTER);
+        FlowPane blackPieceBox = new FlowPane();
+        blackPieceBox.setPrefWrapLength(IMAGE_WIDTH * 2.1);
+        blackPieceBox.setAlignment(Pos.CENTER);
 
         //Sorts pieces by value
         Comparator<Piece> chessCompare = Comparator.comparingInt(o -> o.getPieceType().getPieceValue());
@@ -677,8 +682,7 @@ public class ChessGUI extends Application {
 
         for (Piece taken : takenPieces) {
             ImageView takenImage = new ImageView(resources.getPieceImage(taken));
-            takenImage.setFitHeight(basePane.getPrefWrapLength() / 2 - 15);
-            takenImage.setFitWidth(basePane.getMaxWidth());
+            takenImage.setFitWidth(IMAGE_WIDTH);
             takenImage.setPreserveRatio(true);
             if (taken.getPieceAlliance() == Alliance.WHITE) whitePiecesBox.getChildren().add(takenImage);
             else blackPieceBox.getChildren().add(takenImage);

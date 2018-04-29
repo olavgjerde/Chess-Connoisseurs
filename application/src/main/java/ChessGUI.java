@@ -48,7 +48,7 @@ public class ChessGUI extends Application {
     //Hint coordinates
     private Coordinate hintStartCoordinate, hintDestinationCoordinate;
     //Information toggles
-    private boolean availableMoveHighlightEnabled = true, lastMoveHighlightEnabled = true, boardStatusEnabled = true, playSound = false;
+    private boolean availableMoveHighlightEnabled = true, lastMoveHighlightEnabled = true, boardStatusEnabled = true, playSound = true;
     //User score related variables
     private Score scoreSystem;
     private String whitePlayerName, whitePlayerStats, blackPlayerName, blackPlayerStats;

@@ -185,8 +185,12 @@ public class ChessGUI extends Application {
         boardStateOption3.setToggleGroup(boardStateOptions);
         boardStateOption3.setUserData(3);
         boardStateOption3.setSelected(false);
+        RadioButton boardStateOption4 = new RadioButton("Light brigade board");
+        boardStateOption4.setToggleGroup(boardStateOptions);
+        boardStateOption4.setUserData(4);
+        boardStateOption4.setSelected(false);
         // Add to boardStateBox then to root pane for scene
-        boardStateBox.getChildren().addAll(boardStateOption1, boardStateOption2, boardStateOption3);
+        boardStateBox.getChildren().addAll(boardStateOption1, boardStateOption2, boardStateOption3, boardStateOption4);
         menuBox.getChildren().add(boardStateBox);
 
         // Create and add difficulty buttons

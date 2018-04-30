@@ -727,7 +727,16 @@ public class ChessGUI extends Application {
         }
 
         Button queen = new Button("QUEEN", q), knight = new Button("KNIGHT", k),
-                bishop = new Button("BISHOP", b), rook = new Button("ROOK", r);
+               bishop = new Button("BISHOP", b), rook = new Button("ROOK", r);
+
+        //Promotion conditions for light brigade
+        if (gameStateManager.getBoardType() == 4) {
+            if (gameStateManager.currentPlayerAlliance() == Alliance.WHITE) knight.setDisable(true);
+            else queen.setDisable(true);
+            bishop.setDisable(true);
+            rook.setDisable(true);
+        }
+
         menuRoot.getChildren().addAll(queen, knight, bishop, rook);
 
         //Style buttons

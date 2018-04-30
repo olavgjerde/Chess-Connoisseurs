@@ -503,6 +503,8 @@ public class ChessGUI extends Application {
         //Title styling
         title.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, screenWidth / 50));
         //Player names and scores
+        if (whitePlayerName.length() >= 15) whitePlayerName = whitePlayerName.substring(0,12) + "... ";
+        if (blackPlayerName.length() >= 15) blackPlayerName = blackPlayerName.substring(0,12) + "... ";
         Text whitePlayerText = new Text(whitePlayerName + ": " + whitePlayerScore + " | " + whitePlayerStats);
         Text blackPlayerText = new Text(blackPlayerName + ": " + blackPlayerScore + " | " + blackPlayerStats);
         //Player names and scores styling

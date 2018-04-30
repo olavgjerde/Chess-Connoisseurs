@@ -111,7 +111,7 @@ class QueenTest {
     void queenStopsOnAllyEncounter() {
         Builder builder = new Builder();
         Queen queenInQuestion = new Queen(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
-        Pawn pawnAlly = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("f5"), Alliance.WHITE);
+        Pawn pawnAlly = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("f5"), Alliance.WHITE, false);
         builder.setPiece(queenInQuestion);
         builder.setPiece(pawnAlly);
         builder.setMoveMaker(Alliance.WHITE);

@@ -173,25 +173,27 @@ public class ChessGUI extends Application {
         boardStateBox.setAlignment(Pos.CENTER);
         boardStateBox.setSpacing(5);
         final ToggleGroup boardStateOptions = new ToggleGroup();
-        RadioButton boardStateOption1 = new RadioButton("Standard board");
+        RadioButton boardStateOption1 = new RadioButton("Standard");
         boardStateOption1.setToggleGroup(boardStateOptions);
         boardStateOption1.setUserData(1);
         boardStateOption1.setSelected(true);
-        RadioButton boardStateOption2 = new RadioButton("Random board");
+        RadioButton boardStateOption2 = new RadioButton("Random");
         boardStateOption2.setToggleGroup(boardStateOptions);
         boardStateOption2.setUserData(2);
         boardStateOption2.setSelected(false);
-        RadioButton boardStateOption3 = new RadioButton("Horde board");
+        RadioButton boardStateOption3 = new RadioButton("Horde");
         boardStateOption3.setToggleGroup(boardStateOptions);
         boardStateOption3.setUserData(3);
         boardStateOption3.setSelected(false);
-        RadioButton boardStateOption4 = new RadioButton("Light brigade board");
+        RadioButton boardStateOption4 = new RadioButton("Light brigade");
         boardStateOption4.setToggleGroup(boardStateOptions);
         boardStateOption4.setUserData(4);
         boardStateOption4.setSelected(false);
         // Add to boardStateBox then to root pane for scene
         boardStateBox.getChildren().addAll(boardStateOption1, boardStateOption2, boardStateOption3, boardStateOption4);
-        menuBox.getChildren().add(boardStateBox);
+        Text gameMode = new Text("GAME MODE");
+        gameMode.setFont(new Font(18));
+        menuBox.getChildren().addAll(gameMode, boardStateBox);
 
         // Create and add difficulty buttons
         HBox aiOptionBox = new HBox();

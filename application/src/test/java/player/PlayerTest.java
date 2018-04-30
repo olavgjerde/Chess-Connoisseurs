@@ -56,7 +56,7 @@ class PlayerTest {
     void doesNotMoveIntoCheck() {
         Builder builder = new Builder();
         King whiteKing = new King(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
-        Pawn blackPawn = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e6"), Alliance.BLACK);
+        Pawn blackPawn = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e6"), Alliance.BLACK, false);
         builder.setPiece(whiteKing);
         builder.setPiece(blackPawn);
         builder.setMoveMaker(Alliance.WHITE);
@@ -90,7 +90,7 @@ class PlayerTest {
     void attackMovesAreFound() {
         Builder builder = new Builder();
         King whiteKing = new King(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
-        Pawn blackPawn = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("d5"), Alliance.BLACK);
+        Pawn blackPawn = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("d5"), Alliance.BLACK, false);
         builder.setPiece(whiteKing);
         builder.setPiece(blackPawn);
         builder.setMoveMaker(Alliance.WHITE);

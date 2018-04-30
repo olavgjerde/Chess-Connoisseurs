@@ -323,7 +323,6 @@ public class ChessGUI extends Application {
                                                 ToggleGroup boardStateOptions, TextField whiteNameField, TextField blackNameField) {
         //Confirm settings button
         Button confirmSettings = new Button("Confirm");
-        confirmSettings.setMaxWidth(100);
         //Confirm button action
         confirmSettings.setOnAction(e -> {
             boolean isWhiteAI = (boolean) whiteOptions.getSelectedToggle().getUserData();
@@ -419,7 +418,7 @@ public class ChessGUI extends Application {
             soundClipManager.clear();
             soundClipManager = new SoundClipManager("GameMusic.wav", true, SOUNDTRACK_VOLUME, playSound);
         }
-        Scene gameScene = new Scene(gamePlayPane, screenWidth, screenHeight);
+        Scene gameScene = new Scene(gamePlayPane, screenWidth+20, screenHeight);
         gameScene.setCamera(new PerspectiveCamera());
         primaryStage.setScene(gameScene);
         //Set off white AI (in case of human vs white ai / ai vs ai)
@@ -509,15 +508,28 @@ public class ChessGUI extends Application {
      * @return VBox with nodes that belong to the state pane
      */
     private VBox drawStatusPane() {
+        // Make image scalable
+        double imageSize = ((screenHeight + screenWidth) / (BoardUtils.getWidth() * BoardUtils.getHeight()));
+
         VBox statusPane = new VBox();
         statusPane.setStyle("-fx-border-color: black; -fx-background-color: radial-gradient(center 50% 50%, radius 140%, derive(darkslategray, -20%), black)");
-        statusPane.setPadding(new Insets(30, 30, 0, 30));
+        // Original 30, 30, 0, 30; This is set with Henrik's PC(It may be wrong for other OS's)
+        statusPane.setPadding(new Insets(10, 0, 0, 0));
         statusPane.setAlignment(Pos.TOP_CENTER);
         statusPane.setSpacing(10);
-
-        Text title = new Text("GAME STATS");
-        //Title styling
-        title.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, screenWidth / 50));
+        // Title for "Game Stats"
+        ImageView imageView = new ImageView(resources.gameStats);
+        imageView.setPreserveRatio(true);
+        imageView.setFitHeight(imageSize + 50);
+        // WK and BK image in front of player name and score wrapped in a HBox
+        HBox whiteScore = new HBox();
+        HBox blackScore = new HBox();
+        ImageView blackKingImg = new ImageView(resources.BK);
+        ImageView whiteKingImg = new ImageView(resources.WK);
+        whiteKingImg.setPreserveRatio(true);
+        blackKingImg.setPreserveRatio(true);
+        whiteKingImg.setFitHeight(20);
+        blackKingImg.setFitHeight(20);
         //Player names and scores
         Text whitePlayerText = new Text(whitePlayerName + ": " + whitePlayerScore + " | " + whitePlayerStats);
         Text blackPlayerText = new Text(blackPlayerName + ": " + blackPlayerScore + " | " + blackPlayerStats);
@@ -526,8 +538,17 @@ public class ChessGUI extends Application {
         blackPlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (screenWidth / 85) - blackPlayerText.getText().length() / 50));
         whitePlayerText.setUnderline(true);
         blackPlayerText.setUnderline(true);
+        whiteScore.setAlignment(Pos.CENTER);
+        blackScore.setAlignment(Pos.CENTER);
 
-        statusPane.getChildren().addAll(title, whitePlayerText, blackPlayerText);
+        whitePlayerText.setFill(Color.WHITE);
+        blackPlayerText.setFill(Color.WHITE);
+        whiteScore.setSpacing(5);
+        blackScore.setSpacing(5);
+        whiteScore.getChildren().addAll(whiteKingImg,whitePlayerText);
+        blackScore.getChildren().addAll(blackKingImg,blackPlayerText);
+
+        statusPane.getChildren().addAll(imageView, whiteScore, blackScore);
 
         //Show the evaluation of the current board relative to the current player, can help you know how well you are doing
         if (boardStatusEnabled) {
@@ -582,10 +603,10 @@ public class ChessGUI extends Application {
         double buttonSize = ((screenHeight + screenWidth) / (BoardUtils.getWidth() * BoardUtils.getHeight()));
 
         //Hint button for player help
-        ImageView image = new ImageView(resources.hint);
-        image.setFitHeight(buttonSize);
+        ImageView image = new ImageView(resources.hintButton);
+        image.setFitHeight(buttonSize + 15);
         image.setPreserveRatio(true);
-        Button hintButton = new Button("HINT", image);
+        Button hintButton = new Button("",image);
         hintButton.setOnMouseEntered(event -> {
             Tooltip tp = new Tooltip("Let the AI suggest a move");
             Tooltip.install(hintButton, tp);
@@ -608,8 +629,8 @@ public class ChessGUI extends Application {
         });
 
         //Button for undoing a move
-        image = new ImageView(resources.undo);
-        image.setFitHeight(buttonSize);
+        image = new ImageView(resources.undoButton);
+        image.setFitHeight(buttonSize + 20);
         image.setPreserveRatio(true);
         Button backButton = new Button("", image);
         backButton.setOnMouseEntered(event -> {
@@ -628,7 +649,7 @@ public class ChessGUI extends Application {
         buttonContainer.setPadding(new Insets((screenHeight / 500) * 200, 0, 0, 0));
         buttonContainer.setSpacing(5);
         for (Node x : buttonContainer.getChildren()) {
-            x.setStyle("-fx-focus-color: darkslategrey; -fx-faint-focus-color: transparent;");
+            x.setStyle("-fx-focus-color: darkslategrey; -fx-faint-focus-color: transparent; -fx-background-color: transparent;");
             x.setFocusTraversable(false);
             //Disable buttons
             if ((gameStateManager.isBlackAI() && gameStateManager.isWhiteAI()) ||

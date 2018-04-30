@@ -9,10 +9,10 @@ import pieces.Piece;
 class ResourceLoader {
 
     //Pieces
-    final Image BB, BK ,BN, BP, BQ, BR, WB, WK, WN, WP, WQ, WR, ConnoisseurChess;
+    final Image BB, BK ,BN, BP, BQ, BR, WB, WK, WN, WP, WQ, WR;
 
     //GUI images
-    final Image hint, undo;
+    final Image ConnoisseurChess, hint, undo, hintButton, undoButton, gameStats;
 
     //sounds
     //TODO
@@ -35,6 +35,9 @@ class ResourceLoader {
         hint = new Image("/images/GUI/hint.png");
         undo = new Image("/images/GUI/undo.png");
 
+        hintButton = new Image("/images/GUI/hintButton.png");
+        undoButton = new Image("/images/GUI/undoButton.png");
+        gameStats = new Image("/images/GUI/gameStats.png");
         ConnoisseurChess = new Image("/images/GUI/" + "ConnoisseurChess" + ".png");
     }
 

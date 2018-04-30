@@ -175,14 +175,18 @@ public class ChessGUI extends Application {
         final ToggleGroup boardStateOptions = new ToggleGroup();
         RadioButton boardStateOption1 = new RadioButton("Standard board");
         boardStateOption1.setToggleGroup(boardStateOptions);
-        boardStateOption1.setUserData(false);
+        boardStateOption1.setUserData(1);
         boardStateOption1.setSelected(true);
         RadioButton boardStateOption2 = new RadioButton("Random board");
         boardStateOption2.setToggleGroup(boardStateOptions);
-        boardStateOption2.setUserData(true);
+        boardStateOption2.setUserData(2);
         boardStateOption2.setSelected(false);
+        RadioButton boardStateOption3 = new RadioButton("Horde board");
+        boardStateOption3.setToggleGroup(boardStateOptions);
+        boardStateOption3.setUserData(3);
+        boardStateOption3.setSelected(false);
         // Add to boardStateBox then to root pane for scene
-        boardStateBox.getChildren().addAll(boardStateOption1, boardStateOption2);
+        boardStateBox.getChildren().addAll(boardStateOption1, boardStateOption2, boardStateOption3);
         menuBox.getChildren().add(boardStateBox);
 
         // Create and add difficulty buttons
@@ -234,7 +238,7 @@ public class ChessGUI extends Application {
             for (RadioButton x : difficultyButtons) x.setDisable(false);
         });
         boardStateOption1.setOnAction(event -> playSound("ButtonClick.wav", 1));
-        boardStateOption2.setOnAction(event -> playSound("ButtonClick.wav", 1));
+        boardStateOption3.setOnAction(event -> playSound("ButtonClick.wav", 1));
 
         menuBox.getChildren().add(createStartMenuConfirmButton(whiteOptions, blackOptions, aiOptions, boardStateOptions, whiteNameField, blackNameField));
 
@@ -332,31 +336,11 @@ public class ChessGUI extends Application {
             String suffix;
             int rating;
             switch (aiDepth) {
-                case 2: {
-                    suffix = "Easy";
-                    rating = 1200;
-                    break;
-                }
-                case 3: {
-                    suffix = "Intermediate";
-                    rating = 1500;
-                    break;
-                }
-                case 4: {
-                    suffix = "Expert";
-                    rating = 1800;
-                    break;
-                }
-                case 5: {
-                    suffix = "Experimental";
-                    rating = 2000;
-                    break;
-                }
-                default: {
-                    suffix = "Error";
-                    rating = 9999;
-                    break;
-                }
+                case 2: { suffix = "Easy"; rating = 1200; break; }
+                case 3: { suffix = "Intermediate"; rating = 1500; break; }
+                case 4: { suffix = "Expert"; rating = 1800; break; }
+                case 5: { suffix = "Experimental"; rating = 2000; break; }
+                default: { suffix = "Error"; rating = 9999; break; }
             }
 
             if (isWhiteAI) {
@@ -381,10 +365,10 @@ public class ChessGUI extends Application {
             whitePlayerStats = scoreSystem.getStats(whitePlayerName);
             blackPlayerStats = scoreSystem.getStats(blackPlayerName);
 
-            boolean boardIsRandom = (boolean) boardStateOptions.getSelectedToggle().getUserData();
+            int boardType = (int) boardStateOptions.getSelectedToggle().getUserData();
 
             //Construct new game state manager with settings from start menu
-            gameStateManager = new GameStateManager(isWhiteAI, isBlackAI, aiDepth, boardIsRandom);
+            gameStateManager = new GameStateManager(isWhiteAI, isBlackAI, aiDepth, boardType);
 
             showGameScene();
         });
@@ -696,16 +680,21 @@ public class ChessGUI extends Application {
 
     /**
      * Draws the pane which will display the pieces taken by the players
+     * @return populated VBox displaying the pieces that have been taken during the current round of chess
      */
-    private FlowPane drawTakenPiecesPane() {
-        FlowPane basePane = new FlowPane();
+    private VBox drawTakenPiecesPane() {
+        VBox basePane = new VBox();
         basePane.setStyle("-fx-border-color: black; -fx-background-color: radial-gradient(center 50% 50%, radius 120%, derive(darkslategray, -20%), black)");
-        basePane.setPrefWrapLength(screenWidth / 25 * 2);
+        basePane.setMaxWidth(screenWidth / 16);
         basePane.setAlignment(Pos.CENTER);
-        VBox whitePiecesBox = new VBox();
-        whitePiecesBox.setAlignment(Pos.TOP_CENTER);
-        VBox blackPieceBox = new VBox();
-        blackPieceBox.setAlignment(Pos.BOTTOM_CENTER);
+
+        final double IMAGE_WIDTH = basePane.getMaxWidth() / 3.5;
+        FlowPane whitePiecesBox = new FlowPane();
+        whitePiecesBox.setPrefWrapLength(IMAGE_WIDTH * 2.1);
+        whitePiecesBox.setAlignment(Pos.CENTER);
+        FlowPane blackPieceBox = new FlowPane();
+        blackPieceBox.setPrefWrapLength(IMAGE_WIDTH * 2.1);
+        blackPieceBox.setAlignment(Pos.CENTER);
 
         //Sorts pieces by value
         Comparator<Piece> chessCompare = Comparator.comparingInt(o -> o.getPieceType().getPieceValue());
@@ -714,8 +703,7 @@ public class ChessGUI extends Application {
 
         for (Piece taken : takenPieces) {
             ImageView takenImage = new ImageView(resources.getPieceImage(taken));
-            takenImage.setFitHeight(basePane.getPrefWrapLength() / 2 - 15);
-            takenImage.setFitWidth(basePane.getMaxWidth());
+            takenImage.setFitWidth(IMAGE_WIDTH);
             takenImage.setPreserveRatio(true);
             if (taken.getPieceAlliance() == Alliance.WHITE) whitePiecesBox.getChildren().add(takenImage);
             else blackPieceBox.getChildren().add(takenImage);
@@ -884,7 +872,7 @@ public class ChessGUI extends Application {
         newRound.setOnAction(e -> {
             //Construct new game state manager with settings from last rounds game state manager
             gameStateManager = new GameStateManager(gameStateManager.isWhiteAI(), gameStateManager.isBlackAI(),
-                    gameStateManager.getAiDepth(), gameStateManager.isUsingRandomBoard());
+                    gameStateManager.getAiDepth(), gameStateManager.getBoardType());
             //Removes game over pane
             gamePlayPane.setBottom(null);
             //Redraw

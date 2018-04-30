@@ -1,6 +1,9 @@
 package player;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -121,51 +124,72 @@ public class Score {
     }
 
     /**
+     * @return a boolean value if internet is online or offline
+     */
+    private static boolean netIsAvailable() {
+        try {
+            final URL url = new URL("http://www.google.com");
+            final URLConnection conn = url.openConnection();
+            conn.connect();
+            conn.getInputStream().close();
+            return true;
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    /**
      * Reads highscore from MLab server. Iterates through all saved database entries
      */
     public void readHighscore() {
-        MongoClientURI uri = new MongoClientURI("mongodb://ccuser:ccpass@ds129706.mlab.com:29706/ccdb");
-        MongoClient client = new MongoClient(uri);
-        MongoDatabase db = client.getDatabase(uri.getDatabase());
-        MongoCollection<Document> highscore = db.getCollection("highscore");
+        boolean netOnline = netIsAvailable();
+        if(netOnline) {
+            MongoClientURI uri = new MongoClientURI("mongodb://ccuser:ccpass@ds129706.mlab.com:29706/ccdb");
+            MongoClient client = new MongoClient(uri);
+            MongoDatabase db = client.getDatabase(uri.getDatabase());
+            MongoCollection<Document> highscore = db.getCollection("highscore");
+            MongoCursor<Document> cursor = highscore.find().iterator();
 
-        MongoCursor<Document> cursor = highscore.find().iterator();
-
-        try {
-            while (cursor.hasNext()) {
-                Document doc = cursor.next();
-                int rating = (int) doc.get("score");
-                Stats stats = readStats(doc.get("stats").toString());
-                userRating.put(doc.get("playername").toString(), rating);
-                userStats.put(doc.get("playername").toString(), stats);
+            try {
+                while (cursor.hasNext()) {
+                    Document doc = cursor.next();
+                    int rating = (int) doc.get("score");
+                    Stats stats = readStats(doc.get("stats").toString());
+                    userRating.put(doc.get("playername").toString(), rating);
+                    userStats.put(doc.get("playername").toString(), stats);
+                }
+            } finally {
+                cursor.close();
             }
-        } finally {
-            cursor.close();
+            client.close();
         }
-        client.close();
 
     }
 
     private void writeHighscore() {
+        boolean netOnline = netIsAvailable();
+        if(netOnline) {
+            List<Document> highscoreDB = new ArrayList<Document>();
 
-        List<Document> highscoreDB = new ArrayList<Document>();
+            MongoClientURI uri = new MongoClientURI("mongodb://ccuser:ccpass@ds129706.mlab.com:29706/ccdb");
+            MongoClient client = new MongoClient(uri);
+            MongoDatabase db = client.getDatabase(uri.getDatabase());
+            MongoCollection<Document> highscore = db.getCollection("highscore");
 
-        MongoClientURI uri = new MongoClientURI("mongodb://ccuser:ccpass@ds129706.mlab.com:29706/ccdb");
-        MongoClient client = new MongoClient(uri);
-        MongoDatabase db = client.getDatabase(uri.getDatabase());
-        MongoCollection<Document> highscore = db.getCollection("highscore");
+            highscore.drop();
 
-        highscore.drop();
-
-        for (String s : userRating.keySet()) {
-            highscoreDB.add(new Document("playername", s)
-                    .append("score", userRating.get(s))
-                    .append("stats", userStats.get(s).getStats()));
+            for (String s : userRating.keySet()) {
+                highscoreDB.add(new Document("playername", s)
+                        .append("score", userRating.get(s))
+                        .append("stats", userStats.get(s).getStats()));
 
 
+            }
+            highscore.insertMany(highscoreDB);
+            client.close();
         }
-        highscore.insertMany(highscoreDB);
-        client.close();
 
     }
 

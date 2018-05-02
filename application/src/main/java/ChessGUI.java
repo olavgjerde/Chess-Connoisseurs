@@ -128,7 +128,7 @@ public class ChessGUI extends Application {
         whiteImage.setFitHeight(50);
         whiteImage.setPreserveRatio(true);
         Text whiteOptionText = new Text("WHITE PLAYER");
-        whiteOptionText.setFont(new Font("Arial", sceneWidth/60));
+        whiteOptionText.setFont(new Font("Arial", sceneWidth / 60));
         TextField whiteNameField = new TextField("Player1");
         whiteNameField.setMaxWidth(menuBox.getMaxWidth() / 4);
         // Buttons for white
@@ -152,7 +152,7 @@ public class ChessGUI extends Application {
         blackImage.setFitHeight(50);
         blackImage.setPreserveRatio(true);
         Text blackOptionText = new Text("BLACK PLAYER");
-        blackOptionText.setFont(new Font("Arial", sceneWidth/60));
+        blackOptionText.setFont(new Font("Arial", sceneWidth / 60));
         TextField blackNameField = new TextField("Player2");
         blackNameField.setMaxWidth(menuBox.getMaxWidth() / 4);
         // Buttons for black
@@ -272,15 +272,16 @@ public class ChessGUI extends Application {
     /**
      * Spawns a circle on the pane given as parameter, with different animations and colors
      * Respawn a new circle if animation has ended
+     *
      * @param circleContainer pane which should contain the circles
      */
     private void spawnBackgroundCircle(Pane circleContainer, double startOpacity) {
         Color[] colors = {
-                new Color(0.1,0.6,0.5, startOpacity).saturate().brighter().brighter(),
-                new Color(0.2,0.3,0.3, startOpacity).saturate().brighter().brighter(),
-                new Color(0.4,0.4,0.4, startOpacity).saturate().brighter().brighter(),
-                new Color(0.2,0.4,0.4, startOpacity).saturate().brighter().brighter(),
-                new Color(0.1,0.6,0.3, startOpacity).saturate().brighter().brighter()};
+                new Color(0.1, 0.6, 0.5, startOpacity).saturate().brighter().brighter(),
+                new Color(0.2, 0.3, 0.3, startOpacity).saturate().brighter().brighter(),
+                new Color(0.4, 0.4, 0.4, startOpacity).saturate().brighter().brighter(),
+                new Color(0.2, 0.4, 0.4, startOpacity).saturate().brighter().brighter(),
+                new Color(0.1, 0.6, 0.3, startOpacity).saturate().brighter().brighter()};
         Circle circle = new Circle(0);
         circle.setManaged(false);
         //Pick randomly from color array
@@ -508,8 +509,8 @@ public class ChessGUI extends Application {
         //Title styling
         title.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, screenWidth / 50));
         //Player names and scores
-        String whiteDisplayName = whitePlayerName.length() >= 15 ? whitePlayerName.substring(0,12) + "..." : whitePlayerName;
-        String blackDisplayName = blackPlayerName.length() >= 15 ? blackPlayerName.substring(0,12) + "..." : blackPlayerName;
+        String whiteDisplayName = whitePlayerName.length() >= 15 ? whitePlayerName.substring(0, 12) + "..." : whitePlayerName;
+        String blackDisplayName = blackPlayerName.length() >= 15 ? blackPlayerName.substring(0, 12) + "..." : blackPlayerName;
         Text whitePlayerText = new Text(whiteDisplayName + ": " + whitePlayerScore + " | " + whitePlayerStats);
         Text blackPlayerText = new Text(blackDisplayName + ": " + blackPlayerScore + " | " + blackPlayerStats);
         //Player names and scores styling
@@ -666,6 +667,7 @@ public class ChessGUI extends Application {
 
     /**
      * Draws the pane which will display the pieces taken by the players
+     *
      * @return populated VBox displaying the pieces that have been taken during the current round of chess
      */
     private VBox drawTakenPiecesPane() {
@@ -728,7 +730,7 @@ public class ChessGUI extends Application {
         }
 
         Button queen = new Button("QUEEN", q), knight = new Button("KNIGHT", k),
-               bishop = new Button("BISHOP", b), rook = new Button("ROOK", r);
+                bishop = new Button("BISHOP", b), rook = new Button("ROOK", r);
 
         //Promotion conditions for light brigade
         if (gameStateManager.getBoardType() == 4) {
@@ -790,17 +792,19 @@ public class ChessGUI extends Application {
         VBox rootBox = new VBox();
         rootBox.setSpacing(5);
         rootBox.setStyle("-fx-border-color: black; -fx-border-width: 2; -fx-background-color: radial-gradient(center 50% 50%, radius 180%, derive(darkslategray, 20%), black)");
+        rootBox.setMaxHeight(screenHeight / 2);
+        rootBox.setMaxWidth(screenWidth / 3);
         rootBox.setAlignment(Pos.CENTER);
         rootBox.setOnMouseClicked(event -> highScoreStage.close());
 
-        Text title = new Text("TOP 10");
+        Text title = new Text("HIGHSCORES");
         title.setFont(Font.font("Verdana", FontWeight.BOLD, 30));
         title.setFill(Color.WHITE);
         title.setTextAlignment(TextAlignment.CENTER);
         rootBox.getChildren().add(title);
 
         HBox listBox = new HBox();
-        listBox.setAlignment(Pos.TOP_CENTER);
+        listBox.setAlignment(Pos.CENTER);
         listBox.setSpacing(5);
         rootBox.getChildren().add(listBox);
 
@@ -816,11 +820,11 @@ public class ChessGUI extends Application {
         listBox.getChildren().addAll(names, scores, record);
 
         ArrayList<String> userNames = scoreSystem.getScoreboard();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < userNames.size(); i++) {
             String userName = userNames.get(i);
-            Text nameText = new Text(i+1 + ": " + userName + " ");
-            Text scoreText = new Text(scoreSystem.getScore(userName) + " |");
-            Text recordText = new Text(" " + scoreSystem.getStats(userName));
+            Text nameText = new Text(i + 1 + ": " + userName + " ");
+            Text scoreText = new Text(scoreSystem.getScore(userName) + " | ");
+            Text recordText = new Text(scoreSystem.getStats(userName));
             names.getChildren().add(nameText);
             scores.getChildren().add(scoreText);
             record.getChildren().add(recordText);
@@ -846,14 +850,17 @@ public class ChessGUI extends Application {
             }
         }
 
-        highScoreStage.setWidth(screenWidth / 3);
-        highScoreStage.setHeight(screenHeight / 2);
+        highScoreStage.setWidth(rootBox.getMaxWidth());
+        highScoreStage.setHeight(rootBox.getMaxHeight());
         highScoreStage.setX(primaryStage.getX() + primaryStage.getWidth() / 2 - highScoreStage.getWidth() / 2);
         highScoreStage.setY(primaryStage.getY() + primaryStage.getHeight() / 2 - highScoreStage.getHeight() / 2);
         //Window settings
         highScoreStage.initModality(Modality.APPLICATION_MODAL);
         highScoreStage.setResizable(false);
-        highScoreStage.setScene(new Scene(rootBox));
+        ScrollPane scrollPane = new ScrollPane(rootBox);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setFitToWidth(true);
+        highScoreStage.setScene(new Scene(scrollPane));
         highScoreStage.show();
     }
 
@@ -871,14 +878,14 @@ public class ChessGUI extends Application {
         if (gameStateManager.currentPlayerInCheckMate()) title = new Text("CHECKMATE - ");
         else if (gameStateManager.currentPlayerInStaleMate()) title = new Text("STALEMATE - ");
         else if (gameStateManager.isDraw()) title = new Text("DRAW - ");
-        title.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth / 85));
+        title.setFont(Font.font("Verdana", FontWeight.BOLD, screenWidth / 85));
         Text t1 = new Text("UPDATED SCORES: ");
-        t1.setFont(Font.font("Arial", FontWeight.BOLD, screenWidth / 85));
+        t1.setFont(Font.font("Verdana", FontWeight.BOLD, screenWidth / 85));
         Text t2 = new Text(whitePlayerName + ": " + whitePlayerScore + " /");
         Text t3 = new Text(blackPlayerName + ": " + blackPlayerScore + " ");
         int length = t2.getText().length() + t3.getText().length();
-        t2.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, screenWidth / 85 - length / 50));
-        t3.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, screenWidth / 85 - length / 50));
+        t2.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, screenWidth / 85 - length / 50));
+        t3.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, screenWidth / 85 - length / 50));
         gameOverRoot.getChildren().addAll(title, t1, t2, t3);
 
         //Buttons
@@ -892,7 +899,7 @@ public class ChessGUI extends Application {
         newRound.setOnAction(e -> {
             //Construct new game state manager with settings from last rounds game state manager
             gameStateManager = new GameStateManager(gameStateManager.isWhiteAI(), gameStateManager.isBlackAI(),
-                    gameStateManager.getAiDepth(), gameStateManager.getBoardType());
+                                                    gameStateManager.getAiDepth(), gameStateManager.getBoardType());
             //Removes game over pane
             gamePlayPane.setBottom(null);
             //Redraw
@@ -926,7 +933,7 @@ public class ChessGUI extends Application {
         /**
          * Constructor for ChessTile class
          *
-         * @param coordinateId   coordinate of this tile on a chess board
+         * @param coordinateId coordinate of this tile on a chess board
          */
         private ChessTile(Coordinate coordinateId) {
             this.coordinateId = coordinateId;
@@ -1046,7 +1053,7 @@ public class ChessGUI extends Application {
          * Add an animation to the tile based on its colors and or position
          *
          * @param rectangle to add animation to
-         * @param image to animate when moving
+         * @param image     to animate when moving
          */
         private void assignTileAnimation(Rectangle rectangle, ImageView image) {
             if (rectangle.getFill().equals(Color.LIGHTBLUE) || rectangle.getFill().equals(Color.rgb(225, 215, 240)) ||

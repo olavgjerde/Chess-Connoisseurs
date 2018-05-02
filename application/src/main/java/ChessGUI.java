@@ -403,7 +403,6 @@ public class ChessGUI extends Application {
         gamePlayPane.setCenter(gameBackgroundContainer);
         drawChessPane();
 
-
         //Play game music
         if (playSound) {
             soundClipManager.clear();
@@ -484,7 +483,7 @@ public class ChessGUI extends Application {
         });
 
         MenuItem highScores = new MenuItem("Highscores");
-        highScores.setOnAction(event -> showHighScoreWindow());
+        highScores.setOnAction(event -> showHighScorePane());
 
         MenuItem exit = new MenuItem("Exit");
         exit.setOnAction(event -> System.exit(0));
@@ -509,10 +508,10 @@ public class ChessGUI extends Application {
         //Title styling
         title.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, screenWidth / 50));
         //Player names and scores
-        if (whitePlayerName.length() >= 15) whitePlayerName = whitePlayerName.substring(0,12) + "... ";
-        if (blackPlayerName.length() >= 15) blackPlayerName = blackPlayerName.substring(0,12) + "... ";
-        Text whitePlayerText = new Text(whitePlayerName + ": " + whitePlayerScore + " | " + whitePlayerStats);
-        Text blackPlayerText = new Text(blackPlayerName + ": " + blackPlayerScore + " | " + blackPlayerStats);
+        String whiteDisplayName = whitePlayerName.length() >= 15 ? whitePlayerName.substring(0,12) + "..." : whitePlayerName;
+        String blackDisplayName = blackPlayerName.length() >= 15 ? blackPlayerName.substring(0,12) + "..." : blackPlayerName;
+        Text whitePlayerText = new Text(whiteDisplayName + ": " + whitePlayerScore + " | " + whitePlayerStats);
+        Text blackPlayerText = new Text(blackDisplayName + ": " + blackPlayerScore + " | " + blackPlayerStats);
         //Player names and scores styling
         whitePlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (screenWidth / 85) - whitePlayerText.getText().length() / 50));
         blackPlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (screenWidth / 85) - blackPlayerText.getText().length() / 50));
@@ -782,24 +781,26 @@ public class ChessGUI extends Application {
     }
 
     /**
-     * Shows the highscore scene for the application
+     * Shows the highscore pane for the application
      */
-    private void showHighScoreWindow() {
-        final Stage dialog = new Stage();
+    private void showHighScorePane() {
+        VBox rootBox = new VBox();
+        rootBox.setSpacing(5);
+        rootBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.9); -fx-background-radius: 10;");
+        rootBox.setMaxWidth(screenWidth / 3);
+        rootBox.setMaxHeight(screenHeight / 2);
+        rootBox.setAlignment(Pos.CENTER);
+        rootBox.setOnMouseClicked(event -> gameBackgroundContainer.getChildren().remove(rootBox));
 
-        VBox hsRoot = new VBox();
-        hsRoot.setSpacing(5);
-        hsRoot.setAlignment(Pos.TOP_CENTER);
-
-        Text title = new Text("HIGHSCORES");
-        title.setFont(Font.font("Verdana", FontWeight.BOLD, 24));
+        Text title = new Text("TOP 10");
+        title.setFont(Font.font("Verdana", FontWeight.BOLD, 30));
         title.setTextAlignment(TextAlignment.CENTER);
-        hsRoot.getChildren().add(title);
+        rootBox.getChildren().add(title);
 
-        HBox list = new HBox();
-        list.setAlignment(Pos.TOP_CENTER);
-        list.setSpacing(5);
-        hsRoot.getChildren().add(list);
+        HBox listBox = new HBox();
+        listBox.setAlignment(Pos.TOP_CENTER);
+        listBox.setSpacing(5);
+        rootBox.getChildren().add(listBox);
 
         VBox names = new VBox(), scores = new VBox(), record = new VBox();
         Text nameTitle = new Text("Name"), scoreTitle = new Text("Score"), recordTitle = new Text("Record");
@@ -812,25 +813,31 @@ public class ChessGUI extends Application {
         scores.getChildren().add(scoreTitle);
         record.getChildren().add(recordTitle);
 
-        list.getChildren().addAll(names, scores, record);
+        listBox.getChildren().addAll(names, scores, record);
 
         ArrayList<String> userNames = scoreSystem.getScoreboard();
-        int counter = 0;
-        for (String u : userNames) {
-            counter++;
-            Text nameText = new Text(counter + ": " + u + " ");
-            Text scoreText = new Text(scoreSystem.getScore(u) + " |");
-            Text recordText = new Text(" " + scoreSystem.getStats(u));
+        for (int i = 0; i < 10; i++) {
+            String userName = userNames.get(i);
+            Text nameText = new Text(i+1 + ": " + userName + " ");
+            Text scoreText = new Text(scoreSystem.getScore(userName) + " |");
+            Text recordText = new Text(" " + scoreSystem.getStats(userName));
             names.getChildren().add(nameText);
             scores.getChildren().add(scoreText);
             record.getChildren().add(recordText);
         }
 
-        Scene settingsScene = new Scene(new ScrollPane(hsRoot), 210, 330);
-        dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.setScene(settingsScene);
-        dialog.initOwner(primaryStage);
-        dialog.show();
+        //Change font size for score table
+        for (Node n : names.getChildren()) {
+            if (n instanceof Text) ((Text) n).setFont(Font.font("Verdana", FontWeight.NORMAL, 15));
+        }
+        for (Node n : scores.getChildren()) {
+            if (n instanceof Text) ((Text) n).setFont(Font.font("Verdana", FontWeight.NORMAL, 15));
+        }
+        for (Node n : record.getChildren()) {
+            if (n instanceof Text) ((Text) n).setFont(Font.font("Verdana", FontWeight.NORMAL, 15));
+        }
+
+        gameBackgroundContainer.getChildren().add(rootBox);
     }
 
     /**

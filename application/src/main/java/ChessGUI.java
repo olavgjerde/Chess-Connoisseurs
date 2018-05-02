@@ -37,7 +37,7 @@ public class ChessGUI extends Application {
     private static double screenWidth = Screen.getPrimary().getBounds().getWidth(), screenHeight = Screen.getPrimary().getBounds().getHeight();
     private static Stage primaryStage;
     private BorderPane gamePlayPane;
-    private StackPane gameBackgroundContainer;
+    private StackPane centerPaneContainer;
     //Game state manager is set after confirming on start menu
     private static GameStateManager gameStateManager;
     //Player movement
@@ -388,23 +388,23 @@ public class ChessGUI extends Application {
      */
     private void showGameScene() {
         this.gamePlayPane = new BorderPane();
-        gamePlayPane.setTop(populateMenuBar());
-        gamePlayPane.setRight(drawStatusPane());
-        gamePlayPane.setLeft(drawTakenPiecesPane());
+        this.gamePlayPane.setTop(populateMenuBar());
+        this.gamePlayPane.setRight(drawStatusPane());
+        this.gamePlayPane.setLeft(drawTakenPiecesPane());
 
         //Add background pane for chess board and draw the chessboard itself
-        this.gameBackgroundContainer = new StackPane();
-        gameBackgroundContainer.setStyle("-fx-background-color: radial-gradient(center 50% 50% , radius 80% , darkslategray, black);");
+        this.centerPaneContainer = new StackPane();
+        this.centerPaneContainer.setStyle("-fx-background-color: radial-gradient(center 50% 50% , radius 80% , darkslategray, black);");
         Pane circleContainer = new Pane();
         for (int i = 0; i < 100; i++) {
             spawnBackgroundCircle(circleContainer, 0.5);
         }
-        gameBackgroundContainer.getChildren().addAll(circleContainer);
-        gamePlayPane.setCenter(gameBackgroundContainer);
+        this.centerPaneContainer.getChildren().addAll(circleContainer);
+        this.gamePlayPane.setCenter(centerPaneContainer);
         drawChessPane();
 
         //Play game music
-        if (playSound) {
+        if (this.playSound) {
             soundClipManager.clear();
             soundClipManager = new SoundClipManager("GameMusic.wav", true, SOUNDTRACK_VOLUME, playSound);
         }
@@ -483,7 +483,7 @@ public class ChessGUI extends Application {
         });
 
         MenuItem highScores = new MenuItem("Highscores");
-        highScores.setOnAction(event -> showHighScorePane());
+        highScores.setOnAction(event -> showHighScoreWindow());
 
         MenuItem exit = new MenuItem("Exit");
         exit.setOnAction(event -> System.exit(0));
@@ -654,11 +654,11 @@ public class ChessGUI extends Application {
             }
         }
         //Remove old grid-pane, replace for update
-        if (gameBackgroundContainer.getChildren().size() > 1) {
-            gameBackgroundContainer.getChildren().remove(1);
+        if (this.centerPaneContainer.getChildren().size() > 1) {
+            this.centerPaneContainer.getChildren().remove(1);
         }
-        gameBackgroundContainer.getChildren().add(chessGridPane);
-        this.gamePlayPane.setCenter(gameBackgroundContainer);
+        this.centerPaneContainer.getChildren().add(chessGridPane);
+        this.gamePlayPane.setCenter(centerPaneContainer);
         //Update the other panes when redrawing chess pane
         drawStatusPane();
         drawTakenPiecesPane();
@@ -781,19 +781,21 @@ public class ChessGUI extends Application {
     }
 
     /**
-     * Shows the highscore pane for the application
+     * Shows the highscore window for the application
      */
-    private void showHighScorePane() {
+    private void showHighScoreWindow() {
+        Stage highScoreStage = new Stage();
+        highScoreStage.initStyle(StageStyle.UNDECORATED);
+
         VBox rootBox = new VBox();
         rootBox.setSpacing(5);
-        rootBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.9); -fx-background-radius: 10;");
-        rootBox.setMaxWidth(screenWidth / 3);
-        rootBox.setMaxHeight(screenHeight / 2);
+        rootBox.setStyle("-fx-border-color: black; -fx-border-width: 2; -fx-background-color: radial-gradient(center 50% 50%, radius 180%, derive(darkslategray, 20%), black)");
         rootBox.setAlignment(Pos.CENTER);
-        rootBox.setOnMouseClicked(event -> gameBackgroundContainer.getChildren().remove(rootBox));
+        rootBox.setOnMouseClicked(event -> highScoreStage.close());
 
         Text title = new Text("TOP 10");
         title.setFont(Font.font("Verdana", FontWeight.BOLD, 30));
+        title.setFill(Color.WHITE);
         title.setTextAlignment(TextAlignment.CENTER);
         rootBox.getChildren().add(title);
 
@@ -804,11 +806,9 @@ public class ChessGUI extends Application {
 
         VBox names = new VBox(), scores = new VBox(), record = new VBox();
         Text nameTitle = new Text("Name"), scoreTitle = new Text("Score"), recordTitle = new Text("Record");
-
         nameTitle.setUnderline(true);
         scoreTitle.setUnderline(true);
         recordTitle.setUnderline(true);
-
         names.getChildren().add(nameTitle);
         scores.getChildren().add(scoreTitle);
         record.getChildren().add(recordTitle);
@@ -826,18 +826,35 @@ public class ChessGUI extends Application {
             record.getChildren().add(recordText);
         }
 
-        //Change font size for score table
+        //Change font color of text in score table
         for (Node n : names.getChildren()) {
-            if (n instanceof Text) ((Text) n).setFont(Font.font("Verdana", FontWeight.NORMAL, 15));
+            if (n instanceof Text) {
+                ((Text) n).setFont(Font.font("Verdana", FontWeight.NORMAL, 15));
+                ((Text) n).setFill(Color.WHITE);
+            }
         }
         for (Node n : scores.getChildren()) {
-            if (n instanceof Text) ((Text) n).setFont(Font.font("Verdana", FontWeight.NORMAL, 15));
+            if (n instanceof Text) {
+                ((Text) n).setFont(Font.font("Verdana", FontWeight.NORMAL, 15));
+                ((Text) n).setFill(Color.WHITE);
+            }
         }
         for (Node n : record.getChildren()) {
-            if (n instanceof Text) ((Text) n).setFont(Font.font("Verdana", FontWeight.NORMAL, 15));
+            if (n instanceof Text) {
+                ((Text) n).setFont(Font.font("Verdana", FontWeight.NORMAL, 15));
+                ((Text) n).setFill(Color.WHITE);
+            }
         }
 
-        gameBackgroundContainer.getChildren().add(rootBox);
+        highScoreStage.setWidth(screenWidth / 3);
+        highScoreStage.setHeight(screenHeight / 2);
+        highScoreStage.setX(primaryStage.getX() + primaryStage.getWidth() / 2 - highScoreStage.getWidth() / 2);
+        highScoreStage.setY(primaryStage.getY() + primaryStage.getHeight() / 2 - highScoreStage.getHeight() / 2);
+        //Window settings
+        highScoreStage.initModality(Modality.APPLICATION_MODAL);
+        highScoreStage.setResizable(false);
+        highScoreStage.setScene(new Scene(rootBox));
+        highScoreStage.show();
     }
 
     /**

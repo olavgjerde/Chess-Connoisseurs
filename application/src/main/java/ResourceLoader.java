@@ -12,7 +12,7 @@ class ResourceLoader {
     final Image BB, BK ,BN, BP, BQ, BR, WB, WK, WN, WP, WQ, WR;
 
     //GUI images
-    final Image ConnoisseurChess, hint, undo, hintButton, undoButton, gameStats;
+    final Image ConnoisseurChess, hintButton, undoButton, gameStats;
 
     //sounds
     //TODO
@@ -32,12 +32,9 @@ class ResourceLoader {
         WQ = new Image("/images/" + "WQ" + ".png");
         WR = new Image("/images/" + "WR" + ".png");
 
-        hint = new Image("/images/GUI/hint.png");
-        undo = new Image("/images/GUI/undo.png");
-
-        hintButton = new Image("/images/GUI/hintButton.png");
-        undoButton = new Image("/images/GUI/undoButton.png");
-        gameStats = new Image("/images/GUI/gameStats.png");
+        hintButton = new Image("/images/GUI/HintButton.png");
+        undoButton = new Image("/images/GUI/UndoButton.png");
+        gameStats = new Image("/images/GUI/GameStats.png");
         ConnoisseurChess = new Image("/images/GUI/" + "ConnoisseurChess" + ".png");
     }
 

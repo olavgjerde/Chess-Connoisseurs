@@ -283,7 +283,7 @@ public class ChessGUI extends Application {
                 new Color(0.2, 0.4, 0.4, startOpacity).saturate().brighter().brighter(),
                 new Color(0.1, 0.6, 0.3, startOpacity).saturate().brighter().brighter()};
         Circle circle = new Circle(0);
-        circle.setManaged(false);
+        circle.setManaged(true);
         //Pick randomly from color array
         circle.setFill(colors[ThreadLocalRandom.current().nextInt(colors.length)]);
         //Take a random position within window size
@@ -389,6 +389,7 @@ public class ChessGUI extends Application {
     private void showGameScene() {
         this.gamePlayPane = new BorderPane();
         this.gamePlayPane.setTop(populateMenuBar());
+        this.gamePlayPane.setBottom(drawInfoPane());
         this.gamePlayPane.setRight(drawStatusPane());
         this.gamePlayPane.setLeft(drawTakenPiecesPane());
 
@@ -479,7 +480,7 @@ public class ChessGUI extends Application {
         MenuItem newGame = new MenuItem("New game");
         newGame.setOnAction(event -> {
             gameStateManager.killAI();
-            showStartMenu(screenWidth, screenHeight);
+            showStartMenu(primaryStage.getWidth(), primaryStage.getHeight());
         });
 
         MenuItem highScores = new MenuItem("Highscores");
@@ -502,7 +503,6 @@ public class ChessGUI extends Application {
         statusPaneRoot.setStyle("-fx-border-color: black; -fx-background-color: radial-gradient(center 50% 50%, radius 140%, derive(darkslategray, -20%), black)");
         statusPaneRoot.setPadding(new Insets(30, 30, 0, 30));
         statusPaneRoot.setMaxWidth(screenWidth / 8);
-        statusPaneRoot.setMaxHeight(screenHeight);
         statusPaneRoot.setAlignment(Pos.TOP_CENTER);
         statusPaneRoot.setSpacing(10);
         // Title for "Game Stats"
@@ -679,6 +679,7 @@ public class ChessGUI extends Application {
         //Update the other panes when redrawing chess pane
         drawStatusPane();
         drawTakenPiecesPane();
+        drawInfoPane();
     }
 
     /**
@@ -717,6 +718,27 @@ public class ChessGUI extends Application {
         //Use setLeft to update root pane when used as a redraw method
         this.gamePlayPane.setLeft(basePane);
         return basePane;
+    }
+
+    /**
+     * Draws a pane which displays which players turn it is
+     *
+     * @return populated FlowPane
+     */
+    private FlowPane drawInfoPane() {
+        FlowPane infoRoot = new FlowPane();
+        infoRoot.setPadding(new Insets(3, 0, 2, 0));
+        infoRoot.setAlignment(Pos.CENTER);
+
+        String player = gameStateManager.currentPlayerAlliance() == Alliance.WHITE ? whitePlayerName : blackPlayerName;
+        String turnText = "IT'S " + player.toUpperCase() + "'S TURN";
+
+        Text infoText = new Text(turnText);
+        infoText.setFont(Font.font("Verdana", FontWeight.BOLD, screenWidth / 85));
+
+        infoRoot.getChildren().add(infoText);
+        gamePlayPane.setBottom(infoRoot);
+        return infoRoot;
     }
 
     /**
@@ -891,13 +913,14 @@ public class ChessGUI extends Application {
 
         //Text
         Text title = new Text("GAME OVER - ");
-        if (gameStateManager.currentPlayerInCheckMate()) title = new Text("CHECKMATE - ");
+        if (gameStateManager.getBoardType() == 4) title = new Text("GAME OVER - ");
+        else if (gameStateManager.currentPlayerInCheckMate()) title = new Text("CHECKMATE - ");
         else if (gameStateManager.currentPlayerInStaleMate()) title = new Text("STALEMATE - ");
         else if (gameStateManager.isDraw()) title = new Text("DRAW - ");
         title.setFont(Font.font("Verdana", FontWeight.BOLD, screenWidth / 85));
         Text t1 = new Text("UPDATED SCORES: ");
         t1.setFont(Font.font("Verdana", FontWeight.BOLD, screenWidth / 85));
-        Text t2 = new Text(whitePlayerName + ": " + whitePlayerScore + " /");
+        Text t2 = new Text(whitePlayerName + ": " + whitePlayerScore + " / ");
         Text t3 = new Text(blackPlayerName + ": " + blackPlayerScore + " ");
         int length = t2.getText().length() + t3.getText().length();
         t2.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, screenWidth / 85 - length / 50));
@@ -905,19 +928,13 @@ public class ChessGUI extends Application {
         gameOverRoot.getChildren().addAll(title, t1, t2, t3);
 
         //Buttons
-        Button newGame = new Button("NEW GAME"), newRound = new Button("NEXT ROUND"), quit = new Button("QUIT");
-        newGame.setOnAction(e -> {
-            gameStateManager.killAI();
-            //This option allows user/settings change
-            showStartMenu(screenWidth, screenHeight);
-            gamePlayPane.setBottom(null);
-        });
+        Button newRound = new Button("NEXT ROUND"), quit = new Button("QUIT");
         newRound.setOnAction(e -> {
             //Construct new game state manager with settings from last rounds game state manager
             gameStateManager = new GameStateManager(gameStateManager.isWhiteAI(), gameStateManager.isBlackAI(),
                                                     gameStateManager.getAiDepth(), gameStateManager.getBoardType());
             //Removes game over pane
-            gamePlayPane.setBottom(null);
+            gamePlayPane.setBottom(drawInfoPane());
             //Redraw
             drawChessPane();
             //Makes the first move in new round if AI is white
@@ -932,7 +949,7 @@ public class ChessGUI extends Application {
         HBox buttonContainer = new HBox();
         buttonContainer.setAlignment(Pos.CENTER);
         buttonContainer.setSpacing(10);
-        buttonContainer.getChildren().addAll(newGame, newRound, quit);
+        buttonContainer.getChildren().addAll(newRound, quit);
 
         gameOverRoot.getChildren().addAll(buttonContainer);
         gamePlayPane.setBottom(gameOverRoot);
@@ -1247,7 +1264,6 @@ public class ChessGUI extends Application {
                 whitePlayerStats = scoreSystem.getStats(whitePlayerName);
                 blackPlayerStats = scoreSystem.getStats(blackPlayerName);
 
-                Platform.runLater(ChessGUI.this::drawChessPane);
                 Platform.runLater(ChessGUI.this::showGameOverPane);
                 return null;
             }

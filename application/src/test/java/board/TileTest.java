@@ -25,7 +25,7 @@ class TileTest {
      */
     @Test
     void tileIsNotEmpty() {
-        Tile tile = new Tile.OccupiedTile(new Coordinate(0,0), new Pawn(new Coordinate(0,0), Alliance.WHITE));
+        Tile tile = new Tile.OccupiedTile(new Coordinate(0,0), new Pawn(new Coordinate(0,0), Alliance.WHITE, false));
         assertFalse(tile.isEmpty());
     }
 
@@ -45,7 +45,7 @@ class TileTest {
      */
     @Test
     void createTileGeneratesOccupiedTile() {
-        Tile tile = Tile.createTile(new Coordinate(0,0), new Pawn(new Coordinate(0,0), Alliance.BLACK));
+        Tile tile = Tile.createTile(new Coordinate(0,0), new Pawn(new Coordinate(0,0), Alliance.BLACK, false));
         assertTrue(tile instanceof Tile.OccupiedTile);
     }
 
@@ -55,7 +55,7 @@ class TileTest {
      */
     @Test
     void occupiedTileContainsRightPiece() {
-        Pawn myPawn = new Pawn(new Coordinate(0,0), Alliance.BLACK);
+        Pawn myPawn = new Pawn(new Coordinate(0,0), Alliance.BLACK, false);
         Tile tile = new Tile.OccupiedTile(new Coordinate(0,0), myPawn);
         assertEquals(myPawn, tile.getPiece());
     }

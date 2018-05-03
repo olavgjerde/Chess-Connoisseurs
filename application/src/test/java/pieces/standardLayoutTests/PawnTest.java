@@ -69,7 +69,7 @@ class PawnTest {
     @Test
     void blackPawnJump() {
         Builder builder = new Builder();
-        Pawn blackPawn = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e7"), Alliance.BLACK);
+        Pawn blackPawn = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e7"), Alliance.BLACK, false);
         builder.setPiece(blackPawn);
         builder.setMoveMaker(Alliance.BLACK);
         Board board = builder.build();
@@ -85,7 +85,7 @@ class PawnTest {
     @Test
     void whitePawnJump() {
         Builder builder = new Builder();
-        Pawn whitePawn = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e2"), Alliance.WHITE);
+        Pawn whitePawn = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e2"), Alliance.WHITE, false);
         builder.setPiece(whitePawn);
         builder.setMoveMaker(Alliance.WHITE);
         Board board = builder.build();
@@ -102,8 +102,8 @@ class PawnTest {
     void blackPawnAttack() {
         Builder builder = new Builder();
         Pawn blackPawn = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.BLACK, false);
-        Pawn whitePawnOne = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("d3"), Alliance.WHITE);
-        Pawn whitePawnTwo = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("f3"), Alliance.WHITE);
+        Pawn whitePawnOne = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("d3"), Alliance.WHITE, false);
+        Pawn whitePawnTwo = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("f3"), Alliance.WHITE, false);
         builder.setPiece(blackPawn);
         builder.setPiece(whitePawnOne);
         builder.setPiece(whitePawnTwo);
@@ -124,8 +124,8 @@ class PawnTest {
     void whitePawnAttack() {
         Builder builder = new Builder();
         Pawn whitePawn = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE, false);
-        Pawn blackPawnOne = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("d5"), Alliance.BLACK);
-        Pawn blackPawnTwo = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("f5"), Alliance.BLACK);
+        Pawn blackPawnOne = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("d5"), Alliance.BLACK, false);
+        Pawn blackPawnTwo = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("f5"), Alliance.BLACK, false);
         builder.setPiece(whitePawn);
         builder.setPiece(blackPawnOne);
         builder.setPiece(blackPawnTwo);
@@ -146,7 +146,7 @@ class PawnTest {
     void blackPawnCanAttackEnPassant() {
         Builder builder = new Builder();
         Pawn blackPawn = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("f4"), Alliance.BLACK, false);
-        Pawn whitePawnOne = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e2"), Alliance.WHITE);
+        Pawn whitePawnOne = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e2"), Alliance.WHITE, false);
         builder.setPiece(blackPawn);
         builder.setPiece(whitePawnOne);
         builder.setMoveMaker(Alliance.WHITE);
@@ -171,7 +171,7 @@ class PawnTest {
     void whitePawnCanAttackEnPassant() {
         Builder builder = new Builder();
         Pawn whitePawn = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("f5"), Alliance.WHITE, false);
-        Pawn blackPawnOne = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e7"), Alliance.BLACK);
+        Pawn blackPawnOne = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e7"), Alliance.BLACK, false);
         builder.setPiece(whitePawn);
         builder.setPiece(blackPawnOne);
         builder.setMoveMaker(Alliance.BLACK);
@@ -195,7 +195,7 @@ class PawnTest {
     @Test
     void blackPawnPromotion() {
         Builder builder = new Builder();
-        Pawn blackPawn = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e2"), Alliance.BLACK);
+        Pawn blackPawn = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e2"), Alliance.BLACK, false);
         builder.setPiece(blackPawn);
         builder.setMoveMaker(Alliance.BLACK);
         Board board = builder.build();
@@ -211,7 +211,7 @@ class PawnTest {
     @Test
     void whitePawnPromotion() {
         Builder builder = new Builder();
-        Pawn whitePawn = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e7"), Alliance.WHITE);
+        Pawn whitePawn = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e7"), Alliance.WHITE, false);
         builder.setPiece(whitePawn);
         builder.setMoveMaker(Alliance.WHITE);
         Board board = builder.build();

@@ -49,6 +49,7 @@ class GameStateManager {
 
         if (boardType == 2) this.chessDataBoard = Board.createRandomBoard();
         else if (boardType == 3) this.chessDataBoard = Board.createHordeBoard();
+        else if (boardType == 4) this.chessDataBoard = Board.createLightBrigadeBoard();
         else this.chessDataBoard = Board.createStandardBoard();
         //Add first board
         boardHistory.add(chessDataBoard);

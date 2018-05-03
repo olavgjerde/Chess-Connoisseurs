@@ -67,7 +67,7 @@ class KingTest {
     void kingCanNotAttackAlly() {
         Builder builder = new Builder();
         King kingInQuestion = new King(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
-        Pawn pawnAlly = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e5"), Alliance.WHITE);
+        Pawn pawnAlly = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e5"), Alliance.WHITE, false);
         builder.setPiece(kingInQuestion);
         builder.setPiece(pawnAlly);
         builder.setMoveMaker(Alliance.WHITE);
@@ -86,7 +86,7 @@ class KingTest {
     void kingCanAttackEnemy() {
         Builder builder = new Builder();
         King kingInQuestion = new King(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
-        Pawn pawnEnemy = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e5"), Alliance.BLACK);
+        Pawn pawnEnemy = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e5"), Alliance.BLACK, false);
         builder.setPiece(kingInQuestion);
         builder.setPiece(pawnEnemy);
         builder.setMoveMaker(Alliance.WHITE);

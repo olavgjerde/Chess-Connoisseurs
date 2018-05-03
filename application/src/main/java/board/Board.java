@@ -186,14 +186,14 @@ public class Board {
         builder.setPiece(new Bishop(new Coordinate(5,0), Alliance.BLACK));
         builder.setPiece(new Knight(new Coordinate(6,0), Alliance.BLACK));
         builder.setPiece(new Rook(new Coordinate(7,0), Alliance.BLACK));
-        builder.setPiece(new Pawn(new Coordinate(0,1), Alliance.BLACK));
-        builder.setPiece(new Pawn(new Coordinate(1,1), Alliance.BLACK));
-        builder.setPiece(new Pawn(new Coordinate(2,1), Alliance.BLACK));
-        builder.setPiece(new Pawn(new Coordinate(3,1), Alliance.BLACK));
-        builder.setPiece(new Pawn(new Coordinate(4,1), Alliance.BLACK));
-        builder.setPiece(new Pawn(new Coordinate(5,1), Alliance.BLACK));
-        builder.setPiece(new Pawn(new Coordinate(6,1), Alliance.BLACK));
-        builder.setPiece(new Pawn(new Coordinate(7,1), Alliance.BLACK));
+        builder.setPiece(new Pawn(new Coordinate(0,1), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(1,1), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(2,1), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(3,1), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(4,1), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(5,1), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(6,1), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(7,1), Alliance.BLACK, false));
 
         // White pieces
         builder.setPiece(new Rook(new Coordinate(0,7), Alliance.WHITE));
@@ -204,14 +204,14 @@ public class Board {
         builder.setPiece(new Bishop(new Coordinate(5,7), Alliance.WHITE));
         builder.setPiece(new Knight(new Coordinate(6,7), Alliance.WHITE));
         builder.setPiece(new Rook(new Coordinate(7,7), Alliance.WHITE));
-        builder.setPiece(new Pawn(new Coordinate(0,6), Alliance.WHITE));
-        builder.setPiece(new Pawn(new Coordinate(1,6), Alliance.WHITE));
-        builder.setPiece(new Pawn(new Coordinate(2,6), Alliance.WHITE));
-        builder.setPiece(new Pawn(new Coordinate(3,6), Alliance.WHITE));
-        builder.setPiece(new Pawn(new Coordinate(4,6), Alliance.WHITE));
-        builder.setPiece(new Pawn(new Coordinate(5,6), Alliance.WHITE));
-        builder.setPiece(new Pawn(new Coordinate(6,6), Alliance.WHITE));
-        builder.setPiece(new Pawn(new Coordinate(7,6), Alliance.WHITE));
+        builder.setPiece(new Pawn(new Coordinate(0,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(1,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(2,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(3,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(4,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(5,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(6,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(7,6), Alliance.WHITE, false));
         builder.setMoveMaker(Alliance.WHITE);
         return builder.build();
     }
@@ -268,22 +268,27 @@ public class Board {
         return board;
     }
 
+    /**
+     * Constructs a board with a "horde" layout
+     * @see <a href="https://en.wikipedia.org/wiki/Dunsany%27s_Chess">Horde chess</a>
+     * @return board with hoard layout
+     */
     public static Board createHordeBoard() {
         final Builder builder = new Builder();
         // Black pieces
-        builder.setPiece(new Pawn(new Coordinate(0,0), Alliance.BLACK));
-        builder.setPiece(new Pawn(new Coordinate(1,0), Alliance.BLACK));
-        builder.setPiece(new Pawn(new Coordinate(2,0), Alliance.BLACK));
-        builder.setPiece(new Pawn(new Coordinate(5,0), Alliance.BLACK));
-        builder.setPiece(new Pawn(new Coordinate(6,0), Alliance.BLACK));
-        builder.setPiece(new Pawn(new Coordinate(7,0), Alliance.BLACK));
+        builder.setPiece(new Pawn(new Coordinate(0,0), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(1,0), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(2,0), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(5,0), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(6,0), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(7,0), Alliance.BLACK, false));
         for (int i = 1; i < 4; i++) {
             for (int j = 0; j < 8; j++) {
-                builder.setPiece(new Pawn(new Coordinate(j, i), Alliance.BLACK));
+                builder.setPiece(new Pawn(new Coordinate(j, i), Alliance.BLACK, false));
             }
         }
-        builder.setPiece(new Pawn(new Coordinate(3, 4), Alliance.BLACK));
-        builder.setPiece(new Pawn(new Coordinate(4, 4), Alliance.BLACK));
+        builder.setPiece(new Pawn(new Coordinate(3, 4), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(4, 4), Alliance.BLACK, false));
 
         // White pieces
         builder.setPiece(new Rook(new Coordinate(0,7), Alliance.WHITE));
@@ -294,16 +299,47 @@ public class Board {
         builder.setPiece(new Bishop(new Coordinate(5,7), Alliance.WHITE));
         builder.setPiece(new Knight(new Coordinate(6,7), Alliance.WHITE));
         builder.setPiece(new Rook(new Coordinate(7,7), Alliance.WHITE));
-        builder.setPiece(new Pawn(new Coordinate(0,6), Alliance.WHITE));
-        builder.setPiece(new Pawn(new Coordinate(1,6), Alliance.WHITE));
-        builder.setPiece(new Pawn(new Coordinate(2,6), Alliance.WHITE));
-        builder.setPiece(new Pawn(new Coordinate(3,6), Alliance.WHITE));
-        builder.setPiece(new Pawn(new Coordinate(4,6), Alliance.WHITE));
-        builder.setPiece(new Pawn(new Coordinate(5,6), Alliance.WHITE));
-        builder.setPiece(new Pawn(new Coordinate(6,6), Alliance.WHITE));
-        builder.setPiece(new Pawn(new Coordinate(7,6), Alliance.WHITE));
+        builder.setPiece(new Pawn(new Coordinate(0,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(1,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(2,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(3,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(4,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(5,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(6,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(7,6), Alliance.WHITE, false));
         builder.setMoveMaker(Alliance.WHITE);
 
+        return builder.build();
+    }
+
+    /**
+     * Constructs a board with a "light brigade" layout
+     * @return board with light brigade layout
+     */
+    public static Board createLightBrigadeBoard() {
+        final Builder builder = new Builder();
+        //Black pieces
+        builder.setPiece(new Knight(new Coordinate(0,0), Alliance.BLACK));
+        builder.setPiece(new Knight(new Coordinate(1,0), Alliance.BLACK));
+        builder.setPiece(new Knight(new Coordinate(2,0), Alliance.BLACK));
+        builder.setPiece(new Knight(new Coordinate(3,0), Alliance.BLACK));
+        builder.setPiece(new King(new Coordinate(4,0), Alliance.BLACK));
+        builder.setPiece(new Knight(new Coordinate(5,0), Alliance.BLACK));
+        builder.setPiece(new Knight(new Coordinate(6,0), Alliance.BLACK));
+        builder.setPiece(new Knight(new Coordinate(7,0), Alliance.BLACK));
+        for (int i = 0; i < 8; i++) {
+            builder.setPiece(new Pawn(new Coordinate(i, 1), Alliance.BLACK, true));
+        }
+
+        //White pieces
+        for (int i = 0; i < 8; i++) {
+            builder.setPiece(new Pawn(new Coordinate(i, 6), Alliance.WHITE, true));
+        }
+        builder.setPiece(new Queen(new Coordinate(1, 7), Alliance.WHITE));
+        builder.setPiece(new Queen(new Coordinate(3, 7), Alliance.WHITE));
+        builder.setPiece(new King(new Coordinate(4, 7), Alliance.WHITE));
+        builder.setPiece(new Queen(new Coordinate(6, 7), Alliance.WHITE));
+        builder.setMoveMaker(Alliance.WHITE);
         return builder.build();
     }
 

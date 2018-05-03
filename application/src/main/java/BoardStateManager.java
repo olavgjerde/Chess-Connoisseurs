@@ -79,11 +79,7 @@ public class BoardStateManager {
      * @return true if its a draw, false otherwise
      */
     public boolean isDraw(){
-        int counter = 0;
-        for (Board b : boardHistory) {
-            if (getLastBoardState().toString().equals(b.toString())) counter++;
-            if (counter >= 4) return true;
-        }
+        if (boardHistory.stream().filter(b -> b.toString().equals(getLastBoardState().toString())).toArray().length >= 3) return true;
         return false;
     }
 }

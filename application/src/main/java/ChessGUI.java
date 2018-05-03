@@ -402,7 +402,7 @@ public class ChessGUI extends Application {
             soundClipManager.clear();
             soundClipManager = new SoundClipManager("GameMusic.wav", true, SOUNDTRACK_VOLUME, playSound);
         }
-        Scene gameScene = new Scene(gamePlayPane, screenWidth+20, screenHeight);
+        Scene gameScene = new Scene(gamePlayPane, screenWidth, screenHeight);
         gameScene.setCamera(new PerspectiveCamera());
         primaryStage.setScene(gameScene);
         //Set off white AI (in case of human vs white ai / ai vs ai)
@@ -497,8 +497,7 @@ public class ChessGUI extends Application {
 
         VBox statusPane = new VBox();
         statusPane.setStyle("-fx-border-color: black; -fx-background-color: radial-gradient(center 50% 50%, radius 140%, derive(darkslategray, -20%), black)");
-        // Original 30, 30, 0, 30; This is set with Henrik's PC(It may be wrong for other OS's)
-        statusPane.setPadding(new Insets(10, 0, 0, 0));
+        statusPane.setPadding(new Insets(30, 30, 0, 30));
         statusPane.setAlignment(Pos.TOP_CENTER);
         statusPane.setSpacing(10);
         // Title for "Game Stats"

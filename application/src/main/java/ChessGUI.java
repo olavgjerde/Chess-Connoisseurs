@@ -422,10 +422,21 @@ public class ChessGUI extends Application {
      */
     private MenuBar populateMenuBar() {
         MenuBar menuBar = new MenuBar();
-        menuBar.getMenus().addAll(createFileMenu(), createOptionMenu());
+        menuBar.getMenus().addAll(createFileMenu(), createOptionMenu(), createHelpMenu());
         return menuBar;
     }
+    /**
+     * Create an help menu
+     *
+     * @return return populated help menu
+     */
+    private Menu createHelpMenu() {
+        Menu optionsMenu = new Menu("Help");
+        CheckMenuItem toggleRules = new CheckMenuItem("Rules");
 
+        optionsMenu.getItems().addAll(toggleRules);
+        return optionsMenu;
+    }
     /**
      * Create an options menu
      *

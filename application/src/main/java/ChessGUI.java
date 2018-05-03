@@ -6,7 +6,6 @@ import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.*;
@@ -30,13 +29,11 @@ import pieces.Piece;
 import pieces.Piece.PieceType;
 import player.Score;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ChessGUI extends Application {
-    private static double screenWidth = Screen.getPrimary().getBounds().getWidth(), screenHeight = Screen.getPrimary().getBounds().getHeight();
+    private static double windowWidth = Screen.getPrimary().getBounds().getWidth(), windowHeight = Screen.getPrimary().getBounds().getHeight();
     private static Stage primaryStage;
     private BorderPane gamePlayPane;
     private StackPane centerPaneContainer;
@@ -71,18 +68,24 @@ public class ChessGUI extends Application {
     public void start(Stage primaryStage) {
         ChessGUI.primaryStage = primaryStage;
         primaryStage.widthProperty().addListener((observable, oldValue, newValue) -> {
-            screenWidth = newValue.doubleValue();
-            if (gameStateManager != null) Platform.runLater(this::drawChessPane);
+            windowWidth = newValue.doubleValue();
+            if (gameStateManager != null) {
+                Platform.runLater(this::drawChessPane);
+                if (smallMode()) {
+                    gamePlayPane.setLeft(null);
+                    gamePlayPane.setRight(null);
+                }
+            }
         });
         primaryStage.heightProperty().addListener((observable, oldValue, newValue) -> {
-            screenHeight = newValue.doubleValue();
+            windowHeight = newValue.doubleValue();
             if (gameStateManager != null) Platform.runLater(this::drawChessPane);
         });
 
         primaryStage.setTitle("Connoisseur Chess");
         primaryStage.setOnCloseRequest(event -> Platform.exit());
 
-        showStartMenu(screenWidth / 1.6, screenHeight / 1.4);
+        showStartMenu(windowWidth / 1.6, windowHeight / 1.4);
 
         primaryStage.show();
     }
@@ -104,12 +107,20 @@ public class ChessGUI extends Application {
     }
 
     /**
+     * Check if the GUI should use a smaller layout then normal
+     * @return true if GUI should use small mode
+     */
+    private boolean smallMode() {
+        return windowWidth < Screen.getPrimary().getBounds().getWidth() / 2;
+    }
+
+    /**
      * Shows the start menu for the application
      */
     private void showStartMenu(double sceneWidth, double sceneHeight) {
         VBox menuBox = new VBox();
         menuBox.setMaxWidth(sceneWidth / 1.6);
-        menuBox.setMaxHeight(sceneHeight / 1.5);
+        menuBox.setMaxHeight(sceneHeight / 1.45);
         menuBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.85); -fx-background-radius: 10;");
         menuBox.setAlignment(Pos.CENTER);
         menuBox.setSpacing(7);
@@ -290,8 +301,8 @@ public class ChessGUI extends Application {
         //Pick randomly from color array
         circle.setFill(colors[ThreadLocalRandom.current().nextInt(colors.length)]);
         //Take a random position within window size
-        circle.setCenterX(ThreadLocalRandom.current().nextDouble(screenWidth));
-        circle.setCenterY(ThreadLocalRandom.current().nextDouble(screenHeight));
+        circle.setCenterX(ThreadLocalRandom.current().nextDouble(windowWidth));
+        circle.setCenterY(ThreadLocalRandom.current().nextDouble(windowHeight));
         //Add to pane
         circleContainer.getChildren().add(circle);
         //Add animation
@@ -309,8 +320,8 @@ public class ChessGUI extends Application {
                 new KeyFrame(
                         Duration.seconds(10 + ThreadLocalRandom.current().nextDouble() * 20),
                         new KeyValue(circle.radiusProperty(), 0),
-                        new KeyValue(circle.centerXProperty(), ThreadLocalRandom.current().nextDouble() * screenWidth),
-                        new KeyValue(circle.centerYProperty(), ThreadLocalRandom.current().nextDouble() * screenHeight),
+                        new KeyValue(circle.centerXProperty(), ThreadLocalRandom.current().nextDouble() * windowWidth),
+                        new KeyValue(circle.centerYProperty(), ThreadLocalRandom.current().nextDouble() * windowHeight),
                         new KeyValue(circle.opacityProperty(), 0))
         );
         timeline.setCycleCount(1);
@@ -392,9 +403,6 @@ public class ChessGUI extends Application {
     private void showGameScene() {
         this.gamePlayPane = new BorderPane();
         this.gamePlayPane.setTop(populateMenuBar());
-        this.gamePlayPane.setBottom(drawInfoPane());
-        this.gamePlayPane.setRight(drawStatusPane());
-        this.gamePlayPane.setLeft(drawTakenPiecesPane());
 
         //Add background pane for chess board and draw the chessboard itself
         this.centerPaneContainer = new StackPane();
@@ -462,8 +470,8 @@ public class ChessGUI extends Application {
         VBox rootBox = new VBox();
         rootBox.setSpacing(5);
         rootBox.setStyle("-fx-border-color: black; -fx-border-width: 2; -fx-background-color: radial-gradient(center 50% 50%, radius 180%, derive(darkslategray, 20%), black)");
-        rootBox.setMaxHeight(screenHeight / 2);
-        rootBox.setMaxWidth(screenWidth / 3);
+        rootBox.setMaxHeight(windowHeight / 2);
+        rootBox.setMaxWidth(windowWidth / 3);
         rootBox.setAlignment(Pos.CENTER);
         rootBox.setOnMouseClicked(event -> ruleStage.close());
 
@@ -609,9 +617,9 @@ public class ChessGUI extends Application {
         VBox statusPaneRoot = new VBox();
         statusPaneRoot.setStyle("-fx-border-color: black; -fx-background-color: radial-gradient(center 50% 50%, radius 140%, derive(darkslategray, -20%), black)");
         statusPaneRoot.setPadding(new Insets(30, 30, 0, 30));
-        statusPaneRoot.setMaxWidth(screenWidth / 8);
+        statusPaneRoot.setMaxWidth(windowWidth / 8);
         statusPaneRoot.setAlignment(Pos.TOP_CENTER);
-        statusPaneRoot.setSpacing(10);
+        statusPaneRoot.setSpacing(20);
         // Title for "Game Stats"
         ImageView gameStatImage = new ImageView(resources.gameStats);
         gameStatImage.setPreserveRatio(true);
@@ -633,8 +641,6 @@ public class ChessGUI extends Application {
         //Player names and scores styling
         whitePlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (statusPaneRoot.getMaxWidth() / 9) - whitePlayerText.getText().length() / 50));
         blackPlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (statusPaneRoot.getMaxWidth() / 9) - blackPlayerText.getText().length() / 50));
-        whitePlayerText.setUnderline(true);
-        blackPlayerText.setUnderline(true);
         whiteScore.setAlignment(Pos.CENTER);
         blackScore.setAlignment(Pos.CENTER);
 
@@ -674,11 +680,7 @@ public class ChessGUI extends Application {
         Text moveHistoryText = new Text("PREVIOUS MOVE: \n" + gameStateManager.getLastMoveText());
         moveHistoryText.setFont(Font.font("Verdana", FontWeight.NORMAL, statusPaneRoot.getMaxWidth() / 11));
 
-        //Display if the current player is in check
-        Text currentPlayerInCheck = new Text((gameStateManager.currentPlayerAlliance() + " in check: \n" + gameStateManager.currentPlayerInCheck()).toUpperCase());
-        currentPlayerInCheck.setFont(Font.font("Verdana", FontWeight.NORMAL, statusPaneRoot.getMaxWidth() / 11));
-
-        statusPaneRoot.getChildren().addAll(moveHistoryText, currentPlayerInCheck, createStatusPaneButtonBox(statusPaneRoot.getMaxWidth() / 4));
+        statusPaneRoot.getChildren().addAll(moveHistoryText, createStatusPaneButtonBox(statusPaneRoot.getMaxWidth() / 4));
 
         //Color all texts in the root node of status pane to the color white
         for (Node x : statusPaneRoot.getChildren()) {
@@ -740,7 +742,7 @@ public class ChessGUI extends Application {
         //Extra button styling
         HBox buttonContainer = new HBox(backButton, hintButton);
         buttonContainer.setAlignment(Pos.CENTER);
-        buttonContainer.setPadding(new Insets((screenHeight / 500) * 200, 0, 0, 0));
+        buttonContainer.setPadding(new Insets((windowHeight / 500) * 165, 0, 0, 0));
         buttonContainer.setSpacing(5);
         for (Node x : buttonContainer.getChildren()) {
             x.setStyle("-fx-focus-color: darkslategrey; -fx-faint-focus-color: transparent; -fx-background-color: transparent;");
@@ -784,8 +786,10 @@ public class ChessGUI extends Application {
         this.centerPaneContainer.getChildren().add(chessGridPane);
         this.gamePlayPane.setCenter(centerPaneContainer);
         //Update the other panes when redrawing chess pane
-        drawStatusPane();
-        drawTakenPiecesPane();
+        if (!smallMode()) {
+            drawStatusPane();
+            drawTakenPiecesPane();
+        }
         drawInfoPane();
     }
 
@@ -797,7 +801,7 @@ public class ChessGUI extends Application {
     private VBox drawTakenPiecesPane() {
         VBox basePane = new VBox();
         basePane.setStyle("-fx-border-color: black; -fx-background-color: radial-gradient(center 50% 50%, radius 120%, derive(darkslategray, -20%), black)");
-        basePane.setMaxWidth(screenWidth / 16);
+        basePane.setMaxWidth(windowWidth / 16);
         basePane.setAlignment(Pos.CENTER);
 
         final double IMAGE_WIDTH = basePane.getMaxWidth() / 3.5;
@@ -837,11 +841,17 @@ public class ChessGUI extends Application {
         infoRoot.setPadding(new Insets(3, 0, 2, 0));
         infoRoot.setAlignment(Pos.CENTER);
 
+        if (gameStateManager.currentPlayerInCheck() || gameStateManager.currentPlayerInStaleMate()) {
+            infoRoot.setStyle("-fx-background-color: radial-gradient(center 50% 50%, radius 120%, derive(darkred, -20%), black)");
+        } else {
+            infoRoot.setStyle("-fx-background-color: radial-gradient(center 50% 50%, radius 120%, green, black)");
+        }
+
         String player = gameStateManager.currentPlayerAlliance() == Alliance.WHITE ? whitePlayerName : blackPlayerName;
         String turnText = "IT'S " + player.toUpperCase() + "'S TURN";
-
         Text infoText = new Text(turnText);
-        infoText.setFont(Font.font("Verdana", FontWeight.BOLD, screenWidth / 85));
+        infoText.setFont(Font.font("Verdana", FontWeight.BOLD, windowWidth / 85));
+        infoText.setFill(Color.WHITE);
 
         infoRoot.getChildren().add(infoText);
         gamePlayPane.setBottom(infoRoot);
@@ -861,7 +871,7 @@ public class ChessGUI extends Application {
         menuRoot.setPadding(new Insets(0));
 
         //Give buttons a size in relation to screen dimensions
-        double buttonSize = ((screenHeight + screenWidth) * 4 / (BoardUtils.getWidth() * BoardUtils.getHeight()));
+        double buttonSize = ((windowHeight + windowWidth) * 4 / (BoardUtils.getWidth() * BoardUtils.getHeight()));
 
         //Fetch images for promotion and scale them to fit within buttons
         Alliance playerAlliance = gameStateManager.currentPlayerAlliance();
@@ -937,8 +947,8 @@ public class ChessGUI extends Application {
         VBox rootBox = new VBox();
         rootBox.setSpacing(5);
         rootBox.setStyle("-fx-border-color: black; -fx-border-width: 2; -fx-background-color: radial-gradient(center 50% 50%, radius 180%, derive(darkslategray, 20%), black)");
-        rootBox.setMaxHeight(screenHeight / 2);
-        rootBox.setMaxWidth(screenWidth / 3);
+        rootBox.setMaxHeight(windowHeight / 2);
+        rootBox.setMaxWidth(windowWidth / 3);
         rootBox.setAlignment(Pos.CENTER);
         rootBox.setOnMouseClicked(event -> highScoreStage.close());
 
@@ -1024,14 +1034,14 @@ public class ChessGUI extends Application {
         else if (gameStateManager.currentPlayerInCheckMate()) title = new Text("CHECKMATE - ");
         else if (gameStateManager.currentPlayerInStaleMate()) title = new Text("STALEMATE - ");
         else if (gameStateManager.isDraw()) title = new Text("DRAW - ");
-        title.setFont(Font.font("Verdana", FontWeight.BOLD, screenWidth / 85));
+        title.setFont(Font.font("Verdana", FontWeight.BOLD, windowWidth / 85));
         Text t1 = new Text("UPDATED SCORES: ");
-        t1.setFont(Font.font("Verdana", FontWeight.BOLD, screenWidth / 85));
+        t1.setFont(Font.font("Verdana", FontWeight.BOLD, windowWidth / 85));
         Text t2 = new Text(whitePlayerName + ": " + whitePlayerScore + " / ");
         Text t3 = new Text(blackPlayerName + ": " + blackPlayerScore + " ");
         int length = t2.getText().length() + t3.getText().length();
-        t2.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, screenWidth / 85 - length / 50));
-        t3.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, screenWidth / 85 - length / 50));
+        t2.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, windowWidth / 85 - length / 50));
+        t3.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, windowWidth / 85 - length / 50));
         gameOverRoot.getChildren().addAll(title, t1, t2, t3);
 
         //Buttons
@@ -1067,7 +1077,7 @@ public class ChessGUI extends Application {
      * the tiles on data representation of the board and the gui representation of the board.
      */
     private class ChessTile extends StackPane {
-        final double TILE_SIZE = ((screenHeight * 6.6) / (BoardUtils.getWidth() * BoardUtils.getHeight()));
+        final double TILE_SIZE = ((windowHeight * 6.4) / (BoardUtils.getWidth() * BoardUtils.getHeight()));
         private final Coordinate coordinateId;
 
         /**

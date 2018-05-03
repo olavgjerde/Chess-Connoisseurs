@@ -189,7 +189,7 @@ class GameStateManager {
 
     /**
      * Get the board type of the current board
-     * 1 = standard, 2 = random, 3 = horde
+     * 1 = standard, 2 = random, 3 = horde, 4 = light brigade
      * @return the board type in the form of an int
      */
     public int getBoardType() {

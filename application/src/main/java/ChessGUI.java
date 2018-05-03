@@ -30,6 +30,8 @@ import pieces.Piece;
 import pieces.Piece.PieceType;
 import player.Score;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -421,8 +423,14 @@ public class ChessGUI extends Application {
      * @return populated MenuBar
      */
     private MenuBar populateMenuBar() {
+        int typeOfGamemode = gameStateManager.getBoardType();
         MenuBar menuBar = new MenuBar();
-        menuBar.getMenus().addAll(createFileMenu(), createOptionMenu(), createHelpMenu());
+        if(typeOfGamemode == 3 || typeOfGamemode == 4) {
+            menuBar.getMenus().addAll(createFileMenu(), createOptionMenu(), createHelpMenu());
+        }
+        else{
+            menuBar.getMenus().addAll(createFileMenu(), createOptionMenu());
+        }
         return menuBar;
     }
     /**
@@ -431,12 +439,96 @@ public class ChessGUI extends Application {
      * @return return populated help menu
      */
     private Menu createHelpMenu() {
-        Menu optionsMenu = new Menu("Help");
-        CheckMenuItem toggleRules = new CheckMenuItem("Rules");
+            Menu optionsMenu = new Menu("Help");
+            CheckMenuItem toggleRules = new CheckMenuItem("Rules");
+            toggleRules.setOnAction(event -> showRuleWindow());
+            optionsMenu.getItems().addAll(toggleRules);
+            return optionsMenu;
 
-        optionsMenu.getItems().addAll(toggleRules);
-        return optionsMenu;
     }
+    /**
+     * Shows the rule window for the application
+     */
+    private void showRuleWindow() {
+        int typeOfGamemode = gameStateManager.getBoardType();
+        Stage ruleStage = new Stage();
+        ruleStage.initStyle(StageStyle.UNDECORATED);
+
+        VBox rootBox = new VBox();
+        rootBox.setSpacing(5);
+        rootBox.setStyle("-fx-border-color: black; -fx-border-width: 2; -fx-background-color: radial-gradient(center 50% 50%, radius 180%, derive(darkslategray, 20%), black)");
+        rootBox.setMaxHeight(screenHeight / 2);
+        rootBox.setMaxWidth(screenWidth / 3);
+        rootBox.setAlignment(Pos.CENTER);
+        rootBox.setOnMouseClicked(event -> ruleStage.close());
+
+        Text title = new Text("RULES");
+        title.setFont(Font.font("Verdana", FontWeight.BOLD, 30));
+        title.setFill(Color.WHITE);
+        title.setTextAlignment(TextAlignment.CENTER);
+        rootBox.getChildren().add(title);
+
+        HBox listBox = new HBox();
+        listBox.setAlignment(Pos.CENTER);
+        listBox.setSpacing(5);
+        rootBox.getChildren().add(listBox);
+
+        VBox gamemode = new VBox(), rules = new VBox();
+        Text gamemodeTitle = new Text("Gamemode"), ruleTitle = new Text("Rules");
+        gamemodeTitle.setUnderline(true);
+        ruleTitle.setUnderline(true);
+
+        gamemode.getChildren().add(gamemodeTitle);
+        rules.getChildren().add(ruleTitle);
+
+        listBox.getChildren().addAll(gamemode, rules);
+
+        String text;
+       /* if(typeOfGamemode ==3){
+            text = new String(resources.horde);
+        }
+        else{
+            text = new String(resources.lightBrigade);
+
+        }
+
+
+        for (int i = 0; i < text.length(); i++) {
+            Text nameText = new Text(text);
+            gamemode.getChildren().add(nameText);
+        }*/
+
+        //Change font color of text
+        for (Node n : gamemode.getChildren()) {
+            if (n instanceof Text) {
+                ((Text) n).setFont(Font.font("Verdana", FontWeight.NORMAL, 15));
+                ((Text) n).setFill(Color.WHITE);
+            }
+        }
+        for (Node n : rules.getChildren()) {
+            if (n instanceof Text) {
+                ((Text) n).setFont(Font.font("Verdana", FontWeight.NORMAL, 15));
+                ((Text) n).setFill(Color.WHITE);
+            }
+        }
+
+
+
+        ruleStage.setWidth(rootBox.getMaxWidth());
+        ruleStage.setHeight(rootBox.getMaxHeight());
+        ruleStage.setX(primaryStage.getX() + primaryStage.getWidth() / 2 - ruleStage.getWidth() / 2);
+        ruleStage.setY(primaryStage.getY() + primaryStage.getHeight() / 2 - ruleStage.getHeight() / 2);
+        //Window settings
+        ruleStage.initModality(Modality.APPLICATION_MODAL);
+        ruleStage.setResizable(false);
+        ScrollPane scrollPane = new ScrollPane(rootBox);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setFitToWidth(true);
+        ruleStage.setScene(new Scene(scrollPane));
+        ruleStage.show();
+    }
+
+
     /**
      * Create an options menu
      *

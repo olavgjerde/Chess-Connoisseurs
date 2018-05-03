@@ -601,18 +601,17 @@ public class ChessGUI extends Application {
      * @return VBox with nodes that belong to the state pane
      */
     private VBox drawStatusPane() {
-        // Make image scalable
-        double imageSize = ((screenHeight + screenWidth) / (BoardUtils.getWidth() * BoardUtils.getHeight()));
-
-        VBox statusPane = new VBox();
-        statusPane.setStyle("-fx-border-color: black; -fx-background-color: radial-gradient(center 50% 50%, radius 140%, derive(darkslategray, -20%), black)");
-        statusPane.setPadding(new Insets(30, 30, 0, 30));
-        statusPane.setAlignment(Pos.TOP_CENTER);
-        statusPane.setSpacing(10);
+        VBox statusPaneRoot = new VBox();
+        statusPaneRoot.setStyle("-fx-border-color: black; -fx-background-color: radial-gradient(center 50% 50%, radius 140%, derive(darkslategray, -20%), black)");
+        statusPaneRoot.setPadding(new Insets(30, 30, 0, 30));
+        statusPaneRoot.setMaxWidth(screenWidth / 8);
+        statusPaneRoot.setMaxHeight(screenHeight);
+        statusPaneRoot.setAlignment(Pos.TOP_CENTER);
+        statusPaneRoot.setSpacing(10);
         // Title for "Game Stats"
-        ImageView imageView = new ImageView(resources.gameStats);
-        imageView.setPreserveRatio(true);
-        imageView.setFitHeight(imageSize + 50);
+        ImageView gameStatImage = new ImageView(resources.gameStats);
+        gameStatImage.setPreserveRatio(true);
+        gameStatImage.setFitWidth(statusPaneRoot.getMaxWidth() + 100);
         // WK and BK image in front of player name and score wrapped in a HBox
         HBox whiteScore = new HBox();
         HBox blackScore = new HBox();
@@ -620,16 +619,16 @@ public class ChessGUI extends Application {
         ImageView whiteKingImg = new ImageView(resources.WK);
         whiteKingImg.setPreserveRatio(true);
         blackKingImg.setPreserveRatio(true);
-        whiteKingImg.setFitHeight(20);
-        blackKingImg.setFitHeight(20);
+        whiteKingImg.setFitHeight(statusPaneRoot.getMaxWidth() / 5);
+        blackKingImg.setFitHeight(statusPaneRoot.getMaxWidth() / 5);
         //Player names and scores
         String whiteDisplayName = whitePlayerName.length() >= 15 ? whitePlayerName.substring(0, 12) + "..." : whitePlayerName;
         String blackDisplayName = blackPlayerName.length() >= 15 ? blackPlayerName.substring(0, 12) + "..." : blackPlayerName;
         Text whitePlayerText = new Text(whiteDisplayName + ": " + whitePlayerScore + " | " + whitePlayerStats);
         Text blackPlayerText = new Text(blackDisplayName + ": " + blackPlayerScore + " | " + blackPlayerStats);
         //Player names and scores styling
-        whitePlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (screenWidth / 85) - whitePlayerText.getText().length() / 50));
-        blackPlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (screenWidth / 85) - blackPlayerText.getText().length() / 50));
+        whitePlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (statusPaneRoot.getMaxWidth() / 9) - whitePlayerText.getText().length() / 50));
+        blackPlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (statusPaneRoot.getMaxWidth() / 9) - blackPlayerText.getText().length() / 50));
         whitePlayerText.setUnderline(true);
         blackPlayerText.setUnderline(true);
         whiteScore.setAlignment(Pos.CENTER);
@@ -642,13 +641,13 @@ public class ChessGUI extends Application {
         whiteScore.getChildren().addAll(whiteKingImg,whitePlayerText);
         blackScore.getChildren().addAll(blackKingImg,blackPlayerText);
 
-        statusPane.getChildren().addAll(imageView, whiteScore, blackScore);
+        statusPaneRoot.getChildren().addAll(gameStatImage, whiteScore, blackScore);
 
         //Show the evaluation of the current board relative to the current player, can help you know how well you are doing
         if (boardStatusEnabled) {
             Color circleColor = Color.FORESTGREEN;
             if (gameStateManager.getBoardEvaluation() < 0) circleColor = Color.DARKRED;
-            Circle circle = new Circle(screenWidth / 100, circleColor);
+            Circle circle = new Circle(statusPaneRoot.getMaxWidth() / 12, circleColor);
             //Add fade to circle
             FadeTransition fade = new FadeTransition(Duration.millis(1300), circle);
             fade.setFromValue(1.0);
@@ -658,33 +657,33 @@ public class ChessGUI extends Application {
             fade.play();
 
             Text boardStatusText = new Text("The AI thinks your chances are: ");
-            boardStatusText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth / 95));
+            boardStatusText.setFont(Font.font("Verdana", FontWeight.NORMAL, statusPaneRoot.getMaxWidth() / 10));
             boardStatusText.setFill(Color.WHITE);
 
             HBox boardStatusBox = new HBox();
             boardStatusBox.setAlignment(Pos.CENTER);
             boardStatusBox.getChildren().addAll(boardStatusText, circle);
-            statusPane.getChildren().addAll(boardStatusBox);
+            statusPaneRoot.getChildren().addAll(boardStatusBox);
         }
 
         //Show the previous moves made
         Text moveHistoryText = new Text("PREVIOUS MOVE: \n" + gameStateManager.getLastMoveText());
-        moveHistoryText.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth / 85));
+        moveHistoryText.setFont(Font.font("Verdana", FontWeight.NORMAL, statusPaneRoot.getMaxWidth() / 11));
 
         //Display if the current player is in check
         Text currentPlayerInCheck = new Text((gameStateManager.currentPlayerAlliance() + " in check: \n" + gameStateManager.currentPlayerInCheck()).toUpperCase());
-        currentPlayerInCheck.setFont(Font.font("Verdana", FontWeight.NORMAL, screenWidth / 85));
+        currentPlayerInCheck.setFont(Font.font("Verdana", FontWeight.NORMAL, statusPaneRoot.getMaxWidth() / 11));
 
-        statusPane.getChildren().addAll(moveHistoryText, currentPlayerInCheck, createStatusPaneButtonBox());
+        statusPaneRoot.getChildren().addAll(moveHistoryText, currentPlayerInCheck, createStatusPaneButtonBox(statusPaneRoot.getMaxWidth() / 4));
 
         //Color all texts in the root node of status pane to the color white
-        for (Node x : statusPane.getChildren()) {
+        for (Node x : statusPaneRoot.getChildren()) {
             if (x instanceof Text) ((Text) x).setFill(Color.WHITE);
         }
 
         //Use setRight to update root pane when used as a redraw method
-        this.gamePlayPane.setRight(statusPane);
-        return statusPane;
+        this.gamePlayPane.setRight(statusPaneRoot);
+        return statusPaneRoot;
     }
 
     /**
@@ -692,13 +691,10 @@ public class ChessGUI extends Application {
      *
      * @return populated HBox
      */
-    private HBox createStatusPaneButtonBox() {
-        //Button scaling
-        double buttonSize = ((screenHeight + screenWidth) / (BoardUtils.getWidth() * BoardUtils.getHeight()));
-
+    private HBox createStatusPaneButtonBox(double buttonSize) {
         //Hint button for player help
         ImageView image = new ImageView(resources.hintButton);
-        image.setFitHeight(buttonSize + 15);
+        image.setFitHeight(buttonSize);
         image.setPreserveRatio(true);
         Button hintButton = new Button("",image);
         hintButton.setOnMouseEntered(event -> {
@@ -724,7 +720,7 @@ public class ChessGUI extends Application {
 
         //Button for undoing a move
         image = new ImageView(resources.undoButton);
-        image.setFitHeight(buttonSize + 20);
+        image.setFitHeight(buttonSize);
         image.setPreserveRatio(true);
         Button backButton = new Button("", image);
         backButton.setOnMouseEntered(event -> {

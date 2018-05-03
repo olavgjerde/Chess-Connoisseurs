@@ -40,6 +40,7 @@ public class ChessGUI extends Application {
     private static Stage primaryStage;
     private BorderPane gamePlayPane;
     private StackPane centerPaneContainer;
+    private Scene gameScene, startScene;
     //Game state manager is set after confirming on start menu
     private static GameStateManager gameStateManager;
     //Player movement
@@ -251,8 +252,8 @@ public class ChessGUI extends Application {
         menuBox.getChildren().add(createStartMenuConfirmButton(whiteOptions, blackOptions, aiOptions, boardStateOptions, whiteNameField, blackNameField));
 
         StackPane root = new StackPane(createStartMenuBackground(), menuBox);
-        Scene startMenu = new Scene(root, sceneWidth, sceneHeight);
-        primaryStage.setScene(startMenu);
+        this.startScene = new Scene(root, sceneWidth, sceneHeight);
+        primaryStage.setScene(startScene);
     }
 
     /**
@@ -411,8 +412,9 @@ public class ChessGUI extends Application {
             soundClipManager.clear();
             soundClipManager = new SoundClipManager("GameMusic.wav", true, SOUNDTRACK_VOLUME, playSound);
         }
-        Scene gameScene = new Scene(gamePlayPane, screenWidth, screenHeight);
-        gameScene.setCamera(new PerspectiveCamera());
+
+        //Create this scene with dimensions of start menu scene
+        this.gameScene = new Scene(gamePlayPane, startScene.getWidth(), startScene.getHeight());
         primaryStage.setScene(gameScene);
         //Set off white AI (in case of human vs white ai / ai vs ai)
         if (gameStateManager.isWhiteAI()) doAiMove();
@@ -434,6 +436,7 @@ public class ChessGUI extends Application {
         }
         return menuBar;
     }
+
     /**
      * Create an help menu
      *
@@ -447,6 +450,7 @@ public class ChessGUI extends Application {
             return optionsMenu;
 
     }
+
     /**
      * Shows the rule window for the application
      */
@@ -529,7 +533,6 @@ public class ChessGUI extends Application {
         ruleStage.show();
     }
 
-
     /**
      * Create an options menu
      *
@@ -583,7 +586,8 @@ public class ChessGUI extends Application {
         MenuItem newGame = new MenuItem("New game");
         newGame.setOnAction(event -> {
             gameStateManager.killAI();
-            showStartMenu(primaryStage.getWidth(), primaryStage.getHeight());
+            //Show new scene with dimensions of old scene
+            showStartMenu(gameScene.getWidth(), gameScene.getHeight());
         });
 
         MenuItem highScores = new MenuItem("Highscores");

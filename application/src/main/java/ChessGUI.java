@@ -111,7 +111,7 @@ public class ChessGUI extends Application {
      * @return true if GUI should use small mode
      */
     private boolean smallMode() {
-        return windowWidth < Screen.getPrimary().getBounds().getWidth() / 2;
+        return windowWidth <= Screen.getPrimary().getBounds().getWidth() / 2;
     }
 
     /**

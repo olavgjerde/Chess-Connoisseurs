@@ -1385,7 +1385,7 @@ public class ChessGUI extends Application {
                 whitePlayerStats = scoreSystem.getStats(whitePlayerName);
                 blackPlayerStats = scoreSystem.getStats(blackPlayerName);
 
-                Platform.runLater(ChessGUI.this::drawStatusPane);
+                if (!smallMode()) Platform.runLater(ChessGUI.this::drawStatusPane);
                 Platform.runLater(ChessGUI.this::showGameOverPane);
                 return null;
             }

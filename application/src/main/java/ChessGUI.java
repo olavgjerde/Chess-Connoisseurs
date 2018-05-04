@@ -837,6 +837,9 @@ public class ChessGUI extends Application {
      * @return populated FlowPane
      */
     private FlowPane drawInfoPane() {
+        //Do not draw if game has ended (would overwrite game over pane)
+        if (gameStateManager.isGameOver()) return null;
+
         FlowPane infoRoot = new FlowPane();
         infoRoot.setPadding(new Insets(3, 0, 2, 0));
         infoRoot.setAlignment(Pos.CENTER);
@@ -1261,7 +1264,8 @@ public class ChessGUI extends Application {
         private void onClickHandler(Coordinate inputCoordinate) {
             //Stop player from making moves when it is the AI's turn
             if (gameStateManager.currentPlayerAlliance() == Alliance.WHITE && gameStateManager.isWhiteAI() ||
-                    gameStateManager.currentPlayerAlliance() == Alliance.BLACK && gameStateManager.isBlackAI())
+                gameStateManager.currentPlayerAlliance() == Alliance.BLACK && gameStateManager.isBlackAI() ||
+                gameStateManager.isGameOver())
                 return;
 
             if (startTile == null) {
@@ -1280,7 +1284,7 @@ public class ChessGUI extends Application {
             } else if (startTile.equals(gameStateManager.getTile(inputCoordinate))) {
                 //User deselect
                 startTile = null;
-                drawChessPane();
+                Platform.runLater(ChessGUI.this::drawChessPane);
             } else {
                 //User select 'destination'
                 destinationTile = gameStateManager.getTile(inputCoordinate);
@@ -1295,7 +1299,7 @@ public class ChessGUI extends Application {
                 }
 
                 //Attempt move
-                if (destinationTile != null && !gameStateManager.isGameOver()) doHumanMove();
+                if (destinationTile != null) doHumanMove();
             }
         }
     }
@@ -1381,6 +1385,7 @@ public class ChessGUI extends Application {
                 whitePlayerStats = scoreSystem.getStats(whitePlayerName);
                 blackPlayerStats = scoreSystem.getStats(blackPlayerName);
 
+                Platform.runLater(ChessGUI.this::drawStatusPane);
                 Platform.runLater(ChessGUI.this::showGameOverPane);
                 return null;
             }

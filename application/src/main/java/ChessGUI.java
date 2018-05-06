@@ -666,7 +666,7 @@ public class ChessGUI extends Application {
             fade.setAutoReverse(true);
             fade.play();
 
-            Text boardStatusText = new Text("The AI thinks your chances are: ");
+            Text boardStatusText = new Text("ESTIMATED ODDS ");
             boardStatusText.setFont(Font.font("Verdana", FontWeight.NORMAL, statusPaneRoot.getMaxWidth() / 10));
             boardStatusText.setFill(Color.WHITE);
 
@@ -677,7 +677,7 @@ public class ChessGUI extends Application {
         }
 
         //Show the previous moves made
-        Text moveHistoryText = new Text("PREVIOUS MOVE: \n" + gameStateManager.getLastMoveText());
+        Text moveHistoryText = new Text("PREVIOUS MOVE: " + gameStateManager.getLastMoveText());
         moveHistoryText.setFont(Font.font("Verdana", FontWeight.NORMAL, statusPaneRoot.getMaxWidth() / 11));
 
         statusPaneRoot.getChildren().addAll(moveHistoryText, createStatusPaneButtonBox(statusPaneRoot.getMaxWidth() / 4));
@@ -1033,7 +1033,7 @@ public class ChessGUI extends Application {
 
         //Text
         Text title = new Text("GAME OVER - ");
-        if (gameStateManager.getBoardType() == 4) title = new Text("GAME OVER - ");
+        if (gameStateManager.getBoardType() == 3) title = new Text("GAME OVER - ");
         else if (gameStateManager.currentPlayerInCheckMate()) title = new Text("CHECKMATE - ");
         else if (gameStateManager.currentPlayerInStaleMate()) title = new Text("STALEMATE - ");
         else if (gameStateManager.isDraw()) title = new Text("DRAW - ");

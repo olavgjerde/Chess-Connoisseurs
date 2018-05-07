@@ -23,7 +23,7 @@ import java.util.List;
 class GameStateManager {
     //Chess board data representation
     private Board chessDataBoard;
-    private boolean isWhiteAI, isBlackAI;
+    private boolean isWhiteAI, isBlackAI, tutorMode = false;
     final private int aiDepth;
     final private int boardType;
     //Keep count of board history (board states)
@@ -39,7 +39,7 @@ class GameStateManager {
      * @param isWhiteAI     if white ai is playing
      * @param isBlackAI     if black ai is playing
      * @param aiDepth       depth that ai should use for its search
-     * @param boardType     1 = standard, 2 = random, 3 = horde
+     * @param boardType     1 = standard, 2 = random, 3 = horde, 4 = lightBrigade, 5 = tutor mode
      */
     GameStateManager(boolean isWhiteAI, boolean isBlackAI, int aiDepth, int boardType) {
         this.isWhiteAI = isWhiteAI;
@@ -51,8 +51,10 @@ class GameStateManager {
         else if (boardType == 3) this.chessDataBoard = Board.createHordeBoard();
         else if (boardType == 4) this.chessDataBoard = Board.createLightBrigadeBoard();
         else this.chessDataBoard = Board.createStandardBoard();
+        if (boardType == 5) this.tutorMode = true;
+
         //Add first board
-        boardHistory.add(chessDataBoard);
+        this.boardHistory.add(this.chessDataBoard);
     }
 
     /**
@@ -188,11 +190,18 @@ class GameStateManager {
     }
 
     /**
+     * @return true if tutor mode is enabled, false otherwise
+     */
+    boolean isTutorMode() {
+        return this.tutorMode;
+    }
+
+    /**
      * Get the board type of the current board
-     * 1 = standard, 2 = random, 3 = horde, 4 = light brigade
+     * 1 = standard, 2 = random, 3 = horde, 4 = light brigade, 5 = tutor mode
      * @return the board type in the form of an int
      */
-    public int getBoardType() {
+    int getBoardType() {
         return boardType;
     }
 

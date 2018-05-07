@@ -187,24 +187,28 @@ public class ChessGUI extends Application {
         boardStateBox.setAlignment(Pos.CENTER);
         boardStateBox.setSpacing(5);
         final ToggleGroup boardStateOptions = new ToggleGroup();
-        RadioButton boardStateOption1 = new RadioButton("Standard");
-        boardStateOption1.setToggleGroup(boardStateOptions);
-        boardStateOption1.setUserData(1);
-        boardStateOption1.setSelected(true);
-        RadioButton boardStateOption2 = new RadioButton("Random");
-        boardStateOption2.setToggleGroup(boardStateOptions);
-        boardStateOption2.setUserData(2);
-        boardStateOption2.setSelected(false);
-        RadioButton boardStateOption3 = new RadioButton("Horde");
-        boardStateOption3.setToggleGroup(boardStateOptions);
-        boardStateOption3.setUserData(3);
-        boardStateOption3.setSelected(false);
-        RadioButton boardStateOption4 = new RadioButton("Light brigade");
-        boardStateOption4.setToggleGroup(boardStateOptions);
-        boardStateOption4.setUserData(4);
-        boardStateOption4.setSelected(false);
-        // Add to boardStateBox then to root pane for scene
-        boardStateBox.getChildren().addAll(boardStateOption1, boardStateOption2, boardStateOption3, boardStateOption4);
+        RadioButton standardOption = new RadioButton("Standard");
+        standardOption.setToggleGroup(boardStateOptions);
+        standardOption.setUserData(1);
+        standardOption.setSelected(true);
+        RadioButton randomOption = new RadioButton("Random");
+        randomOption.setToggleGroup(boardStateOptions);
+        randomOption.setUserData(2);
+        randomOption.setSelected(false);
+        RadioButton hordeOption = new RadioButton("Horde");
+        hordeOption.setToggleGroup(boardStateOptions);
+        hordeOption.setUserData(3);
+        hordeOption.setSelected(false);
+        RadioButton lightBrigadeOption = new RadioButton("Light Brigade");
+        lightBrigadeOption.setToggleGroup(boardStateOptions);
+        lightBrigadeOption.setUserData(4);
+        lightBrigadeOption.setSelected(false);
+        RadioButton tutorOption = new RadioButton("Tutor Mode");
+        tutorOption.setToggleGroup(boardStateOptions);
+        tutorOption.setUserData(5);
+        tutorOption.setSelected(false);
+        // Add to boardStateBox, then to the root pane for the scene
+        boardStateBox.getChildren().addAll(standardOption, randomOption, hordeOption, lightBrigadeOption, tutorOption);
         Text gameMode = new Text("GAME MODE");
         gameMode.setFont(new Font(18));
         menuBox.getChildren().addAll(gameMode, boardStateBox);
@@ -235,33 +239,49 @@ public class ChessGUI extends Application {
             playSound("ButtonClick.wav", 1);
             whiteNameField.setDisable(false);
             whiteNameField.setText("Player1");
-            for (RadioButton x : difficultyButtons)
-                if (!blackAiOption.isSelected()) x.setDisable(true);
+            for (RadioButton x : difficultyButtons) if (!blackAiOption.isSelected()) x.setDisable(true);
+            if (tutorOption.isDisabled()) tutorOption.setDisable(false);
         });
         blackHumanOption.setOnAction(e -> {
             playSound("ButtonClick.wav", 1);
             blackNameField.setDisable(false);
             blackNameField.setText("Player2");
-            for (RadioButton x : difficultyButtons)
-                if (!whiteAiOption.isSelected()) x.setDisable(true);
+            for (RadioButton x : difficultyButtons) if (!whiteAiOption.isSelected()) x.setDisable(true);
+            if (tutorOption.isDisabled()) tutorOption.setDisable(false);
         });
         whiteAiOption.setOnAction(e -> {
             playSound("ButtonClick.wav", 1);
             whiteNameField.setDisable(true);
             whiteNameField.setText("CPU");
             for (RadioButton x : difficultyButtons) x.setDisable(false);
+            //Disable tutor mode if both AIs are enabled
+            if (blackAiOption.isSelected() && tutorOption.isSelected()) {
+                standardOption.setSelected(true);
+                tutorOption.setDisable(true);
+            }
         });
         blackAiOption.setOnAction(e -> {
             playSound("ButtonClick.wav", 1);
             blackNameField.setDisable(true);
             blackNameField.setText("CPU");
             for (RadioButton x : difficultyButtons) x.setDisable(false);
+            //Disable tutor mode if both AIs are enabled
+            if (whiteAiOption.isSelected() && tutorOption.isSelected()) {
+                standardOption.setSelected(true);
+                tutorOption.setDisable(true);
+            }
         });
-        boardStateOption1.setOnAction(event -> playSound("ButtonClick.wav", 1));
-        boardStateOption3.setOnAction(event -> playSound("ButtonClick.wav", 1));
+
+        //Set default settings for tutor mode
+        tutorOption.setOnAction(event -> {
+            whiteHumanOption.setSelected(true);
+            blackHumanOption.setSelected(false);
+            whiteAiOption.setSelected(false);
+            blackAiOption.setSelected(true);
+            difficultyButtons.get(1).setSelected(true);
+        });
 
         menuBox.getChildren().add(createStartMenuConfirmButton(whiteOptions, blackOptions, aiOptions, boardStateOptions, whiteNameField, blackNameField));
-
         StackPane root = new StackPane(createStartMenuBackground(), menuBox);
         this.startScene = new Scene(root, sceneWidth, sceneHeight);
         primaryStage.setScene(startScene);
@@ -426,6 +446,8 @@ public class ChessGUI extends Application {
         primaryStage.setScene(gameScene);
         //Set off white AI (in case of human vs white ai / ai vs ai)
         if (gameStateManager.isWhiteAI()) doAiMove();
+        //Show hint on startup if in tutor mode
+        else if (gameStateManager.isTutorMode()) showMoveHint();
     }
 
     /**
@@ -707,22 +729,7 @@ public class ChessGUI extends Application {
             Tooltip tp = new Tooltip("Let the AI suggest a move");
             Tooltip.install(hintButton, tp);
         });
-        hintButton.setOnAction(event -> {
-            //Empty any ongoing player move
-            startTile = null;
-            destinationTile = null;
-            userMovedPiece = null;
-            //Let AI find "best" move
-            Move hintMove = gameStateManager.getHint(4, 1000);
-            //Set coordinates found
-            hintStartCoordinate = hintMove.getCurrentCoordinate();
-            hintDestinationCoordinate = hintMove.getDestinationCoordinate();
-            //Redraw to show coordinates found
-            drawChessPane();
-            //Reset hint variables
-            hintStartCoordinate = null;
-            hintDestinationCoordinate = null;
-        });
+        hintButton.setOnAction(event -> showMoveHint());
 
         //Button for undoing a move
         image = new ImageView(resources.undoButton);
@@ -1327,7 +1334,7 @@ public class ChessGUI extends Application {
      * Calls itself if AI vs AI is enabled
      */
     private void doAiMove() {
-        new Thread(new Task() {
+        Task AITask = new Task() {
             @Override
             protected Object call() {
                 boolean moved = gameStateManager.makeAIMove();
@@ -1336,13 +1343,43 @@ public class ChessGUI extends Application {
                 Platform.runLater(ChessGUI.this::drawChessPane);
                 //Play sound for moving piece
                 if (moved) playSound("DropPieceNew.wav", 1);
-
                 if (gameStateManager.isGameOver()) {
                     gameOverCalculations();
                 } else if (gameStateManager.currentPlayerAlliance() == Alliance.WHITE && gameStateManager.isWhiteAI() ||
-                        gameStateManager.currentPlayerAlliance() == Alliance.BLACK && gameStateManager.isBlackAI()) {
+                           gameStateManager.currentPlayerAlliance() == Alliance.BLACK && gameStateManager.isBlackAI()) {
                     doAiMove();
                 }
+                return null;
+            }
+        };
+        //Show hint after ai move if tutor mode is enabled
+        if (gameStateManager.isTutorMode()) AITask.setOnSucceeded(event -> showMoveHint());
+        Thread AIThread = new Thread(AITask);
+        AIThread.start();
+    }
+
+    /**
+     * Lets the AI calculate the best move on the current board for the current player and displays it.
+     */
+    private void showMoveHint() {
+        new Thread(new Task() {
+            @Override
+            protected Object call() {
+                //Empty any ongoing player move
+                startTile = null;
+                destinationTile = null;
+                userMovedPiece = null;
+                //Let AI find "best" move
+                Move hintMove = gameStateManager.getHint(4, 1000);
+                //Set coordinates found
+                hintStartCoordinate = hintMove.getCurrentCoordinate();
+                hintDestinationCoordinate = hintMove.getDestinationCoordinate();
+                //Redraw to show coordinates found
+                Platform.runLater(() -> {
+                    drawChessPane();
+                    hintStartCoordinate = null;
+                    hintDestinationCoordinate = null;
+                });
                 return null;
             }
         }).start();

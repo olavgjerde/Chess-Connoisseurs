@@ -728,6 +728,14 @@ public class ChessGUI extends Application {
         hintButton.setOnMouseEntered(event -> {
             Tooltip tp = new Tooltip("Let the AI suggest a move");
             Tooltip.install(hintButton, tp);
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setBrightness(0.25);
+            hintButton.setEffect(colorAdjust);
+        });
+        hintButton.setOnMouseExited(event -> {
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setBrightness(0);
+            hintButton.setEffect(colorAdjust);
         });
         hintButton.setOnAction(event -> showMoveHint());
 
@@ -739,10 +747,18 @@ public class ChessGUI extends Application {
         backButton.setOnMouseEntered(event -> {
             Tooltip tp = new Tooltip("Undo a move");
             Tooltip.install(backButton, tp);
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setBrightness(0.25);
+            backButton.setEffect(colorAdjust);
         });
         backButton.setOnAction(event -> {
             gameStateManager.undoMove();
             drawChessPane();
+        });
+        backButton.setOnMouseExited(event -> {
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setBrightness(0);
+            backButton.setEffect(colorAdjust);
         });
         if (gameStateManager.undoIsIllegal()) backButton.setDisable(true);
 

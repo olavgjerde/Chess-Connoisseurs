@@ -1,17 +1,10 @@
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 import javafx.scene.image.Image;
-import javafx.scene.image.Image;
-import javafx.scene.media.Media;
 import pieces.Alliance;
 import pieces.Piece;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.io.*;
+import java.net.URL;
 
 /**
  * Load all the resources into memory
@@ -25,7 +18,7 @@ class ResourceLoader {
     final Image ConnoisseurChess, hintButton, undoButton, gameStats;
 
     //Rule text
-  //  final String horde, lightBrigade;
+    final String horde, lightBrigade;
 
     //sounds
     //TODO
@@ -50,10 +43,16 @@ class ResourceLoader {
         gameStats = new Image("/images/GUI/GameStats.png");
         ConnoisseurChess = new Image("/images/GUI/" + "ConnoisseurChess" + ".png");
 
-      //  horde = readFile("/rules/horde.txt");
-       // lightBrigade = readFile("/rules/lightbrigade.txt");
+        horde = readFile("rules/horde.txt");
+        lightBrigade = readFile("rules/lightbrigade.txt");
     }
 
+    /**
+     * Find an image to represent a piece
+     *
+     * @param p piece to find image for
+     * @return image representation of piece
+     */
     Image getPieceImage(Piece p) {
         Alliance pieceAlliance = p.getPieceAlliance();
         boolean isWhite = pieceAlliance == Alliance.WHITE;
@@ -75,16 +74,21 @@ class ResourceLoader {
         }
     }
 
-    private String readFile(String path) {
+    /**
+     * Reads a text file from a given location
+     *
+     * @param location of txt file
+     * @return text contents of the file
+     */
+    private String readFile(String location) {
+        URL url = Resources.getResource(location);
+        String text = "";
         try {
-                String data = "";
-                data = new String(Files.readAllBytes(Paths.get(path)));
-                return data;
-            } catch (Exception e) {
-                System.err.format("Exception occurred trying to read '%s'.", path);
-                e.printStackTrace();
-                return null;
-            }
-
+            text = Resources.toString(url, Charsets.UTF_8);
+        } catch (IOException e) {
+            System.out.println("AN ERROR OCCURRED WHEN READING RULE FILES");
+            e.printStackTrace();
+        }
+        return text;
     }
 }

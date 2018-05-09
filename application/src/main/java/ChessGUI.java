@@ -474,7 +474,7 @@ public class ChessGUI extends Application {
      */
     private Menu createHelpMenu() {
             Menu optionsMenu = new Menu("Help");
-            CheckMenuItem toggleRules = new CheckMenuItem("Rules");
+            MenuItem toggleRules = new MenuItem("Rules");
             toggleRules.setOnAction(event -> showRuleWindow());
             optionsMenu.getItems().addAll(toggleRules);
             return optionsMenu;
@@ -503,23 +503,18 @@ public class ChessGUI extends Application {
         title.setTextAlignment(TextAlignment.CENTER);
         rootBox.getChildren().add(title);
 
-        HBox listBox = new HBox();
-        listBox.setAlignment(Pos.CENTER);
-        listBox.setSpacing(5);
-        rootBox.getChildren().add(listBox);
+        HBox ruleBox = new HBox();
+        ruleBox.setAlignment(Pos.CENTER);
+        ruleBox.setSpacing(5);
+        rootBox.getChildren().add(ruleBox);
 
-        VBox gamemode = new VBox(), rules = new VBox();
-        Text gamemodeTitle = new Text("Gamemode"), ruleTitle = new Text("Rules");
-        gamemodeTitle.setUnderline(true);
-        ruleTitle.setUnderline(true);
+        VBox rulesVBox = new VBox(), rules = new VBox();
 
-        gamemode.getChildren().add(gamemodeTitle);
-        rules.getChildren().add(ruleTitle);
 
-        listBox.getChildren().addAll(gamemode, rules);
+        ruleBox.getChildren().addAll(rulesVBox, rules);
 
         String text;
-       /* if(typeOfGamemode ==3){
+        if(typeOfGamemode ==3){
             text = new String(resources.horde);
         }
         else{
@@ -527,25 +522,18 @@ public class ChessGUI extends Application {
 
         }
 
-
-        for (int i = 0; i < text.length(); i++) {
             Text nameText = new Text(text);
-            gamemode.getChildren().add(nameText);
-        }*/
+            rulesVBox.getChildren().add(nameText);
+
 
         //Change font color of text
-        for (Node n : gamemode.getChildren()) {
+        for (Node n : rulesVBox.getChildren()) {
             if (n instanceof Text) {
                 ((Text) n).setFont(Font.font("Verdana", FontWeight.NORMAL, 15));
                 ((Text) n).setFill(Color.WHITE);
             }
         }
-        for (Node n : rules.getChildren()) {
-            if (n instanceof Text) {
-                ((Text) n).setFont(Font.font("Verdana", FontWeight.NORMAL, 15));
-                ((Text) n).setFill(Color.WHITE);
-            }
-        }
+
 
 
 

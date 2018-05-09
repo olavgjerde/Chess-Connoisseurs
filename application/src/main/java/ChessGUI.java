@@ -128,7 +128,7 @@ public class ChessGUI extends Application {
 
         //Play menu music
         if (playSound && soundClipManager != null) soundClipManager.clear();
-        soundClipManager = new SoundClipManager("MenuMusic.wav", true, SOUNDTRACK_VOLUME, playSound);
+        soundClipManager = new SoundClipManager("MenuMusic.mp3", true, SOUNDTRACK_VOLUME, playSound);
 
         // Add logo
         ImageView logo = new ImageView(resources.ConnoisseurChess);
@@ -439,7 +439,7 @@ public class ChessGUI extends Application {
         //Play game music
         if (this.playSound) {
             soundClipManager.clear();
-            soundClipManager = new SoundClipManager("GameMusic.wav", true, SOUNDTRACK_VOLUME, playSound);
+            soundClipManager = new SoundClipManager("GameMusic.mp3", true, SOUNDTRACK_VOLUME, playSound);
         }
 
         //Create this scene with dimensions of start menu scene
@@ -572,7 +572,7 @@ public class ChessGUI extends Application {
                 playSound = false;
             } else {
                 playSound = true;
-                soundClipManager = new SoundClipManager("GameMusic.wav", true, 0.2, true);
+                soundClipManager = new SoundClipManager("GameMusic.mp3", true, 0.2, true);
             }
         });
         toggleMute.setSelected(true);
@@ -1060,7 +1060,7 @@ public class ChessGUI extends Application {
             if (gameStateManager.isWhiteAI()) doAiMove();
             //Play game-music
             if (playSound && soundClipManager != null) soundClipManager.clear();
-            soundClipManager = new SoundClipManager("GameMusic.wav", true, SOUNDTRACK_VOLUME, playSound);
+            soundClipManager = new SoundClipManager("GameMusic.mp3", true, SOUNDTRACK_VOLUME, playSound);
         });
         quit.setOnAction(e -> System.exit(0));
 

@@ -67,6 +67,7 @@ public class ChessGUI extends Application {
     @Override
     public void start(Stage primaryStage) {
         ChessGUI.primaryStage = primaryStage;
+        primaryStage.getIcons().add(resources.ConnoisseurChess);
         primaryStage.widthProperty().addListener((observable, oldValue, newValue) -> {
             windowWidth = newValue.doubleValue();
             if (gameStateManager != null) {

@@ -486,7 +486,6 @@ public class ChessGUI extends Application {
      * Shows the rule window for the application
      */
     private void showRuleWindow() {
-        int typeOfGamemode = gameStateManager.getBoardType();
         Stage ruleStage = new Stage();
         ruleStage.initStyle(StageStyle.UNDECORATED);
 
@@ -510,22 +509,13 @@ public class ChessGUI extends Application {
         rootBox.getChildren().add(ruleBox);
 
         VBox rulesVBox = new VBox(), rules = new VBox();
-
-
         ruleBox.getChildren().addAll(rulesVBox, rules);
 
-        String text;
-        if(typeOfGamemode ==3){
-            text = new String(resources.horde);
-        }
-        else{
-            text = new String(resources.lightBrigade);
-
-        }
-
-            Text nameText = new Text(text);
-            rulesVBox.getChildren().add(nameText);
-
+        String text = resources.lightBrigade;
+        if (gameStateManager.getBoardType() == 3) text = resources.horde;
+        Text ruleText = new Text(text);
+        ruleText.setTextAlignment(TextAlignment.CENTER);
+        rulesVBox.getChildren().add(ruleText);
 
         //Change font color of text
         for (Node n : rulesVBox.getChildren()) {
@@ -534,9 +524,6 @@ public class ChessGUI extends Application {
                 ((Text) n).setFill(Color.WHITE);
             }
         }
-
-
-
 
         ruleStage.setWidth(rootBox.getMaxWidth());
         ruleStage.setHeight(rootBox.getMaxHeight());

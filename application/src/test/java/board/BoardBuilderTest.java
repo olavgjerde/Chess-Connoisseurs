@@ -29,7 +29,7 @@ class BoardBuilderTest {
     @Test
     void builderSetsPiece() {
         Builder builder = new Builder();
-        Pawn testPawn = new Pawn(new Coordinate(0,0), Alliance.WHITE);
+        Pawn testPawn = new Pawn(new Coordinate(0,0), Alliance.WHITE, false);
         builder.setPiece(testPawn);
         assertEquals(testPawn, builder.boardConfig.get(new Coordinate(0,0)));
     }
@@ -40,7 +40,7 @@ class BoardBuilderTest {
     @Test
     void builderSetsEnPassantPawn() {
         Builder builder = new Builder();
-        Pawn testPawn = new Pawn(new Coordinate(0,0), Alliance.WHITE);
+        Pawn testPawn = new Pawn(new Coordinate(0,0), Alliance.WHITE, false);
         builder.setEnPassantPawn(testPawn);
         assertEquals(testPawn, builder.enPassantPawn);
     }

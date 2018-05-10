@@ -1,0 +1,6 @@
+Light brigade:
+All pieces move as in orthodox Chess.
+Description:
+As no Rooks participate, there obviously is no castling.
+White Pawns can only promote to Queen, black Pawns only to Knight.
+Otherwise all rules are as in orthodox Chess.

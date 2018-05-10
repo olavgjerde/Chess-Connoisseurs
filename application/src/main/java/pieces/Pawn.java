@@ -23,19 +23,24 @@ public class Pawn extends Piece {
      * NB: 2 and 2 integers represent x and y. [0] = x [1] = y etc.
      */
     private final static int[] POSSIBLE_MOVE_COORDINATES = {0, 1, 0, 2, -1, 1, 1, 1};
+    private final boolean lightBrigadeMode;
 
     /**
      * Constructor which defaults the Pieces isFirstMove variable to true
+     * @param lightBrigadeMode restricts promotion availability if true
      */
-    public Pawn(Coordinate pieceCoordinate, Alliance pieceAlliance) {
+    public Pawn(Coordinate pieceCoordinate, Alliance pieceAlliance, boolean lightBrigadeMode) {
         super(pieceCoordinate, pieceAlliance, true, PieceType.PAWN);
+        this.lightBrigadeMode = lightBrigadeMode;
     }
 
     /**
      * Constructor which allows the setting of isFirstMove variable
+     * @param lightBrigadeMode restricts promotion availability if true
      */
-    public Pawn(Coordinate pieceCoordinate, Alliance pieceAlliance, boolean isFirstMove) {
+    public Pawn(Coordinate pieceCoordinate, Alliance pieceAlliance, boolean isFirstMove, boolean lightBrigadeMode) {
         super(pieceCoordinate, pieceAlliance, isFirstMove, PieceType.PAWN);
+        this.lightBrigadeMode = lightBrigadeMode;
     }
 
     @Override
@@ -59,16 +64,23 @@ public class Pawn extends Piece {
                 if (relativeX == 0 && relativeY == 1) {
                     // 1 step
                     if (promotionIsPossible && destinationIsEmpty) {
-                        legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.QUEEN));
-                        legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.ROOK));
-                        legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.BISHOP));
-                        legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.KNIGHT));
+                        //Light brigade mode restricts promotion availability
+                        if (this.lightBrigadeMode && thisAlliance == Alliance.WHITE) {
+                            legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.QUEEN));
+                        } else if (this.lightBrigadeMode && thisAlliance == Alliance.BLACK) {
+                            legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.KNIGHT));
+                        } else {
+                            legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.QUEEN));
+                            legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.ROOK));
+                            legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.BISHOP));
+                            legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.KNIGHT));
+                        }
                     } else if (destinationIsEmpty) {
                         legalMoves.add(new PawnMove(board, this, destination));
                     }
                 } else if (relativeX == 0 && relativeY == 2) {
                     // 2 steps (jump)
-                    if ((thisY == 1 && thisAlliance == Alliance.BLACK) || (thisY == BoardUtils.getHeight() - 2 && thisAlliance == Alliance.WHITE)) {
+                    if (((thisY == 1 && thisAlliance == Alliance.BLACK) || (thisY == BoardUtils.getHeight() - 2 && thisAlliance == Alliance.WHITE)) && this.isFirstMove()) {
                         final Coordinate inTheMiddle = new Coordinate(thisX, thisY + thisAlliance.getDirection());
                         if (board.getTile(inTheMiddle).isEmpty() && destinationIsEmpty) {
                             legalMoves.add(new PawnJump(board, this, destination));
@@ -80,10 +92,17 @@ public class Pawn extends Piece {
                         final Piece pieceAtDestination = board.getTile(destination).getPiece();
                         if (pieceAtDestination.getPieceAlliance() != thisAlliance) {
                             if (promotionIsPossible) {
-                                legalMoves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.QUEEN));
-                                legalMoves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.ROOK));
-                                legalMoves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.BISHOP));
-                                legalMoves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.KNIGHT));
+                                //Light brigade mode restricts promotion availability
+                                if (this.lightBrigadeMode && thisAlliance == Alliance.WHITE) {
+                                    legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.QUEEN));
+                                } else if (this.lightBrigadeMode && thisAlliance == Alliance.BLACK) {
+                                    legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.KNIGHT));
+                                } else {
+                                    legalMoves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.QUEEN));
+                                    legalMoves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.ROOK));
+                                    legalMoves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.BISHOP));
+                                    legalMoves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.KNIGHT));
+                                }
                             } else {
                                 legalMoves.add(new PawnAttackMove(board, this, destination, pieceAtDestination));
                             }
@@ -114,7 +133,7 @@ public class Pawn extends Piece {
 
     @Override
     public Pawn movePiece(Move move) {
-        return new Pawn(move.getDestinationCoordinate(), move.getMovedPiece().getPieceAlliance(), false);
+        return new Pawn(move.getDestinationCoordinate(), move.getMovedPiece().getPieceAlliance(), false, this.lightBrigadeMode);
     }
 
     @Override
@@ -124,7 +143,6 @@ public class Pawn extends Piece {
 
     /**
      * Set to Queen by default for simplicity
-     * todo: may alter this in the future if human player is detected
      * @return the piece that this pawn will be promoted to
      */
     public Piece getPromotionPiece() {

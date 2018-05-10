@@ -1,37 +1,22 @@
 package player;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.mongodb.*;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.client.model.BulkWriteOptions;
-import com.mongodb.client.model.InsertOneModel;
-import org.bson.BSON;
 import org.bson.Document;
-import org.bson.types.ObjectId;
-
-import java.util.List;
-
-
-import java.net.UnknownHostException;
-
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Updates.combine;
-import static com.mongodb.client.model.Updates.currentDate;
-import static com.mongodb.client.model.Updates.set;
-
 
 public class Score {
     private HashMap<String, Integer> userRating = new HashMap<>();
     private HashMap<String, Stats> userStats = new HashMap<>();
-
 
     /**
      * takes the old rating of both players, and the result of the game for both players,
@@ -108,7 +93,7 @@ public class Score {
     }
 
     /**
-     * Adds a username with 1500 rating and enmpty stats to highscore.txt if the username does not already exist
+     * Adds a username with 1500 rating and empty stats to highscore.txt if the username does not already exist
      *
      * @param username name of the user to add
      */
@@ -122,55 +107,74 @@ public class Score {
     }
 
     /**
+     * @return a boolean value if internet is online or offline
+     */
+    private static boolean netIsAvailable() {
+        try {
+            final URL url = new URL("http://www.google.com");
+            final URLConnection conn = url.openConnection();
+            conn.connect();
+            conn.getInputStream().close();
+            return true;
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    /**
      * Reads highscore from MLab server. Iterates through all saved database entries
      */
     public void readHighscore() {
-        MongoClientURI uri = new MongoClientURI("mongodb://ccuser:ccpass@ds129706.mlab.com:29706/ccdb");
-        MongoClient client = new MongoClient(uri);
-        MongoDatabase db = client.getDatabase(uri.getDatabase());
-        MongoCollection<Document> highscore = db.getCollection("highscore");
+        boolean netOnline = netIsAvailable();
+        if(netOnline) {
+            MongoClientURI uri = new MongoClientURI("mongodb://ccuser:ccpass@ds129706.mlab.com:29706/ccdb");
+            MongoClient client = new MongoClient(uri);
+            MongoDatabase db = client.getDatabase(uri.getDatabase());
+            MongoCollection<Document> highscore = db.getCollection("highscore");
+            MongoCursor<Document> cursor = highscore.find().iterator();
 
-        MongoCursor<Document> cursor = highscore.find().iterator();
-
-        try {
-            while (cursor.hasNext()) {
-                Document doc = cursor.next();
-                int rating = (int) doc.get("score");
-                Stats stats = readStats(doc.get("stats").toString());
-                userRating.put(doc.get("playername").toString(), rating);
-                userStats.put(doc.get("playername").toString(), stats);
+            try {
+                while (cursor.hasNext()) {
+                    Document doc = cursor.next();
+                    int rating = (int) doc.get("score");
+                    Stats stats = readStats(doc.get("stats").toString());
+                    userRating.put(doc.get("playername").toString(), rating);
+                    userStats.put(doc.get("playername").toString(), stats);
+                }
+            } finally {
+                cursor.close();
             }
-        } finally {
-            cursor.close();
+            client.close();
         }
-        client.close();
 
     }
-
 
     private void writeHighscore() {
+        boolean netOnline = netIsAvailable();
+        if(netOnline) {
+            List<Document> highscoreDB = new ArrayList<>();
 
-        List<Document> highscoreDB = new ArrayList<Document>();
+            MongoClientURI uri = new MongoClientURI("mongodb://ccuser:ccpass@ds129706.mlab.com:29706/ccdb");
+            MongoClient client = new MongoClient(uri);
+            MongoDatabase db = client.getDatabase(uri.getDatabase());
+            MongoCollection<Document> highscore = db.getCollection("highscore");
 
-        MongoClientURI uri = new MongoClientURI("mongodb://ccuser:ccpass@ds129706.mlab.com:29706/ccdb");
-        MongoClient client = new MongoClient(uri);
-        MongoDatabase db = client.getDatabase(uri.getDatabase());
-        MongoCollection<Document> highscore = db.getCollection("highscore");
+            highscore.drop();
 
-        highscore.drop();
-
-        for (String s : userRating.keySet()) {
-            highscoreDB.add(new Document("playername", s)
-                    .append("score", userRating.get(s))
-                    .append("stats", userStats.get(s).getStats()));
+            for (String s : userRating.keySet()) {
+                highscoreDB.add(new Document("playername", s)
+                        .append("score", userRating.get(s))
+                        .append("stats", userStats.get(s).getStats()));
 
 
+            }
+            highscore.insertMany(highscoreDB);
+            client.close();
         }
-        highscore.insertMany(highscoreDB);
-        client.close();
 
     }
-
 
     private Stats readStats(String stats) {
         String[] temp = stats.split("/");

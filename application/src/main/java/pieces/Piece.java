@@ -123,7 +123,7 @@ public abstract class Piece {
         QUEEN("Q", 900),
         KING("K", 20000);
 
-        private String pieceName;
+        private final String pieceName;
         private int pieceValue;
 
         PieceType(String pieceName, int pieceValue) {

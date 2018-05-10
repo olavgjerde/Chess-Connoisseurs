@@ -22,7 +22,7 @@ import static board.Move.*;
 public class MiniMax implements MoveStrategy {
     private final BoardEvaluator boardEvaluator;
     private final int searchDepth;
-    private boolean printMoveInformation;
+    private final boolean printMoveInformation;
     private int quiescenceCount;
     private int totalQuiescence;
     private int maxQuiescence;
@@ -66,7 +66,7 @@ public class MiniMax implements MoveStrategy {
         if (printMoveInformation) System.out.println(board.currentPlayer().getAlliance().toString().toUpperCase() + " EVALUATING WITH DEPTH: " + searchDepth);
         Collection<Move> sorted = moveSortExpensive(board.currentPlayer().getLegalMoves());
         int moveCount = 1;
-        for (Move move : moveSortExpensive(board.currentPlayer().getLegalMoves())) {
+        for (Move move : sorted) {
             final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
             //Reset quiescence for every start node
             this.quiescenceCount = 0;

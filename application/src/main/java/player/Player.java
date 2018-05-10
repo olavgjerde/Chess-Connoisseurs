@@ -3,7 +3,6 @@ package player;
 import board.Board;
 import board.Coordinate;
 import board.Move;
-import com.google.common.collect.ImmutableList;
 import pieces.Alliance;
 import pieces.King;
 import pieces.Piece;
@@ -163,7 +162,7 @@ public abstract class Player {
      * @return true if the current player is castled
      */
     public boolean isCastled() {
-        return this.playerKing.isCastled();
+        return this.playerKing != null && this.playerKing.isCastled();
     }
 
     /**
@@ -174,9 +173,7 @@ public abstract class Player {
         for (Move move : this.legalMoves) {
             // make all moves possible and see if player "escapes"
             final MoveTransition transition = makeMove(move);
-            if (transition.getMoveStatus().isDone()) {
-                return true;
-            }
+            if (transition.getMoveStatus().isDone()) return true;
         }
         return false;
     }

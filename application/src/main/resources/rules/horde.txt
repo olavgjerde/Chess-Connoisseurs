@@ -1,0 +1,10 @@
+Horde Chess:
+All pieces move as in orthodox Chess.
+Description:
+White wins if he/she captures all black pieces.
+Black wins if he/she checkmates the white king.
+If no black piece can make a valid move, the game is a draw (stalemate).
+Black pawns can be promoted to a black queen,
+rook, bishop or knight if they reach the last row (from black's point of view).
+Black pawns cannot move two spaces forward from any position,
+except the second rank (from black's point of view).

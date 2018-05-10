@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static board.Move.*;
-import static board.Move.MajorMove;
 
 /**
  * Represents the chess-piece "Bishop"

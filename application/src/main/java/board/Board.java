@@ -435,6 +435,39 @@ public class Board {
     }
 
     /**
+     * Creates a board which in the player will be able to win in 3-5 moves
+     * @return populated board
+     */
+    public static Board createTutorBoardFour() {
+        final Builder builder = new Builder();
+        //Black pieces
+        builder.setPiece(new Rook(new Coordinate(2,0), Alliance.BLACK, false));
+        builder.setPiece(new Rook(new Coordinate(4,0), Alliance.BLACK, false));
+        builder.setPiece(new King(new Coordinate(6,0), Alliance.BLACK, false, false));
+        builder.setPiece(new Pawn(new Coordinate(0, 1), Alliance.BLACK, false));
+        builder.setPiece(new Bishop(new Coordinate(1, 1), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(5, 1), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(6, 1), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(1, 2), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(7, 2), Alliance.BLACK, false));
+        builder.setPiece(new Queen(new Coordinate(6, 6), Alliance.BLACK, false));
+        //White pieces
+        builder.setPiece(new Knight(new Coordinate(5,3), Alliance.WHITE, false));
+        builder.setPiece(new Bishop(new Coordinate(6,3), Alliance.WHITE, false));
+        builder.setPiece(new Queen(new Coordinate(7,3), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(6,4), Alliance.WHITE, false, false));
+        builder.setPiece(new Rook(new Coordinate(2,5), Alliance.WHITE, false));
+        builder.setPiece(new Bishop(new Coordinate(3,5), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(4,5), Alliance.WHITE, false, false));
+        builder.setPiece(new Pawn(new Coordinate(0,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(1,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(7,6), Alliance.WHITE, false));
+        builder.setPiece(new King(new Coordinate(4,6), Alliance.WHITE));
+        builder.setMoveMaker(Alliance.BLACK);
+        return builder.build();
+    }
+
+    /**
      * Helper class for constructing chessboards given a defined layout
      */
     public static class Builder {

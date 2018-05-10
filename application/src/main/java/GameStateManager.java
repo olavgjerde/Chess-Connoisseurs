@@ -53,10 +53,11 @@ class GameStateManager {
         else if (boardType == 3) this.chessDataBoard = Board.createHordeBoard();
         else if (boardType == 4) this.chessDataBoard = Board.createLightBrigadeBoard();
         else if (boardType == 5) {
-            switch (ThreadLocalRandom.current().nextInt(3)) {
+            switch (ThreadLocalRandom.current().nextInt(4)) {
                 case 0: this.chessDataBoard = Board.createTutorBoardOne(); break;
                 case 1: this.chessDataBoard = Board.createTutorBoardTwo(); break;
                 case 2: this.chessDataBoard = Board.createTutorBoardThree(); break;
+                case 3: this.chessDataBoard = Board.createTutorBoardFour(); break;
                 default: this.chessDataBoard = Board.createTutorBoardOne();
             }
             this.tutorMode = true;

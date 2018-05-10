@@ -68,7 +68,7 @@ public class Pawn extends Piece {
                         if (this.lightBrigadeMode && thisAlliance == Alliance.WHITE) {
                             legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.QUEEN));
                         } else if (this.lightBrigadeMode && thisAlliance == Alliance.BLACK) {
-                            legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.ROOK));
+                            legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.KNIGHT));
                         } else {
                             legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.QUEEN));
                             legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.ROOK));
@@ -96,7 +96,7 @@ public class Pawn extends Piece {
                                 if (this.lightBrigadeMode && thisAlliance == Alliance.WHITE) {
                                     legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.QUEEN));
                                 } else if (this.lightBrigadeMode && thisAlliance == Alliance.BLACK) {
-                                    legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.ROOK));
+                                    legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.KNIGHT));
                                 } else {
                                     legalMoves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.QUEEN));
                                     legalMoves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.ROOK));

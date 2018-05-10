@@ -18,7 +18,7 @@ class ResourceLoader {
     final Image ConnoisseurChess, hintButton, undoButton, gameStats;
 
     //Rule text
-    final String horde, lightBrigade;
+    final String horde, lightBrigade, tutor;
 
     //sounds
     //TODO
@@ -45,6 +45,7 @@ class ResourceLoader {
 
         horde = readFile("rules/horde.txt");
         lightBrigade = readFile("rules/lightbrigade.txt");
+        tutor = readFile("rules/tutor.txt");
     }
 
     /**

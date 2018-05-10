@@ -22,7 +22,7 @@ import static board.Move.*;
 public class MiniMax implements MoveStrategy {
     private final BoardEvaluator boardEvaluator;
     private final int searchDepth;
-    private boolean printMoveInformation;
+    private final boolean printMoveInformation;
     private int quiescenceCount;
     private int totalQuiescence;
     private int maxQuiescence;

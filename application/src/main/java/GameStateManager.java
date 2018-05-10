@@ -28,7 +28,7 @@ class GameStateManager {
     final private int aiDepth;
     final private int boardType;
     //Keep count of board history (board states)
-    private List<Board> boardHistory = new ArrayList<>();
+    private final List<Board> boardHistory = new ArrayList<>();
     //Move history, even = white moves, odd = black moves
     private List<Move> moveHistory = new ArrayList<>();
     //List of all the dead pieces
@@ -82,7 +82,7 @@ class GameStateManager {
         if (moveTransition.getMoveStatus().isDone()) {
             if (moveAttempt instanceof PawnPromotion) {
                 Piece.PieceType userSelectedType = ChessGUI.showPromotionWindow();
-                List<PawnPromotion> availablePromotions = Move.MoveFactory.getPromotionMoves(chessDataBoard, start, destination);
+                List<PawnPromotion> availablePromotions = MoveFactory.getPromotionMoves(chessDataBoard);
                 for (PawnPromotion promotion : availablePromotions) {
                     if (promotion.getUpgradeType() == userSelectedType &&
                             promotion.getDestinationCoordinate().equals(destination)) {

@@ -14,7 +14,7 @@ import static board.Board.*;
  * on a chessboard, where we have the board the movement takes place on,
  * the piece that is moving, and the destination coordinate of the moving piece.
  *
- * Note: many of the classes that extend this one, do so only to represent ceratain moves with
+ * Note: many of the classes that extend this one, do so only to represent certain moves with
  * other forms of "algebraic" notation. Others handle special types of moves.
  */
 public abstract class Move {
@@ -183,7 +183,7 @@ public abstract class Move {
     }
 
     /**
-     * Represents an illeagal move, with coordinates that does not exist in the bound of a regular board
+     * Represents an illegal move, with coordinates that does not exist in the bound of a regular board
      */
     public static final class NullMove extends Move {
         public NullMove() {
@@ -586,7 +586,7 @@ public abstract class Move {
             return NULL_MOVE;
         }
 
-        public static List<PawnPromotion> getPromotionMoves(Board board, Coordinate currentCoordinate, Coordinate destinationCoordinate) {
+        public static List<PawnPromotion> getPromotionMoves(Board board) {
             List<PawnPromotion> promotionMoves = new ArrayList<>();
             for (Move move : board.getAllLegalMoves()) {
                 if (move instanceof PawnPromotion) promotionMoves.add((PawnPromotion) move);

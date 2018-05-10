@@ -23,7 +23,7 @@ public class Pawn extends Piece {
      * NB: 2 and 2 integers represent x and y. [0] = x [1] = y etc.
      */
     private final static int[] POSSIBLE_MOVE_COORDINATES = {0, 1, 0, 2, -1, 1, 1, 1};
-    private boolean lightBrigadeMode;
+    private final boolean lightBrigadeMode;
 
     /**
      * Constructor which defaults the Pieces isFirstMove variable to true

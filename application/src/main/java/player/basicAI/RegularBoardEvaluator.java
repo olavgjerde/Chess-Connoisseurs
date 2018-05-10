@@ -161,10 +161,10 @@ public final class RegularBoardEvaluator implements BoardEvaluator {
      * Check if the end game has been reached
      * This corresponds to:
      * "1.Both sides have no queens or
-     *  2.Every side which has a queen has additionally no other pieces or one minorpiece maximum."
+     *  2.Every side which has a queen has additionally no other pieces or one minor-piece maximum."
      *  See link for more information -> King section.
      * @see <a href="https://chessprogramming.wikispaces.com/Simplified%20evaluation%20function">Simplified evaluation function</a>
-     * @param board
+     * @param board that is under evaluation
      */
     private void calculatePieceSquareEndGame(Board board) {
         int whiteQueenCount = 0, blackQueenCount = 0,

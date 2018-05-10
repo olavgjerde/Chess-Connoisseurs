@@ -471,7 +471,7 @@ public class Board {
      * Helper class for constructing chessboards given a defined layout
      */
     public static class Builder {
-        Map<Coordinate, Piece> boardConfig;
+        final Map<Coordinate, Piece> boardConfig;
         Alliance nextMoveMaker;
         Pawn enPassantPawn;
         Move transitionMove = null;
@@ -515,9 +515,8 @@ public class Board {
          * Set the move that made a change to the board
          * @param transitionMove the move that changes the board
          */
-        public Builder setMoveTransition(final Move transitionMove) {
+        public void setMoveTransition(final Move transitionMove) {
             this.transitionMove = transitionMove;
-            return this;
         }
 
         /**

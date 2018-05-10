@@ -6,30 +6,13 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.mongodb.*;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.client.model.BulkWriteOptions;
-import com.mongodb.client.model.InsertOneModel;
-import org.bson.BSON;
 import org.bson.Document;
-import org.bson.types.ObjectId;
-
-import java.util.List;
-
-
-import java.net.UnknownHostException;
-
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Updates.combine;
-import static com.mongodb.client.model.Updates.currentDate;
-import static com.mongodb.client.model.Updates.set;
-
 
 public class Score {
     private HashMap<String, Integer> userRating = new HashMap<>();
@@ -110,7 +93,7 @@ public class Score {
     }
 
     /**
-     * Adds a username with 1500 rating and enmpty stats to highscore.txt if the username does not already exist
+     * Adds a username with 1500 rating and empty stats to highscore.txt if the username does not already exist
      *
      * @param username name of the user to add
      */
@@ -171,7 +154,7 @@ public class Score {
     private void writeHighscore() {
         boolean netOnline = netIsAvailable();
         if(netOnline) {
-            List<Document> highscoreDB = new ArrayList<Document>();
+            List<Document> highscoreDB = new ArrayList<>();
 
             MongoClientURI uri = new MongoClientURI("mongodb://ccuser:ccpass@ds129706.mlab.com:29706/ccdb");
             MongoClient client = new MongoClient(uri);

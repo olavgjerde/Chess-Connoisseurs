@@ -1,7 +1,5 @@
 package board;
 
-import board.Move.NullMove;
-
 import java.util.*;
 
 /**
@@ -114,16 +112,6 @@ public class BoardUtils {
             }
         }
         return coordToInteger;
-    }
-
-    /**
-     * Returns the euclidean distance between two positive coordinates
-     * @param a first coordinate
-     * @param b second coordinate
-     * @return distance between coordinates
-     */
-    public static double euclideanDistance(Coordinate a, Coordinate b) {
-        return Math.sqrt(Math.pow(a.getX() - b.getX(), 2) + Math.pow(a.getY() - b.getY(), 2));
     }
 
     /**

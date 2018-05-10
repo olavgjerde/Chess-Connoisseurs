@@ -3,8 +3,6 @@ import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -56,7 +54,7 @@ public class ChessGUI extends Application {
     private String whitePlayerName, whitePlayerStats, blackPlayerName, blackPlayerStats;
     private int whitePlayerScore, blackPlayerScore;
     //Sound and resource manager
-    private static ResourceLoader resources = new ResourceLoader();
+    private static final ResourceLoader resources = new ResourceLoader();
     private static SoundClipManager soundClipManager;
     private final double SOUNDTRACK_VOLUME = 0.14;
 
@@ -806,9 +804,8 @@ public class ChessGUI extends Application {
     /**
      * Draws the pane which will display the pieces taken by the players
      *
-     * @return populated VBox displaying the pieces that have been taken during the current round of chess
      */
-    private VBox drawTakenPiecesPane() {
+    private void drawTakenPiecesPane() {
         VBox basePane = new VBox();
         basePane.setStyle("-fx-border-color: black; -fx-background-color: radial-gradient(center 50% 50%, radius 120%, derive(darkslategray, -20%), black)");
         basePane.setMaxWidth(windowWidth / 16);
@@ -838,7 +835,6 @@ public class ChessGUI extends Application {
         basePane.getChildren().addAll(whitePiecesBox, blackPieceBox);
         //Use setLeft to update root pane when used as a redraw method
         this.gamePlayPane.setLeft(basePane);
-        return basePane;
     }
 
     /**

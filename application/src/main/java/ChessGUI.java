@@ -3,6 +3,8 @@ import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -241,46 +243,53 @@ public class ChessGUI extends Application {
             whiteNameField.setDisable(false);
             whiteNameField.setText("Player1");
             for (RadioButton x : difficultyButtons) if (!blackAiOption.isSelected()) x.setDisable(true);
-            if (tutorOption.isDisabled()) tutorOption.setDisable(false);
         });
         blackHumanOption.setOnAction(e -> {
             playSound("ButtonClick.wav", 1);
             blackNameField.setDisable(false);
             blackNameField.setText("Player2");
             for (RadioButton x : difficultyButtons) if (!whiteAiOption.isSelected()) x.setDisable(true);
-            if (tutorOption.isDisabled()) tutorOption.setDisable(false);
         });
         whiteAiOption.setOnAction(e -> {
             playSound("ButtonClick.wav", 1);
             whiteNameField.setDisable(true);
             whiteNameField.setText("CPU");
             for (RadioButton x : difficultyButtons) x.setDisable(false);
-            //Disable tutor mode if both AIs are enabled
-            if (blackAiOption.isSelected() && tutorOption.isSelected()) {
-                standardOption.setSelected(true);
-                tutorOption.setDisable(true);
-            }
         });
         blackAiOption.setOnAction(e -> {
             playSound("ButtonClick.wav", 1);
             blackNameField.setDisable(true);
             blackNameField.setText("CPU");
             for (RadioButton x : difficultyButtons) x.setDisable(false);
-            //Disable tutor mode if both AIs are enabled
-            if (whiteAiOption.isSelected() && tutorOption.isSelected()) {
-                standardOption.setSelected(true);
-                tutorOption.setDisable(true);
-            }
         });
 
         //Set default settings for tutor mode
         tutorOption.setOnAction(event -> {
             whiteHumanOption.setSelected(true);
             blackHumanOption.setSelected(false);
+            blackHumanOption.setDisable(true);
             whiteAiOption.setSelected(false);
+            whiteAiOption.setDisable(true);
             blackAiOption.setSelected(true);
             difficultyButtons.get(1).setSelected(true);
+            for (RadioButton b : difficultyButtons) b.setDisable(true);
         });
+        //Re-enable human/ai options when changing to modes that are not tutor mode
+        for (Toggle t : boardStateOptions.getToggles()) {
+            if (t instanceof RadioButton) {
+                if (!((RadioButton) t).getText().equals("Tutor Mode")) {
+                    ((RadioButton) t).setOnAction(event -> {
+                        whiteAiOption.setDisable(false);
+                        blackAiOption.setDisable(false);
+                        whiteHumanOption.setDisable(false);
+                        blackHumanOption.setDisable(false);
+                        for (RadioButton b : difficultyButtons)
+                            if (whiteAiOption.isSelected() || blackAiOption.isSelected())
+                                b.setDisable(false);
+                    });
+                }
+            }
+        }
 
         menuBox.getChildren().add(createStartMenuConfirmButton(whiteOptions, blackOptions, aiOptions, boardStateOptions, whiteNameField, blackNameField));
         StackPane root = new StackPane(createStartMenuBackground(), menuBox);

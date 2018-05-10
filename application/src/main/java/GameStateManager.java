@@ -46,7 +46,7 @@ class GameStateManager {
         this.isWhiteAI = isWhiteAI;
         this.isBlackAI = isBlackAI;
         //Locks AI depth in tutor mode
-        this.aiDepth = boardType == 5 ? 3 : aiDepth;
+        this.aiDepth = aiDepth;
         this.boardType = boardType;
 
         if (boardType == 2) this.chessDataBoard = Board.createRandomBoard();

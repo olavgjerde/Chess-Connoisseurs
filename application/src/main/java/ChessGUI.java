@@ -460,7 +460,7 @@ public class ChessGUI extends Application {
     private MenuBar populateMenuBar() {
         int typeOfGamemode = gameStateManager.getBoardType();
         MenuBar menuBar = new MenuBar();
-        if(typeOfGamemode == 3 || typeOfGamemode == 4) {
+        if(typeOfGamemode >= 3) {
             menuBar.getMenus().addAll(createFileMenu(), createOptionMenu(), createHelpMenu());
         }
         else{
@@ -514,6 +514,7 @@ public class ChessGUI extends Application {
 
         String text = resources.lightBrigade;
         if (gameStateManager.getBoardType() == 3) text = resources.horde;
+        else if (gameStateManager.getBoardType() == 5) text = resources.tutor;
         Text ruleText = new Text(text);
         ruleText.setTextAlignment(TextAlignment.CENTER);
         rulesVBox.getChildren().add(ruleText);

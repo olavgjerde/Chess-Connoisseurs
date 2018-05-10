@@ -1,0 +1,8 @@
+Tutor mode:
+All pieces move as in orthodox Chess.
+Description:
+In this mode you will learn how you can win in certain situations in only a few moves.
+You are provided with a board where you should be able to win in 3-5 moves.
+We will help you find the best move for each turn,
+however we recommend finding the sequence of moves to win,
+and play them out to see if they are correct.

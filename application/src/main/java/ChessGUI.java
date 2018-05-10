@@ -446,7 +446,8 @@ public class ChessGUI extends Application {
         this.gameScene = new Scene(gamePlayPane, startScene.getWidth(), startScene.getHeight());
         primaryStage.setScene(gameScene);
         //Set off white AI (in case of human vs white ai / ai vs ai)
-        if (gameStateManager.isWhiteAI()) doAiMove();
+        if (gameStateManager.currentPlayerAlliance() == Alliance.WHITE && gameStateManager.isWhiteAI()) doAiMove();
+        else if (gameStateManager.currentPlayerAlliance() == Alliance.BLACK && gameStateManager.isBlackAI()) doAiMove();
         //Show hint on startup if in tutor mode
         else if (gameStateManager.isTutorMode()) showMoveHint();
     }
@@ -1057,7 +1058,8 @@ public class ChessGUI extends Application {
             //Redraw
             drawChessPane();
             //Makes the first move in new round if AI is white
-            if (gameStateManager.isWhiteAI()) doAiMove();
+            if (gameStateManager.currentPlayerAlliance() == Alliance.WHITE && gameStateManager.isWhiteAI()) doAiMove();
+            else if (gameStateManager.currentPlayerAlliance() == Alliance.BLACK && gameStateManager.isBlackAI()) doAiMove();
             //Play game-music
             if (playSound && soundClipManager != null) soundClipManager.clear();
             soundClipManager = new SoundClipManager("GameMusic.mp3", true, SOUNDTRACK_VOLUME, playSound);

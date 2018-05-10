@@ -344,6 +344,112 @@ public class Board {
     }
 
     /**
+     * Creates a board which in the player will be able to win in 3-5 moves
+     * @return populated board
+     */
+    public static Board createTutorBoardOne() {
+        final Builder builder = new Builder();
+        //Black pieces
+        builder.setPiece(new Rook(new Coordinate(0,0), Alliance.BLACK));
+        builder.setPiece(new Bishop(new Coordinate(2,0), Alliance.BLACK));
+        builder.setPiece(new Queen(new Coordinate(3,0), Alliance.BLACK));
+        builder.setPiece(new Bishop(new Coordinate(5,0), Alliance.BLACK));
+        builder.setPiece(new King(new Coordinate(6,0), Alliance.BLACK, false, false));
+        builder.setPiece(new Rook(new Coordinate(7,0), Alliance.BLACK));
+        builder.setPiece(new Pawn(new Coordinate(0,1), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(1,1), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(2,1), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(6,1), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(7,1), Alliance.BLACK, false));
+        builder.setPiece(new Knight(new Coordinate(2,2), Alliance.BLACK));
+        builder.setPiece(new Pawn(new Coordinate(4,3), Alliance.BLACK, false));
+        //White pieces
+        builder.setPiece(new Bishop(new Coordinate(2, 4), Alliance.WHITE));
+        builder.setPiece(new Rook(new Coordinate(0,7), Alliance.WHITE));
+        builder.setPiece(new Knight(new Coordinate(1,7), Alliance.WHITE));
+        builder.setPiece(new Bishop(new Coordinate(2,7), Alliance.WHITE));
+        builder.setPiece(new King(new Coordinate(4,7), Alliance.WHITE));
+        builder.setPiece(new Rook(new Coordinate(7,7), Alliance.WHITE));
+        builder.setPiece(new Pawn(new Coordinate(0,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(1,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(2,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(3,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(5,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(6,6), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(7,6), Alliance.WHITE, false));
+        builder.setMoveMaker(Alliance.BLACK);
+        return builder.build();
+    }
+
+    /**
+     * Creates a board which in the player will be able to win in 3-5 moves
+     * @return populated board
+     */
+    public static Board createTutorBoardTwo() {
+        final Builder builder = new Builder();
+        //Black pieces
+        builder.setPiece(new Rook(new Coordinate(0,1), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(0,2), Alliance.BLACK, false, false));
+        builder.setPiece(new Pawn(new Coordinate(6,2), Alliance.BLACK, false, false));
+        builder.setPiece(new Pawn(new Coordinate(7,2), Alliance.BLACK, false, false));
+        builder.setPiece(new Rook(new Coordinate(3,3), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(4,3), Alliance.BLACK, false, false));
+        builder.setPiece(new King(new Coordinate(5,3), Alliance.BLACK, false, false));
+        builder.setPiece(new Pawn(new Coordinate(5,4), Alliance.BLACK, false));
+        //White piece
+        builder.setPiece(new Rook(new Coordinate(2,2), Alliance.WHITE, false));
+        builder.setPiece(new Rook(new Coordinate(5,2), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(0, 3), Alliance.WHITE, false, false));
+        builder.setPiece(new Pawn(new Coordinate(3, 5), Alliance.WHITE, false, false));
+        builder.setPiece(new Pawn(new Coordinate(5, 5), Alliance.WHITE, false, false));
+        builder.setPiece(new Pawn(new Coordinate(7, 5), Alliance.WHITE, false, false));
+        builder.setPiece(new Pawn(new Coordinate(6, 6), Alliance.WHITE, false, false));
+        builder.setPiece(new King(new Coordinate(6, 7), Alliance.WHITE, false, false));
+        builder.setMoveMaker(Alliance.BLACK);
+        return builder.build();
+    }
+
+    /**
+     * Creates a board which in the player will be able to win in 3-5 moves
+     * @return populated board
+     */
+    public static Board createTutorBoardThree() {
+        final Builder builder = new Builder();
+        //Black pieces
+        builder.setPiece(new Rook(new Coordinate(0,0), Alliance.BLACK));
+        builder.setPiece(new Rook(new Coordinate(5,0), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(0,1), Alliance.BLACK, false));
+        builder.setPiece(new Bishop(new Coordinate(1,1), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(2,1), Alliance.BLACK, false));
+        builder.setPiece(new Knight(new Coordinate(3,1), Alliance.BLACK, false));
+        builder.setPiece(new Queen(new Coordinate(4,1), Alliance.BLACK, false));
+        builder.setPiece(new King(new Coordinate(5,1), Alliance.BLACK, false, false));
+        builder.setPiece(new Pawn(new Coordinate(6,1), Alliance.BLACK, false, false));
+        builder.setPiece(new Pawn(new Coordinate(1, 2), Alliance.BLACK, false, false));
+        builder.setPiece(new Pawn(new Coordinate(3, 2), Alliance.BLACK, false, false));
+        builder.setPiece(new Pawn(new Coordinate(4, 2), Alliance.BLACK, false, false));
+        builder.setPiece(new Bishop(new Coordinate(5, 2), Alliance.BLACK, false));
+        builder.setPiece(new Pawn(new Coordinate(7, 2), Alliance.BLACK, false, false));
+        //White pieces
+        builder.setPiece(new Knight(new Coordinate(2, 3), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(3,4), Alliance.WHITE, false, false));
+        builder.setPiece(new Pawn(new Coordinate(6,4), Alliance.WHITE, false, false));
+        builder.setPiece(new Pawn(new Coordinate(7,4), Alliance.WHITE, false, false));
+        builder.setPiece(new Pawn(new Coordinate(2,5), Alliance.WHITE, false, false));
+        builder.setPiece(new Queen(new Coordinate(3,5), Alliance.WHITE, false));
+        builder.setPiece(new Knight(new Coordinate(5,5), Alliance.WHITE, false));
+        builder.setPiece(new Pawn(new Coordinate(0,6), Alliance.WHITE,  false));
+        builder.setPiece(new Pawn(new Coordinate(1,6), Alliance.WHITE,  false));
+        builder.setPiece(new Bishop(new Coordinate(2,6), Alliance.WHITE,  false));
+        builder.setPiece(new Pawn(new Coordinate(5,6), Alliance.WHITE,  false));
+        builder.setPiece(new King(new Coordinate(2,7), Alliance.WHITE,  false, true));
+        builder.setPiece(new Rook(new Coordinate(3,7), Alliance.WHITE, false));
+        builder.setPiece(new Rook(new Coordinate(7,7), Alliance.WHITE));
+        builder.setMoveMaker(Alliance.BLACK);
+        return builder.build();
+    }
+
+    /**
      * Helper class for constructing chessboards given a defined layout
      */
     public static class Builder {

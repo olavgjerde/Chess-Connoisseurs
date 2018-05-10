@@ -15,6 +15,7 @@ import player.basicAI.RegularBoardEvaluator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * The game state manager wraps the Board class and supplies the GUI
@@ -44,14 +45,23 @@ class GameStateManager {
     GameStateManager(boolean isWhiteAI, boolean isBlackAI, int aiDepth, int boardType) {
         this.isWhiteAI = isWhiteAI;
         this.isBlackAI = isBlackAI;
-        this.aiDepth = aiDepth;
+        //Locks AI depth in tutor mode
+        this.aiDepth = boardType == 5 ? 3 : aiDepth;
         this.boardType = boardType;
 
         if (boardType == 2) this.chessDataBoard = Board.createRandomBoard();
         else if (boardType == 3) this.chessDataBoard = Board.createHordeBoard();
         else if (boardType == 4) this.chessDataBoard = Board.createLightBrigadeBoard();
+        else if (boardType == 5) {
+            switch (ThreadLocalRandom.current().nextInt(3)) {
+                case 0: this.chessDataBoard = Board.createTutorBoardOne(); break;
+                case 1: this.chessDataBoard = Board.createTutorBoardTwo(); break;
+                case 2: this.chessDataBoard = Board.createTutorBoardThree(); break;
+                default: this.chessDataBoard = Board.createTutorBoardOne();
+            }
+            this.tutorMode = true;
+        }
         else this.chessDataBoard = Board.createStandardBoard();
-        if (boardType == 5) this.tutorMode = true;
 
         //Add first board
         this.boardHistory.add(this.chessDataBoard);

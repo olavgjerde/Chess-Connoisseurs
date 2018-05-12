@@ -107,21 +107,20 @@
     \end{center}
 
     \subsection{Short explanation of the project structure}
-    The ChessMain class is in charge of showing the board to the player and update it according to user input.
-	Here we make a Board object that we display to the user with the help of the javafx library.
+    The ChessGUI class is in charge of showing the board to the player and the GameStateManager  
+    cooperates with the GUI to update the board according to user input.
+	The GameStateManager holds a Board object that we display to the user with the help of the javafx library in ChessGUI.
 	We get user input that we can use to change the board, or alternately we can get input from the AI.
-	Whenever we change the board we also draw the new board for the user to see.
-	All of this is taken care of in the ChessMain class.
-	The actual game logic is all taken care of in the Board class.
-	It will keep track of the two players as well as all the tiles that can contain a piece.
-	Tile is a way of keeping track of all the pieces in a way that makes is easy to draw in the GUI.
-	The pieces contain all the logic of how they can move,
-	so we can simply call that piece to get its possible moves.
+	Whenever we change the board we let the GUI redraw it for the user to see.
+	The main game logic is taken care of in the Board class, with the GameStateManager supplementing this class to keep track of state information.
+	The Board class keeps track of the two players as well as all the tiles that can contain a piece.
+	The Tile class is a way of keeping track of all the pieces in a way that makes is easy to draw in the GUI.
+	The pieces contain all the logic of how they can move,so we can simply call that piece to get its possible moves.
 	The Player contain information necessary to analyze the board for certain events.
-	It is also capable of making a move
-	which means returning a new board object similar to the one it belongs to just with the move done.
-	Remember all of these are reachable from Board and thus ChessMain.
-    There are several helper classes, factories and enums left out of this graph to make it readable, but this is the overall structure off the entire project.
+	It is also capable of making a move, which will return a new board object with the move executed.
+	Remember all of these are reachable from Board and thus GameStateManager and ChessGUI.
+    There are several helper classes, factories and enums left out of this graph to make it readable,
+    but this is the overall structure off the entire project.
 
     \vspace{30cm}
     \subsection{Additional class overview}

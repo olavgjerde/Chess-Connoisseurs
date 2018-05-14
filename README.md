@@ -1,22 +1,20 @@
-# Team: group-5 | Time: Tuesdays 12-14
+#### *NB: This repository has been cloned from a GitLab server that was used for assignment delivery*
+
+# Team: Chess Connoisseurs
 ## Coach
-+ Jonathan Prieto-Cubides(jcu043@uib.no)
++ Jonathan Prieto-Cubides
 
 Team members:
 ------
-+ Keerthan Kumaranayagam	(kku007)
-+ Malin Jakobsen	(xun007)
-+ Olav Gjerde	(ogj005)
-+ Ole Kristian Solheim Gjerløw	(ogj003)
-+ Renate Nikolajeva	(rni006)
-+ Rune Vatne	(rva013)
-+ Simen Gad Hasvi	(qax007)
-+ Henrik Borgli (hbo019)
++ Keerthan Kumaranayagam
++ Malin Jakobsen
++ Olav Gjerde
++ Ole Kristian Solheim Gjerløw
++ Renate Nikolajeva
++ Rune Vatne
++ Simen Gad Hasvi
++ Henrik Borgli
  
-
-Trello Board:
-https://trello.com/invite/b/hxBw4hwl/433f7523ea3b218c4ccb81a93d96abfa/taskboard
-
 How to run:
 ----
 

@@ -128,8 +128,10 @@ public class Score {
      */
     public void readHighscore() {
         boolean netOnline = netIsAvailable();
-        if(netOnline) {
-            MongoClientURI uri = new MongoClientURI("mongodb://ccuser:ccpass@ds129706.mlab.com:29706/ccdb");
+        //Replace with netOnline when you have added your database
+        if(false) {
+            //Use your own mlab database here
+            MongoClientURI uri = new MongoClientURI("ADD DATABASE HERE");
             MongoClient client = new MongoClient(uri);
             MongoDatabase db = client.getDatabase(uri.getDatabase());
             MongoCollection<Document> highscore = db.getCollection("highscore");
@@ -153,10 +155,11 @@ public class Score {
 
     private void writeHighscore() {
         boolean netOnline = netIsAvailable();
-        if(netOnline) {
+        //Replace with netOnline when you have added your database
+        if(false) {
             List<Document> highscoreDB = new ArrayList<>();
-
-            MongoClientURI uri = new MongoClientURI("mongodb://ccuser:ccpass@ds129706.mlab.com:29706/ccdb");
+            //Use your own mlab database here
+            MongoClientURI uri = new MongoClientURI("ADD DATABASE HERE");
             MongoClient client = new MongoClient(uri);
             MongoDatabase db = client.getDatabase(uri.getDatabase());
             MongoCollection<Document> highscore = db.getCollection("highscore");

@@ -5,11 +5,12 @@
 \usepackage{graphicx}
 \usepackage[table,xcdraw]{xcolor}
 \usepackage{geometry}
- \usepackage{tabularx}
+\usepackage{tabularx}
+\graphicspath{{images/}}
 
 \begin{document}
 
-\title{Task 1}
+\title{Team Plan}
 \date{\today}
 \maketitle
 \section{Team information}
@@ -20,14 +21,13 @@
 \begin{itemize}
 \item Malin Jakobsen (xun007) - Team leader and documentation maintainer. \\
 Responsibility: Maintain house rules and general management of team. Coding, documentation maintenance. \\
-	Experience: Have taken part in project management activities before. Have technical
+	Experience: Has taken part in project management activities before. Has technical
 experience through INF100, INF101, INF102.
 
 \item Olav Gjerde (ogj005) - Git repo leader and main game lead. \\
 Responsibility: Maintaining the git repo structure, and assisting the other teammates
 with the use of git and its features. Is leader of the main game, have overview over code structure. \\
-Experience: Have technical expertise through INF100, INF101 and INF102. Will be
-taking the role of git repo lead and have
+Experience: Has technical expertise through INF100, INF101 and INF102.
 \item Keerthan Kumaranayagam (kku007) -  Coder and documentation\\
 Responsibility: Presentation and retroperspective updater\\
 Experience: INF100, INF101, INF102 and basics within Photoshop.
@@ -36,7 +36,7 @@ Responsibility: Lead of the GUI implementation\\
 Experience: INF100, INF101, INF102. Experience with Illustrator/Photoshop if we want to makeour own assets/textures. Some experience with JavaFX.
 \item Renate Nikolajeva (rni006) - Documentation\\
 Responsibility: Presentation and class diagram\\
-	Experience: Had INF100, INF101, INF102. Have some experience in Photoshop and
+	Experience: Had INF100, INF101, INF102. Has some experience in Photoshop and
 Vegas Pro.
 
 \item Rune Vatne  (rva013) - Coder and documentation\\
@@ -50,7 +50,7 @@ Responsibility: Class diagram, project structure and lead of the AI implementati
   	Experience: Had INF100, INF101 and INF102. JavaFx and other specialities.
 \end{itemize}
 
-Roles will change for each oblig
+Roles might change from one iteration to another
 
 
 \section{House rules}
@@ -74,6 +74,29 @@ The master branch will store the release history of the project, and the develop
 \vspace{5mm} %5mm vertical space
     Release branches are forked off of the develop branch after the develop branch has acquired enough features. This will be the “product” that will be shipped when the deadline date hits. Only bug fixes, additional documentation and such may be added to the release branch after is has been established. When it is ready the release branch will be merged into the master branch, representing a new version of the product.
 Hotfix branches are used for fixing urgent issues with the released product in the master branch, this means that it is forked off of the master branch. When a given fix is complete this should be merged in master and develop.
+
+\vspace{5mm}
+\begin{center}
+\includegraphics[scale=0.8]{image12.png}\\
+\textit{Branch-figure from: (Atlassian, 2018)}
+\end{center}
+\vspace{5mm}
+
+\noindent
+"1. A develop branch is created from master \\
+2. A release branch is created from develop \\
+3. Feature branches are created from develop \\
+4. When a feature is complete it is merged into the develop branch \\
+5. When the release branch is done it is merged into develop and master \\
+6. If an issue in master is detected a hotfix branch is created from master \\
+7. Once the hotfix is complete it is merged to both develop and master" \\
+\textit{(Atlassian, 2018)} \\
+
+\noindent
+Additionally the folder structure will look something like this: \\ \\
+\includegraphics[scale=0.7]{structure.png}
+\vspace{5mm}
+
 \vspace{5mm} %5mm vertical space
 Initial documentation will be produced with google docs for fast collaboration before being translated into latex and pdf formats. After this changes to the documentation happens through the git repository.
 
@@ -99,7 +122,15 @@ Underestimated development time
 & Cut back on features that does contribute directly to the main specification of the product, and reallocate team members to the feature features in question.                 \\ \hline
 \end{tabularx}
 
-\end{document}
+\vspace{30mm}
+\section{References}
+\begin{itemize}
+\item Atlassian (2018) Gitflow Workflow [Internet] \\
+	  Available from: \textit{https://www.atlassian.com/git/tutorials/comparing-workflows/
+	  gitflow-workflow} \\
+	  Read: 20.february 2018\\
+	  License: https://creativecommons.org/licenses/by/2.5/au/
+\end{itemize}
 
 
 

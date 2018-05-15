@@ -190,23 +190,23 @@ public class ChessGUI extends Application {
         final ToggleGroup boardStateOptions = new ToggleGroup();
         RadioButton standardOption = new RadioButton("Standard");
         standardOption.setToggleGroup(boardStateOptions);
-        standardOption.setUserData(1);
+        standardOption.setUserData(GameMode.NORMAL);
         standardOption.setSelected(true);
         RadioButton randomOption = new RadioButton("Random");
         randomOption.setToggleGroup(boardStateOptions);
-        randomOption.setUserData(2);
+        randomOption.setUserData(GameMode.RANDOM);
         randomOption.setSelected(false);
         RadioButton hordeOption = new RadioButton("Horde");
         hordeOption.setToggleGroup(boardStateOptions);
-        hordeOption.setUserData(3);
+        hordeOption.setUserData(GameMode.HORDE);
         hordeOption.setSelected(false);
         RadioButton lightBrigadeOption = new RadioButton("Light Brigade");
         lightBrigadeOption.setToggleGroup(boardStateOptions);
-        lightBrigadeOption.setUserData(4);
+        lightBrigadeOption.setUserData(GameMode.LIGHTBRIGADE);
         lightBrigadeOption.setSelected(false);
         RadioButton tutorOption = new RadioButton("Tutor Mode");
         tutorOption.setToggleGroup(boardStateOptions);
-        tutorOption.setUserData(5);
+        tutorOption.setUserData(GameMode.TUTOR);
         tutorOption.setSelected(false);
         // Add to boardStateBox, then to the root pane for the scene
         boardStateBox.getChildren().addAll(standardOption, randomOption, hordeOption, lightBrigadeOption, tutorOption);
@@ -414,7 +414,7 @@ public class ChessGUI extends Application {
             whitePlayerStats = scoreSystem.getStats(whitePlayerName);
             blackPlayerStats = scoreSystem.getStats(blackPlayerName);
 
-            int boardType = (int) boardStateOptions.getSelectedToggle().getUserData();
+            GameMode boardType = (GameMode) boardStateOptions.getSelectedToggle().getUserData();
 
             //Construct new game state manager with settings from start menu
             gameStateManager = new GameStateManager(isWhiteAI, isBlackAI, aiDepth, boardType);
@@ -465,12 +465,11 @@ public class ChessGUI extends Application {
      * @return populated MenuBar
      */
     private MenuBar populateMenuBar() {
-        int typeOfGamemode = gameStateManager.getBoardType();
+        GameMode typeOfGamemode = gameStateManager.getBoardType();
         MenuBar menuBar = new MenuBar();
-        if(typeOfGamemode >= 3) {
+        if (!typeOfGamemode.equals(GameMode.NORMAL) || !typeOfGamemode.equals(GameMode.RANDOM)) {
             menuBar.getMenus().addAll(createFileMenu(), createOptionMenu(), createHelpMenu());
-        }
-        else{
+        } else {
             menuBar.getMenus().addAll(createFileMenu(), createOptionMenu());
         }
         return menuBar;
@@ -520,8 +519,8 @@ public class ChessGUI extends Application {
         ruleBox.getChildren().addAll(rulesVBox, rules);
 
         String text = resources.lightBrigade;
-        if (gameStateManager.getBoardType() == 3) text = resources.horde;
-        else if (gameStateManager.getBoardType() == 5) text = resources.tutor;
+        if (gameStateManager.getBoardType().equals(GameMode.HORDE)) text = resources.horde;
+        else if (gameStateManager.getBoardType().equals(GameMode.TUTOR)) text = resources.tutor;
         Text ruleText = new Text(text);
         ruleText.setTextAlignment(TextAlignment.CENTER);
         rulesVBox.getChildren().add(ruleText);
@@ -897,7 +896,7 @@ public class ChessGUI extends Application {
                 bishop = new Button("BISHOP", b), rook = new Button("ROOK", r);
 
         //Promotion conditions for light brigade
-        if (gameStateManager.getBoardType() == 4) {
+        if (gameStateManager.getBoardType().equals(GameMode.LIGHTBRIGADE)) {
             if (gameStateManager.currentPlayerAlliance() == Alliance.WHITE) knight.setDisable(true);
             else queen.setDisable(true);
             bishop.setDisable(true);
@@ -1039,7 +1038,7 @@ public class ChessGUI extends Application {
 
         //Text
         Text title = new Text("GAME OVER - ");
-        if (gameStateManager.getBoardType() == 3) title = new Text("GAME OVER - ");
+        if (gameStateManager.getBoardType().equals(GameMode.HORDE)) title = new Text("GAME OVER - ");
         else if (gameStateManager.currentPlayerInCheckMate()) title = new Text("CHECKMATE - ");
         else if (gameStateManager.currentPlayerInStaleMate()) title = new Text("STALEMATE - ");
         else if (gameStateManager.isDraw()) title = new Text("DRAW - ");

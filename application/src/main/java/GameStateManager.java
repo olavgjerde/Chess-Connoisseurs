@@ -1,9 +1,6 @@
-import board.Board;
-import board.Coordinate;
-import board.Move;
+import board.*;
 import board.Move.MoveFactory;
 import board.Move.PawnPromotion;
-import board.Tile;
 import pieces.Alliance;
 import pieces.Piece;
 import player.MoveTransition;
@@ -22,11 +19,10 @@ import java.util.concurrent.ThreadLocalRandom;
  * with methods that retrieve information about the current game state.
  */
 class GameStateManager {
-    //Chess board data representation
     private Board chessDataBoard;
-    private boolean isWhiteAI, isBlackAI, tutorMode = false;
-    final private int aiDepth;
-    final private int boardType;
+    private boolean isWhiteAI, isBlackAI, tutorMode;
+    private final int aiDepth;
+    private final GameMode boardType;
     //Keep count of board history (board states)
     private final List<Board> boardHistory = new ArrayList<>();
     //Move history, even = white moves, odd = black moves
@@ -40,19 +36,19 @@ class GameStateManager {
      * @param isWhiteAI     if white ai is playing
      * @param isBlackAI     if black ai is playing
      * @param aiDepth       depth that ai should use for its search
-     * @param boardType     1 = standard, 2 = random, 3 = horde, 4 = lightBrigade, 5 = tutor mode
+     * @param boardType     enum ex. GameMode.RANDOM, GameMode.HORDE etc
      */
-    GameStateManager(boolean isWhiteAI, boolean isBlackAI, int aiDepth, int boardType) {
+    GameStateManager(boolean isWhiteAI, boolean isBlackAI, int aiDepth, GameMode boardType) {
         this.isWhiteAI = isWhiteAI;
         this.isBlackAI = isBlackAI;
-        //Locks AI depth in tutor mode
         this.aiDepth = aiDepth;
         this.boardType = boardType;
 
-        if (boardType == 2) this.chessDataBoard = Board.createRandomBoard();
-        else if (boardType == 3) this.chessDataBoard = Board.createHordeBoard();
-        else if (boardType == 4) this.chessDataBoard = Board.createLightBrigadeBoard();
-        else if (boardType == 5) {
+        if (boardType.equals(GameMode.RANDOM)) this.chessDataBoard = Board.createRandomBoard();
+        else if (boardType.equals(GameMode.HORDE)) this.chessDataBoard = Board.createHordeBoard();
+        else if (boardType.equals(GameMode.LIGHTBRIGADE)) this.chessDataBoard = Board.createLightBrigadeBoard();
+        else if (boardType.equals(GameMode.TUTOR)) {
+            //Pick random tutor-board
             switch (ThreadLocalRandom.current().nextInt(4)) {
                 case 0: this.chessDataBoard = Board.createTutorBoardOne(); break;
                 case 1: this.chessDataBoard = Board.createTutorBoardTwo(); break;
@@ -64,7 +60,7 @@ class GameStateManager {
         }
         else this.chessDataBoard = Board.createStandardBoard();
 
-        //Add first board
+        //Add first board to boardHistory
         this.boardHistory.add(this.chessDataBoard);
     }
 
@@ -208,11 +204,11 @@ class GameStateManager {
     }
 
     /**
-     * Get the board type of the current board
-     * 1 = standard, 2 = random, 3 = horde, 4 = light brigade, 5 = tutor mode
-     * @return the board type in the form of an int
+     * Get the board type enum of the current board
+     * @see GameMode
+     * @return the board type in the form of an enum
      */
-    int getBoardType() {
+    GameMode getBoardType() {
         return boardType;
     }
 

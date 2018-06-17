@@ -6,12 +6,13 @@ import java.util.*;
  * Helper class for the chess engine, contains various methods that define dimensions for the board and layout,
  * but also methods that help with calculations of movements.
  */
-public class BoardUtils {
+public final class BoardUtils {
     private static final Map<Coordinate, String> COORDINATE_TO_ALGEBRAIC = initializeAlgebraicNotation();
     private static final Map<String, Coordinate> ALGEBRAIC_TO_COORDINATE = initializeAlgebraicToCoordinateMap();
     private static final Map<Coordinate, Integer> COORDINATE_TO_INTEGER = initializeIntegerToCoordinateMap();
 
     private BoardUtils() {
+        throw new AssertionError("Utility class instantiated");
     }
 
     /**

@@ -17,12 +17,6 @@ import static board.Move.*;
  * See more documentation in Piece-class.
  */
 public class Pawn extends Piece {
-
-    /**
-     * List holds possible coordinates in relation to the piece's position where it may move.
-     * NB: 2 and 2 integers represent x and y. [0] = x [1] = y etc.
-     */
-    private final static int[] POSSIBLE_MOVE_COORDINATES = {0, 1, 0, 2, -1, 1, 1, 1};
     private final boolean lightBrigadeMode;
 
     /**
@@ -45,90 +39,122 @@ public class Pawn extends Piece {
 
     @Override
     public Collection<Move> calculateLegalMoves(Board board) {
-        final List<Move> legalMoves = new ArrayList<>();
-        final Alliance thisAlliance = this.getPieceAlliance();
-        final int thisX = this.pieceCoordinate.getX(), thisY = this.pieceCoordinate.getY();
+        List<Move> allMoves = new ArrayList<>();
 
-        for (int i = 0; i < POSSIBLE_MOVE_COORDINATES.length; i += 2) {
-            // piece alliance is used to determine if the piece is moving up or down the board
-            final int relativeX = POSSIBLE_MOVE_COORDINATES[i];
-            final int relativeY = POSSIBLE_MOVE_COORDINATES[i + 1];
-            Coordinate destination = new Coordinate(thisX + (relativeX * thisAlliance.getDirection()),
-                                                    thisY + (relativeY * thisAlliance.getDirection()));
-
-            if (BoardUtils.isValidCoordinate(destination)) {
-                final boolean promotionIsPossible = this.pieceAlliance.isPawnPromotionCoordinate(destination);
-                final boolean destinationIsEmpty = board.getTile(destination).isEmpty();
-                final Pawn enPassantPawn = board.getEnPassantPawn();
-
-                if (relativeX == 0 && relativeY == 1) {
-                    // 1 step
-                    if (promotionIsPossible && destinationIsEmpty) {
-                        //Light brigade mode restricts promotion availability
-                        if (this.lightBrigadeMode && thisAlliance == Alliance.WHITE) {
-                            legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.QUEEN));
-                        } else if (this.lightBrigadeMode && thisAlliance == Alliance.BLACK) {
-                            legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.KNIGHT));
-                        } else {
-                            legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.QUEEN));
-                            legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.ROOK));
-                            legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.BISHOP));
-                            legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.KNIGHT));
-                        }
-                    } else if (destinationIsEmpty) {
-                        legalMoves.add(new PawnMove(board, this, destination));
-                    }
-                } else if (relativeX == 0 && relativeY == 2) {
-                    // 2 steps (jump)
-                    if (((thisY == 1 && thisAlliance == Alliance.BLACK) || (thisY == BoardUtils.getHeight() - 2 && thisAlliance == Alliance.WHITE)) && this.isFirstMove()) {
-                        final Coordinate inTheMiddle = new Coordinate(thisX, thisY + thisAlliance.getDirection());
-                        if (board.getTile(inTheMiddle).isEmpty() && destinationIsEmpty) {
-                            legalMoves.add(new PawnJump(board, this, destination));
-                        }
-                    }
-                } else if ((relativeX == -1 && relativeY == 1) || ((relativeX == 1) && (relativeY == 1))) {
-                    // 1 step diagonal attacks
-                    if (!destinationIsEmpty) {
-                        final Piece pieceAtDestination = board.getTile(destination).getPiece();
-                        if (pieceAtDestination.getPieceAlliance() != thisAlliance) {
-                            if (promotionIsPossible) {
-                                //Light brigade mode restricts promotion availability
-                                if (this.lightBrigadeMode && thisAlliance == Alliance.WHITE) {
-                                    legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.QUEEN));
-                                } else if (this.lightBrigadeMode && thisAlliance == Alliance.BLACK) {
-                                    legalMoves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.KNIGHT));
-                                } else {
-                                    legalMoves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.QUEEN));
-                                    legalMoves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.ROOK));
-                                    legalMoves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.BISHOP));
-                                    legalMoves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.KNIGHT));
-                                }
-                            } else {
-                                legalMoves.add(new PawnAttackMove(board, this, destination, pieceAtDestination));
-                            }
-                        }
-                    } else if (enPassantPawn != null) {
-                        // logic for 'en passant' attack
-                        final Coordinate passantCoordinate = enPassantPawn.pieceCoordinate;
-                        final Alliance passantAlliance = enPassantPawn.pieceAlliance;
-                        // NB: this section checks for a possible 'en passant' attacks in both directions for
-                        // both alliances, hence the 'toOneSide' / 'toTheOtherSide' notation
-                        if (relativeX == -1 && relativeY == 1) {
-                            final Coordinate toOneSide = new Coordinate(thisX + thisAlliance.getOppositeDirection(), thisY);
-                            if (thisAlliance != passantAlliance && passantCoordinate.equals(toOneSide)) {
-                                legalMoves.add(new PawnEnPassantAttackMove(board, this, destination, enPassantPawn));
-                            }
-                        } else if (relativeX == 1 && relativeY == 1) {
-                            final Coordinate toTheOtherSide = new Coordinate(thisX - thisAlliance.getOppositeDirection(), thisY);
-                            if (thisAlliance != passantAlliance && passantCoordinate.equals(toTheOtherSide)) {
-                                legalMoves.add(new PawnEnPassantAttackMove(board, this, destination, enPassantPawn));
-                            }
-                        }
-                    }
-                }
+        Coordinate firstStep = this.goForward(1);
+        if (BoardUtils.isValidCoordinate(firstStep) && board.getTile(firstStep) != null && board.getTile(firstStep).isEmpty()) {
+            allMoves = addNormalMoves(board, firstStep);
+            // here we know that position inbetween jump is empty
+            Coordinate secondStep = this.goForward(2);
+            if (this.isFirstMove() && board.getTile(secondStep) != null && board.getTile(secondStep).isEmpty()) {
+                allMoves.addAll(addNormalMoves(board, secondStep));
             }
         }
-        return Collections.unmodifiableList(legalMoves);
+
+        Coordinate attack1 = new Coordinate(getPieceCoordinate().getX() - 1, goForward(1).getY());
+        Coordinate attack2 = new Coordinate(getPieceCoordinate().getX() + 1, goForward(1).getY());
+        if (BoardUtils.isValidCoordinate(attack1)) allMoves.addAll(addAttackMoves(board, attack1));
+        if (BoardUtils.isValidCoordinate(attack2)) allMoves.addAll(addAttackMoves(board, attack2));
+
+        return Collections.unmodifiableList(allMoves);
+    }
+
+    /**
+     * Add all normal moves to a list
+     * @param board to evaluate
+     * @param destination of pawn
+     * @return list with all possible normal moves added
+     */
+    private List<Move> addNormalMoves(Board board, Coordinate destination) {
+        List<Move> moves = new ArrayList<>();
+
+        if (this.pieceAlliance.isPawnPromotionCoordinate(destination)) {
+            if (this.lightBrigadeMode && this.pieceAlliance == Alliance.WHITE) {
+                moves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.QUEEN));
+            } else if (this.lightBrigadeMode && this.pieceAlliance == Alliance.BLACK) {
+                moves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.KNIGHT));
+            } else {
+                moves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.QUEEN));
+                moves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.ROOK));
+                moves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.BISHOP));
+                moves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.KNIGHT));
+            }
+        } else if (Math.abs(this.getPieceCoordinate().getY() - destination.getY()) == 2) {
+            moves.add(new PawnJump(board, this, destination));
+        } else {
+            moves.add(new PawnMove(board, this, destination));
+        }
+
+        return moves;
+    }
+
+    /**
+     * Adds all available attack moves to a list
+     * @param board to evaluate
+     * @param destination of pawn
+     * @return a list with all possible attack moves added
+     */
+    private List<Move> addAttackMoves(Board board, Coordinate destination) {
+        List<Move> moves = new ArrayList<>();
+
+        if (board.isEnemy(this, destination)) {
+            Piece pieceAtDestination = board.getTile(destination).getPiece();
+            if (this.pieceAlliance.isPawnPromotionCoordinate(destination)) {
+                if (this.lightBrigadeMode && this.pieceAlliance == Alliance.WHITE) {
+                    moves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.QUEEN));
+                } else if (this.lightBrigadeMode && this.pieceAlliance == Alliance.BLACK) {
+                    moves.add(new PawnPromotion(new PawnMove(board, this, destination), PieceType.KNIGHT));
+                } else {
+                    moves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.QUEEN));
+                    moves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.ROOK));
+                    moves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.BISHOP));
+                    moves.add(new PawnPromotion(new PawnAttackMove(board, this, destination, pieceAtDestination), PieceType.KNIGHT));
+                }
+            }
+            moves.add(new PawnAttackMove(board, this, destination, pieceAtDestination));
+        } else if (board.getTile(destination).isEmpty() && board.getEnPassantPawn() != null) {
+            Move ep = getEnPassantMove(board, destination);
+            if (ep != null) moves.add(ep);
+        }
+
+        return moves;
+    }
+
+    /**
+     * Adds avaiable EnPassant move to a list
+     * @param board to evaluate
+     * @param destination of pawn
+     * @return en passant move, null if not present
+     */
+    private Move getEnPassantMove(Board board, Coordinate destination) {
+        final Pawn enPassantPawn = board.getEnPassantPawn();
+        final Coordinate passantCoordinate = board.getEnPassantPawn().pieceCoordinate;
+
+        if (board.isEnemy(this, passantCoordinate) && destination.equals(enPassantPawn.goBackward(1))) {
+            return new PawnEnPassantAttackMove(board, this, destination, board.getEnPassantPawn());
+        }
+
+        return null;
+    }
+
+    /**
+     * Takes n steps forwards based on alliance of pawn (white goes north, black goes south)
+     * @param nIncrements how many steps to move forward
+     * @return new coordinate based on initial piece coordinate
+     */
+    public Coordinate goForward(int nIncrements) {
+        if (this.pieceAlliance == Alliance.WHITE) return new Coordinate(getPieceCoordinate().getX(), getPieceCoordinate().getY() - nIncrements);
+        return new Coordinate(getPieceCoordinate().getX(), getPieceCoordinate().getY() + nIncrements);
+    }
+
+    /**
+     * Takes n steps backwards based on alliance of pawn (white goes south, black goes north)
+     * @param nIncrements how many steps to move forward
+     * @return new coordinate based on initial piece coordinate
+     */
+    public Coordinate goBackward(int nIncrements) {
+        if (this.pieceAlliance == Alliance.WHITE) return new Coordinate(getPieceCoordinate().getX(), getPieceCoordinate().getY() + nIncrements);
+        return new Coordinate(getPieceCoordinate().getX(), getPieceCoordinate().getY() - nIncrements);
     }
 
     @Override
@@ -137,20 +163,12 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public String toString() {
-        return PieceType.PAWN.toString();
-    }
-
-    /**
-     * Set to Queen by default for simplicity
-     * @return the piece that this pawn will be promoted to
-     */
-    public Piece getPromotionPiece() {
-        return new Queen(this.pieceCoordinate, this.pieceAlliance, false);
+    public int locationValue(boolean isEndGame) {
+        return this.pieceAlliance.pawnSquareValue(this.pieceCoordinate);
     }
 
     @Override
-    public int locationValue(boolean isEndGame) {
-        return this.pieceAlliance.pawnSquareValue(this.pieceCoordinate);
+    public String toString() {
+        return PieceType.PAWN.toString();
     }
 }

@@ -130,6 +130,28 @@ public class Board {
     }
 
     /**
+     * Check if a piece is of the same alliance of the piece on a given coordinate
+     * @param piece to be compared against piece at coordinate c
+     * @param c target coordiante
+     * @return true if friendly, false if piece at c is an enemy or c does not contain a piece
+     */
+    public boolean isFriendly(Piece piece, Coordinate c) {
+        Piece pieceAtCoordinate = this.getTile(c).getPiece();
+        return pieceAtCoordinate != null && piece.getPieceAlliance() == pieceAtCoordinate.getPieceAlliance();
+    }
+
+    /**
+     * Check if a piece is not of the same alliance of the piece on a given coordinate
+     * @param piece to be compared against piece at coordinate c
+     * @param c target coordiante
+     * @return true if enemy, false if piece at c is a friendly or c does not contain a piece
+     */
+    public boolean isEnemy(Piece piece, Coordinate c) {
+        Piece pieceAtCoordinate = this.getTile(c).getPiece();
+        return pieceAtCoordinate != null && piece.getPieceAlliance() != pieceAtCoordinate.getPieceAlliance();
+    }
+
+    /**
      * Adds all of the black and white player's moves to one list
      * @return an Iterable list of all the moves
      */
@@ -150,7 +172,7 @@ public class Board {
     /**
      * @return the move that changed this board into its current state
      */
-    public Move getTransitionMove() {
+    Move getTransitionMove() {
         return transitionMove;
     }
 
@@ -507,7 +529,7 @@ public class Board {
          * Sets the pawn that is now open for an 'en passant' attack
          * @param enPassantPawn the pawn that made a pawn jump
          */
-        public void setEnPassantPawn(Pawn enPassantPawn) {
+        void setEnPassantPawn(Pawn enPassantPawn) {
             this.enPassantPawn = enPassantPawn;
         }
 
@@ -515,7 +537,7 @@ public class Board {
          * Set the move that made a change to the board
          * @param transitionMove the move that changes the board
          */
-        public void setMoveTransition(final Move transitionMove) {
+        void setMoveTransition(final Move transitionMove) {
             this.transitionMove = transitionMove;
         }
 

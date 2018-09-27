@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static board.Move.*;
 
@@ -37,31 +39,12 @@ public class Bishop extends Piece {
 
     @Override
     public Collection<Move> calculateLegalMoves(Board board) {
-        final List<Move> legalMoves = new ArrayList<>();
-
+        List<Move> allMoves = new ArrayList<>();
         for (int i = 0; i < POSSIBLE_MOVE_COORDINATES.length; i += 2) {
-            int x = POSSIBLE_MOVE_COORDINATES[i];
-            int y = POSSIBLE_MOVE_COORDINATES[i + 1];
-            // calculate for the 4 diagonal directions on the board
-            Coordinate possibleDestCoord = new Coordinate(this.pieceCoordinate.getX() + x, this.pieceCoordinate.getY() + y);
-
-            while (BoardUtils.isValidCoordinate(possibleDestCoord)) {
-                final Tile possibleDestinationTile = board.getTile(possibleDestCoord);
-                if (possibleDestinationTile.isEmpty()) {
-                    legalMoves.add(new MajorMove(board, this, possibleDestCoord));
-                } else {
-                    final Piece pieceAtDestination = possibleDestinationTile.getPiece();
-                    if (this.pieceAlliance != pieceAtDestination.getPieceAlliance()) {
-                        // enemy tile detected
-                        legalMoves.add(new MajorAttackMove(board, this, possibleDestCoord, pieceAtDestination));
-                    }
-                    // path obstructed -> can't move beyond
-                    break;
-                }
-                possibleDestCoord = new Coordinate(possibleDestCoord.getX() + x, possibleDestCoord.getY() + y);
-            }
+            allMoves.addAll(travelInDirection(POSSIBLE_MOVE_COORDINATES[i], POSSIBLE_MOVE_COORDINATES[i+1], board, -1));
         }
-        return Collections.unmodifiableList(legalMoves);
+
+        return Collections.unmodifiableList(allMoves);
     }
 
     @Override
@@ -70,12 +53,12 @@ public class Bishop extends Piece {
     }
 
     @Override
-    public String toString() {
-        return PieceType.BISHOP.toString();
+    public int locationValue(boolean isEndGame) {
+        return this.pieceAlliance.bishopSquareValue(this.pieceCoordinate);
     }
 
     @Override
-    public int locationValue(boolean isEndGame) {
-        return this.pieceAlliance.bishopSquareValue(this.pieceCoordinate);
+    public String toString() {
+        return PieceType.BISHOP.toString();
     }
 }

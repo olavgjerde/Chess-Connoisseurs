@@ -37,31 +37,12 @@ public class Rook extends Piece {
 
     @Override
     public Collection<Move> calculateLegalMoves(Board board) {
-        final List<Move> legalMoves = new ArrayList<>();
-
+        List<Move> allMoves = new ArrayList<>();
         for (int i = 0; i < POSSIBLE_MOVE_COORDINATES.length; i += 2) {
-            int x = POSSIBLE_MOVE_COORDINATES[i];
-            int y = POSSIBLE_MOVE_COORDINATES[i + 1];
-            // calculate for the 2 horizontal and vertical directions on the board
-            Coordinate possibleDestCoord = new Coordinate(this.pieceCoordinate.getX() + x, this.pieceCoordinate.getY() + y);
-
-            while (BoardUtils.isValidCoordinate(possibleDestCoord)) {
-                final Tile possibleDestinationTile = board.getTile(possibleDestCoord);
-                if (possibleDestinationTile.isEmpty()) {
-                    legalMoves.add(new MajorMove(board, this, possibleDestCoord));
-                } else {
-                    final Piece pieceAtDestination = possibleDestinationTile.getPiece();
-                    if (this.pieceAlliance != pieceAtDestination.getPieceAlliance()) {
-                        // enemy tile detected
-                        legalMoves.add(new MajorAttackMove(board, this, possibleDestCoord, pieceAtDestination));
-                    }
-                    // path obstructed -> can't move beyond
-                    break;
-                }
-                possibleDestCoord = new Coordinate(possibleDestCoord.getX() + x, possibleDestCoord.getY() + y);
-            }
+            allMoves.addAll(travelInDirection(POSSIBLE_MOVE_COORDINATES[i], POSSIBLE_MOVE_COORDINATES[i+1], board, -1));
         }
-        return Collections.unmodifiableList(legalMoves);
+
+        return Collections.unmodifiableList(allMoves);
     }
 
     @Override

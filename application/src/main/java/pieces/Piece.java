@@ -5,8 +5,12 @@ import board.BoardUtils;
 import board.Coordinate;
 import board.Move;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
+
+import static board.Move.*;
 
 /**
  * Abstract class representing the fundamental behavior and structure of a chess piece
@@ -83,6 +87,32 @@ public abstract class Piece {
      */
     public Coordinate getPieceCoordinate() {
         return this.pieceCoordinate;
+    }
+
+    /**
+     * Calculates the legal moves for a piece traveling in a given direction
+     * @param changeX change of x value in relation to initial position
+     * @param changeY change of y value in relation to initial position
+     * @param board piece is moving on
+     * @param distanceLimit limit travel, -1 = infinite
+     * @return legal moves in a given direction
+     */
+    List<Move> travelInDirection(int changeX, int changeY, Board board, int distanceLimit) {
+        List<Move> moves = new ArrayList<>();
+        Coordinate nextCoordinate = new Coordinate(pieceCoordinate.getX() + changeX, pieceCoordinate.getY() + changeY);
+
+        while (BoardUtils.isValidCoordinate(nextCoordinate) && (distanceLimit > 0 || distanceLimit <= -1)) {
+            if (board.isFriendly(this, nextCoordinate)) break;
+            if (board.isEnemy(this, nextCoordinate)) {
+                moves.add(new MajorAttackMove(board, this, nextCoordinate, board.getTile(nextCoordinate).getPiece()));
+                break;
+            }
+            moves.add(new MajorMove(board, this, nextCoordinate));
+            nextCoordinate = new Coordinate(nextCoordinate.getX() + changeX, nextCoordinate.getY() + changeY);
+            distanceLimit--;
+        }
+
+        return moves;
     }
 
     /**

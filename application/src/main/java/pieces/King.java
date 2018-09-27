@@ -36,28 +36,12 @@ public class King extends Piece {
 
     @Override
     public Collection<Move> calculateLegalMoves(Board board) {
-        final List<Move> legalMoves = new ArrayList<>();
-
+        List<Move> allMoves = new ArrayList<>();
         for (int i = 0; i < POSSIBLE_MOVE_COORDINATES.length; i += 2) {
-            int x = POSSIBLE_MOVE_COORDINATES[i];
-            int y = POSSIBLE_MOVE_COORDINATES[i + 1];
-
-            Coordinate possibleDestCoord = new Coordinate(this.pieceCoordinate.getX() + x, this.pieceCoordinate.getY() + y);
-
-            final Tile possibleDestinationTile = board.getTile(possibleDestCoord);
-            if (BoardUtils.isValidCoordinate(possibleDestCoord)) {
-                if (possibleDestinationTile.isEmpty()) {
-                    legalMoves.add(new MajorMove(board, this, possibleDestCoord));
-                } else {
-                    final Piece pieceAtDestination = possibleDestinationTile.getPiece();
-                    if (this.pieceAlliance != pieceAtDestination.getPieceAlliance()) {
-                        // enemy tile detected
-                        legalMoves.add(new MajorAttackMove(board, this, possibleDestCoord, pieceAtDestination));
-                    }
-                }
-            }
+            allMoves.addAll(travelInDirection(POSSIBLE_MOVE_COORDINATES[i], POSSIBLE_MOVE_COORDINATES[i+1], board, 1));
         }
-        return Collections.unmodifiableList(legalMoves);
+
+        return Collections.unmodifiableList(allMoves);
     }
 
     @Override
@@ -70,12 +54,12 @@ public class King extends Piece {
         return PieceType.KING.toString();
     }
 
-    public boolean isCastled() {
-        return this.isCastled;
-    }
-
     @Override
     public int locationValue(boolean isEndGame) {
         return this.pieceAlliance.kingSquareValue(this.pieceCoordinate, isEndGame);
+    }
+
+    public boolean isCastled() {
+        return this.isCastled;
     }
 }

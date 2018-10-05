@@ -7,11 +7,25 @@ import java.util.*;
  * but also methods that help with calculations of movements.
  */
 public class BoardUtils {
-    private static final Map<Coordinate, String> COORDINATE_TO_ALGEBRAIC = initializeAlgebraicNotation();
-    private static final Map<String, Coordinate> ALGEBRAIC_TO_COORDINATE = initializeAlgebraicToCoordinateMap();
-    private static final Map<Coordinate, Integer> COORDINATE_TO_INTEGER = initializeIntegerToCoordinateMap();
+    private static BoardUtils boardUtils = null;
+    private Map<Coordinate, String> COORDINATE_TO_ALGEBRAIC;
+    private Map<String, Coordinate> ALGEBRAIC_TO_COORDINATE;
+    private Map<Coordinate, Integer> COORDINATE_TO_INTEGER;
+    private int height, width;
 
     private BoardUtils() {
+        this.COORDINATE_TO_ALGEBRAIC = initializeAlgebraicNotation();
+        this.ALGEBRAIC_TO_COORDINATE = initializeAlgebraicToCoordinateMap();
+        this.COORDINATE_TO_INTEGER = initializeIntegerToCoordinateMap();
+        this.height = 8;
+        this.width = 8;
+    }
+
+    public static BoardUtils getInstance() {
+        if (boardUtils == null) {
+            boardUtils = new BoardUtils();
+        }
+        return boardUtils;
     }
 
     /**
@@ -20,18 +34,26 @@ public class BoardUtils {
      * @param coordinate of given piece that will be evaluated
      * @return true if valid coordinate, else false
      */
-    public static boolean isValidCoordinate(Coordinate coordinate) {
+    public boolean isValidCoordinate(Coordinate coordinate) {
         int x = coordinate.getX();
         int y = coordinate.getY();
         return x >= 0 && x < getWidth() && y >= 0 && y < getHeight();
     }
 
-    public static int getHeight() {
-        return 8;
+    /**
+     * The height of the chessboard
+     * @return height of chessboard
+     */
+    public int getHeight() {
+        return height;
     }
 
-    public static int getWidth() {
-        return 8;
+    /**
+     * The width of the chessboard
+     * @return width of chessboard
+     */
+    public int getWidth() {
+        return width;
     }
 
     /**
@@ -40,7 +62,7 @@ public class BoardUtils {
      * @param coordinate to get algebraic notation for
      * @return String (algebraic notation) corresponding to coordinate
      */
-    public static String getAlgebraicNotationFromCoordinate(Coordinate coordinate) {
+    String getAlgebraicNotationFromCoordinate(Coordinate coordinate) {
         return COORDINATE_TO_ALGEBRAIC.get(coordinate);
     }
 
@@ -50,7 +72,7 @@ public class BoardUtils {
      * @param algebraicNotation of a coordinate
      * @return Coordinate corresponding to algebraic notation
      */
-    public static Coordinate getCoordinateFromAlgebraicNotation(String algebraicNotation) {
+    public Coordinate getCoordinateFromAlgebraicNotation(String algebraicNotation) {
         return ALGEBRAIC_TO_COORDINATE.get(algebraicNotation);
     }
 
@@ -60,7 +82,7 @@ public class BoardUtils {
      * @param coordinate to fetch integer representation for
      * @return integer representation
      */
-    public static int getIntegerRepresentationFromCoordinate(Coordinate coordinate) {
+    public int getIntegerRepresentationFromCoordinate(Coordinate coordinate) {
         return COORDINATE_TO_INTEGER.get(coordinate);
     }
 
@@ -69,12 +91,12 @@ public class BoardUtils {
      *
      * @return Map with key Coordinate and value String
      */
-    private static Map<Coordinate, String> initializeAlgebraicNotation() {
+    private Map<Coordinate, String> initializeAlgebraicNotation() {
         Map<Coordinate, String> coordToString = new HashMap<>();
         char letter = 'a';
 
-        for (int i = 0; i < getHeight(); i++) {
-            for (int j = 0; j < getWidth(); j++) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
                 String algebraic = letter++ + "" + (getHeight() - i);
                 coordToString.put(new Coordinate(j, i), algebraic);
             }
@@ -88,10 +110,10 @@ public class BoardUtils {
      *
      * @return Map with key String and value Coordinate
      */
-    private static Map<String, Coordinate> initializeAlgebraicToCoordinateMap() {
+    private Map<String, Coordinate> initializeAlgebraicToCoordinateMap() {
         Map<String, Coordinate> stringToCoord = new HashMap<>();
-        for (int i = 0; i < getHeight(); i++) {
-            for (int j = 0; j < getWidth(); j++) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
                 stringToCoord.put(COORDINATE_TO_ALGEBRAIC.get(new Coordinate(j, i)), new Coordinate(j, i));
             }
         }
@@ -103,11 +125,11 @@ public class BoardUtils {
      *
      * @return Map with key Coordinate and value Integer
      */
-    private static Map<Coordinate, Integer> initializeIntegerToCoordinateMap() {
+    private Map<Coordinate, Integer> initializeIntegerToCoordinateMap() {
         Map<Coordinate, Integer> coordToInteger = new HashMap<>();
         int integerRepresentation = 0;
-        for (int i = 0; i < BoardUtils.getHeight(); i++) {
-            for (int j = 0; j < BoardUtils.getWidth(); j++) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
                 coordToInteger.put(new Coordinate(j,i), integerRepresentation++);
             }
         }
@@ -120,7 +142,7 @@ public class BoardUtils {
      * @param n how many moves to retrieve
      * @return a list of the moves retrieved
      */
-    public static List<Move> retrieveLastNMoves(Board board, int n) {
+    public List<Move> retrieveLastNMoves(Board board, int n) {
         final List<Move> moveHistory = new ArrayList<>();
         Move currentMove = board.getTransitionMove();
         int i = 0;

@@ -49,7 +49,7 @@ public class BlackPlayer extends Player {
 
                 // Check that that the rook is in position, and that it is making it's first move.
                 // Check that there are no attacks on tiles in between the king and the rook
-                final Piece rookPiece = this.board.getTile(new Coordinate(BoardUtils.getWidth() - 1, 0)).getPiece();
+                final Piece rookPiece = this.board.getTile(new Coordinate(BoardUtils.getInstance().getWidth() - 1, 0)).getPiece();
                 if (rookPiece instanceof Rook && rookPiece.isFirstMove() &&
                     calculateAttacksOnCoordinate(oneStepRight, opponentMoves).isEmpty() &&
                     calculateAttacksOnCoordinate(twoStepsRight, opponentMoves).isEmpty()) {

@@ -20,7 +20,7 @@ class StandardLayoutBoardTest {
      */
     @BeforeAll
     static void setStandardBoard() {
-        assumeTrue(BoardUtils.getWidth() == 8 && BoardUtils.getHeight() == 8,
+        assumeTrue(BoardUtils.getInstance().getWidth() == 8 && BoardUtils.getInstance().getHeight() == 8,
                 "Board size not in bounds for the standard layout logic");
         board = Board.createStandardBoard();
     }

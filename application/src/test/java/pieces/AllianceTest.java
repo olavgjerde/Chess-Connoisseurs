@@ -55,8 +55,8 @@ class AllianceTest {
      */
     @Test
     void isPawnPromotionCoordinateBlackPiece() {
-        int promotionY = BoardUtils.getHeight() - 1;
-        int randomXInBounds = ThreadLocalRandom.current().nextInt(BoardUtils.getWidth());
+        int promotionY = BoardUtils.getInstance().getHeight() - 1;
+        int randomXInBounds = ThreadLocalRandom.current().nextInt(BoardUtils.getInstance().getWidth());
         Coordinate promotionCoordinate = new Coordinate(randomXInBounds, promotionY);
         assertTrue(Alliance.BLACK.isPawnPromotionCoordinate(promotionCoordinate));
     }
@@ -68,8 +68,8 @@ class AllianceTest {
     @Test
     void isNotPawnPromotionCoordinateBlackPiece() {
         int promotionY = ThreadLocalRandom.current().nextInt();
-        while (promotionY == BoardUtils.getHeight() - 1) promotionY = ThreadLocalRandom.current().nextInt();
-        int randomXInBounds = ThreadLocalRandom.current().nextInt(BoardUtils.getWidth());
+        while (promotionY == BoardUtils.getInstance().getHeight() - 1) promotionY = ThreadLocalRandom.current().nextInt();
+        int randomXInBounds = ThreadLocalRandom.current().nextInt(BoardUtils.getInstance().getWidth());
         Coordinate promotionCoordinate = new Coordinate(randomXInBounds, promotionY);
         assertFalse(Alliance.BLACK.isPawnPromotionCoordinate(promotionCoordinate));
     }
@@ -81,7 +81,7 @@ class AllianceTest {
     @Test
     void isPawnPromotionCoordinateWhitePiece() {
         int promotionY = 0;
-        int randomXInBounds = ThreadLocalRandom.current().nextInt(BoardUtils.getWidth());
+        int randomXInBounds = ThreadLocalRandom.current().nextInt(BoardUtils.getInstance().getWidth());
         Coordinate promotionCoordinate = new Coordinate(randomXInBounds, promotionY);
         assertTrue(Alliance.WHITE.isPawnPromotionCoordinate(promotionCoordinate));
     }
@@ -94,7 +94,7 @@ class AllianceTest {
     void isNotPawnPromotionCoordinateWhitePiece() {
         int promotionY = ThreadLocalRandom.current().nextInt();
         while (promotionY == 0) promotionY = ThreadLocalRandom.current().nextInt();
-        int randomXInBounds = ThreadLocalRandom.current().nextInt(BoardUtils.getWidth());
+        int randomXInBounds = ThreadLocalRandom.current().nextInt(BoardUtils.getInstance().getWidth());
         Coordinate promotionCoordinate = new Coordinate(randomXInBounds, promotionY);
         assertFalse(Alliance.WHITE.isPawnPromotionCoordinate(promotionCoordinate));
     }

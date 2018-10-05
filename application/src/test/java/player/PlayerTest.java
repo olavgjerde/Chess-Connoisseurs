@@ -22,26 +22,26 @@ class PlayerTest {
     void playerIsInCheckmate() {
         Board board = createStandardBoard();
 
-        final Move whitePawnToF3 = Move.MoveFactory.createMove(board, BoardUtils.getCoordinateFromAlgebraicNotation("f2"),
-                BoardUtils.getCoordinateFromAlgebraicNotation("f3"));
+        final Move whitePawnToF3 = Move.MoveFactory.createMove(board, BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f2"),
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f3"));
         final MoveTransition trans1 = board.currentPlayer().makeMove(whitePawnToF3);
         assertTrue(trans1.getMoveStatus().isDone());
         board = trans1.getTransitionBoard();
 
-        final Move blackPawnToE5 = Move.MoveFactory.createMove(board, BoardUtils.getCoordinateFromAlgebraicNotation("e7"),
-                BoardUtils.getCoordinateFromAlgebraicNotation("e5"));
+        final Move blackPawnToE5 = Move.MoveFactory.createMove(board, BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e7"),
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e5"));
         final MoveTransition trans2 = board.currentPlayer().makeMove(blackPawnToE5);
         assertTrue(trans2.getMoveStatus().isDone());
         board = trans2.getTransitionBoard();
 
-        final Move whitePawnToG4 = Move.MoveFactory.createMove(board, BoardUtils.getCoordinateFromAlgebraicNotation("g2"),
-                BoardUtils.getCoordinateFromAlgebraicNotation("g4"));
+        final Move whitePawnToG4 = Move.MoveFactory.createMove(board, BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("g2"),
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("g4"));
         final MoveTransition trans3 = board.currentPlayer().makeMove(whitePawnToG4);
         assertTrue(trans3.getMoveStatus().isDone());
         board = trans3.getTransitionBoard();
 
-        final Move blackQueenToE5 = Move.MoveFactory.createMove(board, BoardUtils.getCoordinateFromAlgebraicNotation("d8"),
-                BoardUtils.getCoordinateFromAlgebraicNotation("h4"));
+        final Move blackQueenToE5 = Move.MoveFactory.createMove(board, BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("d8"),
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("h4"));
         final MoveTransition trans4 = board.currentPlayer().makeMove(blackQueenToE5);
         assertTrue(trans4.getMoveStatus().isDone());
         board = trans4.getTransitionBoard();
@@ -55,14 +55,14 @@ class PlayerTest {
     @Test
     void doesNotMoveIntoCheck() {
         Builder builder = new Builder();
-        King whiteKing = new King(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
-        Pawn blackPawn = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e6"), Alliance.BLACK, false);
+        King whiteKing = new King(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
+        Pawn blackPawn = new Pawn(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e6"), Alliance.BLACK, false);
         builder.setPiece(whiteKing);
         builder.setPiece(blackPawn);
         builder.setMoveMaker(Alliance.WHITE);
         Board board = builder.build();
 
-        Move illegalMove = new Move.MajorMove(board, whiteKing, BoardUtils.getCoordinateFromAlgebraicNotation("d5"));
+        Move illegalMove = new Move.MajorMove(board, whiteKing, BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("d5"));
         assertFalse(board.currentPlayer().makeMove(illegalMove).getMoveStatus().isDone());
     }
 
@@ -72,8 +72,8 @@ class PlayerTest {
     @Test
     void kingsOnBoardAreFound() {
         Builder builder = new Builder();
-        King whiteKing = new King(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
-        King blackKing = new King(BoardUtils.getCoordinateFromAlgebraicNotation("e6"), Alliance.BLACK);
+        King whiteKing = new King(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
+        King blackKing = new King(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e6"), Alliance.BLACK);
         builder.setPiece(whiteKing);
         builder.setPiece(blackKing);
         builder.setMoveMaker(Alliance.WHITE);
@@ -89,8 +89,8 @@ class PlayerTest {
     @Test
     void attackMovesAreFound() {
         Builder builder = new Builder();
-        King whiteKing = new King(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
-        Pawn blackPawn = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("d5"), Alliance.BLACK, false);
+        King whiteKing = new King(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
+        Pawn blackPawn = new Pawn(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("d5"), Alliance.BLACK, false);
         builder.setPiece(whiteKing);
         builder.setPiece(blackPawn);
         builder.setMoveMaker(Alliance.WHITE);
@@ -106,9 +106,9 @@ class PlayerTest {
     @Test
     void blackCastleMovesAreFound() {
         Builder builder = new Builder();
-        King blackKing = new King(BoardUtils.getCoordinateFromAlgebraicNotation("e8"), Alliance.BLACK);
-        Rook blackRookOne = new Rook(BoardUtils.getCoordinateFromAlgebraicNotation("a8"), Alliance.BLACK);
-        Rook blackRookTwo = new Rook(BoardUtils.getCoordinateFromAlgebraicNotation("h8"), Alliance.BLACK);
+        King blackKing = new King(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e8"), Alliance.BLACK);
+        Rook blackRookOne = new Rook(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("a8"), Alliance.BLACK);
+        Rook blackRookTwo = new Rook(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("h8"), Alliance.BLACK);
         builder.setPiece(blackKing);
         builder.setPiece(blackRookOne);
         builder.setPiece(blackRookTwo);
@@ -126,9 +126,9 @@ class PlayerTest {
     @Test
     void whiteCastleMovesAreFound() {
         Builder builder = new Builder();
-        King whiteKing = new King(BoardUtils.getCoordinateFromAlgebraicNotation("e1"), Alliance.WHITE);
-        Rook whiteRookOne = new Rook(BoardUtils.getCoordinateFromAlgebraicNotation("a1"), Alliance.WHITE);
-        Rook whiteRookTwo = new Rook(BoardUtils.getCoordinateFromAlgebraicNotation("h1"), Alliance.WHITE);
+        King whiteKing = new King(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e1"), Alliance.WHITE);
+        Rook whiteRookOne = new Rook(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("a1"), Alliance.WHITE);
+        Rook whiteRookTwo = new Rook(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("h1"), Alliance.WHITE);
         builder.setPiece(whiteKing);
         builder.setPiece(whiteRookOne);
         builder.setPiece(whiteRookTwo);

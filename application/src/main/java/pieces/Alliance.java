@@ -33,34 +33,34 @@ public enum Alliance {
 
         @Override
         public int pawnSquareValue(Coordinate coordinate) {
-            return WHITE_PAWN_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+            return WHITE_PAWN_PREFERRED_COORDINATES[BoardUtils.getInstance().getIntegerRepresentationFromCoordinate(coordinate)];
         }
 
         @Override
         public int knightSquareValue(Coordinate coordinate) {
-            return WHITE_KNIGHT_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+            return WHITE_KNIGHT_PREFERRED_COORDINATES[BoardUtils.getInstance().getIntegerRepresentationFromCoordinate(coordinate)];
         }
 
         @Override
         public int bishopSquareValue(Coordinate coordinate) {
-            return WHITE_BISHOP_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+            return WHITE_BISHOP_PREFERRED_COORDINATES[BoardUtils.getInstance().getIntegerRepresentationFromCoordinate(coordinate)];
         }
 
         @Override
         public int rookSquareValue(Coordinate coordinate) {
-            return WHITE_ROOK_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+            return WHITE_ROOK_PREFERRED_COORDINATES[BoardUtils.getInstance().getIntegerRepresentationFromCoordinate(coordinate)];
         }
 
         @Override
         public int queenSquareValue(Coordinate coordinate) {
-            return WHITE_QUEEN_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+            return WHITE_QUEEN_PREFERRED_COORDINATES[BoardUtils.getInstance().getIntegerRepresentationFromCoordinate(coordinate)];
         }
 
         @Override
         public int kingSquareValue(Coordinate coordinate, boolean isEndGame) {
             int locationValue;
-            if (isEndGame) locationValue = WHITE_KING_PREFERRED_ENDGAME_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
-            else locationValue = WHITE_KING_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+            if (isEndGame) locationValue = WHITE_KING_PREFERRED_ENDGAME_COORDINATES[BoardUtils.getInstance().getIntegerRepresentationFromCoordinate(coordinate)];
+            else locationValue = WHITE_KING_PREFERRED_COORDINATES[BoardUtils.getInstance().getIntegerRepresentationFromCoordinate(coordinate)];
             return locationValue;
         }
 
@@ -82,7 +82,7 @@ public enum Alliance {
 
         @Override
         public boolean isPawnPromotionCoordinate(Coordinate coordinate) {
-            return coordinate.getY() == BoardUtils.getHeight() - 1;
+            return coordinate.getY() == BoardUtils.getInstance().getHeight() - 1;
         }
 
         @Override
@@ -92,34 +92,34 @@ public enum Alliance {
 
         @Override
         public int pawnSquareValue(Coordinate coordinate) {
-            return BLACK_PAWN_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+            return BLACK_PAWN_PREFERRED_COORDINATES[BoardUtils.getInstance().getIntegerRepresentationFromCoordinate(coordinate)];
         }
 
         @Override
         public int knightSquareValue(Coordinate coordinate) {
-            return BLACK_KNIGHT_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+            return BLACK_KNIGHT_PREFERRED_COORDINATES[BoardUtils.getInstance().getIntegerRepresentationFromCoordinate(coordinate)];
         }
 
         @Override
         public int bishopSquareValue(Coordinate coordinate) {
-            return BLACK_BISHOP_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+            return BLACK_BISHOP_PREFERRED_COORDINATES[BoardUtils.getInstance().getIntegerRepresentationFromCoordinate(coordinate)];
         }
 
         @Override
         public int rookSquareValue(Coordinate coordinate) {
-            return BLACK_ROOK_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+            return BLACK_ROOK_PREFERRED_COORDINATES[BoardUtils.getInstance().getIntegerRepresentationFromCoordinate(coordinate)];
         }
 
         @Override
         public int queenSquareValue(Coordinate coordinate) {
-            return BLACK_QUEEN_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+            return BLACK_QUEEN_PREFERRED_COORDINATES[BoardUtils.getInstance().getIntegerRepresentationFromCoordinate(coordinate)];
         }
 
         @Override
         public int kingSquareValue(Coordinate coordinate, boolean isEndGame) {
             int locationValue;
-            if (isEndGame) locationValue = BLACK_KING_PREFERRED_ENDGAME_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
-            else locationValue = BLACK_KING_PREFERRED_COORDINATES[BoardUtils.getIntegerRepresentationFromCoordinate(coordinate)];
+            if (isEndGame) locationValue = BLACK_KING_PREFERRED_ENDGAME_COORDINATES[BoardUtils.getInstance().getIntegerRepresentationFromCoordinate(coordinate)];
+            else locationValue = BLACK_KING_PREFERRED_COORDINATES[BoardUtils.getInstance().getIntegerRepresentationFromCoordinate(coordinate)];
             return locationValue;
         }
 

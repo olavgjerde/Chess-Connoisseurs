@@ -24,7 +24,7 @@ class KingTest {
      */
     @BeforeAll
     static void checkEightTimesEightSize() {
-        assumeTrue(BoardUtils.getWidth() == 8 && BoardUtils.getHeight() == 8,
+        assumeTrue(BoardUtils.getInstance().getWidth() == 8 && BoardUtils.getInstance().getHeight() == 8,
                 "Board size not in bounds for the standard piece type logic");
     }
 
@@ -34,30 +34,30 @@ class KingTest {
     @Test
     void calculateLegalMovesOnOpenBoard() {
         Builder builder = new Builder();
-        King king = new King(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.BLACK);
+        King king = new King(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), Alliance.BLACK);
         builder.setPiece(king);
         builder.setMoveMaker(Alliance.BLACK);
         Board board = builder.build();
         List<Move> kingCalculatedMoves = (List<Move>) king.calculateLegalMoves(board);
 
         assertTrue(kingCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("d3"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("d3"))));
         assertTrue(kingCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("d4"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("d4"))));
         assertTrue(kingCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("d5"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("d5"))));
 
         assertTrue(kingCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e3"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e3"))));
         assertTrue(kingCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e5"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e5"))));
 
         assertTrue(kingCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("f3"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f3"))));
         assertTrue(kingCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("f4"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f4"))));
         assertTrue(kingCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("f5"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f5"))));
     }
 
     /**
@@ -66,15 +66,15 @@ class KingTest {
     @Test
     void kingCanNotAttackAlly() {
         Builder builder = new Builder();
-        King kingInQuestion = new King(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
-        Pawn pawnAlly = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e5"), Alliance.WHITE, false);
+        King kingInQuestion = new King(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
+        Pawn pawnAlly = new Pawn(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e5"), Alliance.WHITE, false);
         builder.setPiece(kingInQuestion);
         builder.setPiece(pawnAlly);
         builder.setMoveMaker(Alliance.WHITE);
         Board board = builder.build();
 
         Move illegalMove = MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e5"));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e5"));
 
         assertFalse(kingInQuestion.calculateLegalMoves(board).contains(illegalMove));
     }
@@ -85,15 +85,15 @@ class KingTest {
     @Test
     void kingCanAttackEnemy() {
         Builder builder = new Builder();
-        King kingInQuestion = new King(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
-        Pawn pawnEnemy = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("e5"), Alliance.BLACK, false);
+        King kingInQuestion = new King(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
+        Pawn pawnEnemy = new Pawn(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e5"), Alliance.BLACK, false);
         builder.setPiece(kingInQuestion);
         builder.setPiece(pawnEnemy);
         builder.setMoveMaker(Alliance.WHITE);
         Board board = builder.build();
 
         Move attackMove = MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e5"));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e5"));
 
         assertTrue(kingInQuestion.calculateLegalMoves(board).contains(attackMove));
     }

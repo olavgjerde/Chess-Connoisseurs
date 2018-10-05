@@ -32,8 +32,8 @@ public abstract class Tile {
      */
     private static Map<Coordinate, EmptyTile> createAllEmptyTiles() {
         final Map<Coordinate, EmptyTile> emptyTileMap = new HashMap<>();
-        for (int i = 0; i < BoardUtils.getHeight(); i++) {
-            for (int j = 0; j < BoardUtils.getWidth(); j++) {
+        for (int i = 0; i < BoardUtils.getInstance().getHeight(); i++) {
+            for (int j = 0; j < BoardUtils.getInstance().getWidth(); j++) {
                 emptyTileMap.put(new Coordinate(j,i), new EmptyTile(new Coordinate(j,i)));
             }
         }
@@ -46,7 +46,7 @@ public abstract class Tile {
      * @param piece Piece which the tile will hold
      * @return Either a EmptyTile given no piece, or a OccupiedTile given a piece
      */
-    public static Tile createTile(final Coordinate tileCoord, final Piece piece) {
+    static Tile createTile(final Coordinate tileCoord, final Piece piece) {
         return piece != null ? new OccupiedTile(tileCoord, piece) : EMPTY_TILES_CACHE.get(tileCoord);
     }
 

@@ -21,7 +21,7 @@ public abstract class Move {
     final Board board;
     final Piece movedPiece;
     final Coordinate destinationCoordinate;
-    final boolean isFirstMove;
+    private final boolean isFirstMove;
 
     private Move(Board board, Piece movedPiece, Coordinate destinationCoordinate) {
         this.board = board;
@@ -120,11 +120,11 @@ public abstract class Move {
      * @return column index
      * @see <a href="https://en.wikipedia.org/wiki/Portable_Game_Notation">Disambiguation</a>
      */
-    public String disambiguationColumn() {
+    String disambiguationColumn() {
         for (Move move : board.currentPlayer().getLegalMoves()) {
             if (move.getDestinationCoordinate().equals(this.destinationCoordinate) && !this.equals(move) &&
                 this.movedPiece.getPieceType().equals(move.getMovedPiece().getPieceType())) {
-                return BoardUtils.getAlgebraicNotationFromCoordinate(this.movedPiece.getPieceCoordinate()).substring(0, 1);
+                return BoardUtils.getInstance().getAlgebraicNotationFromCoordinate(this.movedPiece.getPieceCoordinate()).substring(0, 1);
             }
         }
         return "";
@@ -132,7 +132,7 @@ public abstract class Move {
 
     @Override
     public String toString() {
-        return BoardUtils.getAlgebraicNotationFromCoordinate(destinationCoordinate);
+        return BoardUtils.getInstance().getAlgebraicNotationFromCoordinate(destinationCoordinate);
     }
 
     @Override
@@ -212,7 +212,7 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return movedPiece.getPieceType() + disambiguationColumn() + BoardUtils.getAlgebraicNotationFromCoordinate(destinationCoordinate);
+            return movedPiece.getPieceType() + disambiguationColumn() + BoardUtils.getInstance().getAlgebraicNotationFromCoordinate(destinationCoordinate);
         }
     }
 
@@ -231,7 +231,7 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return BoardUtils.getAlgebraicNotationFromCoordinate(destinationCoordinate);
+            return BoardUtils.getInstance().getAlgebraicNotationFromCoordinate(destinationCoordinate);
         }
     }
 
@@ -300,7 +300,7 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return BoardUtils.getAlgebraicNotationFromCoordinate(this.destinationCoordinate) + "=" + upgradeType;
+            return BoardUtils.getInstance().getAlgebraicNotationFromCoordinate(this.destinationCoordinate) + "=" + upgradeType;
         }
 
         @Override
@@ -454,7 +454,7 @@ public abstract class Move {
     public abstract static class AttackMove extends Move {
         final Piece attackedPiece;
 
-        public AttackMove(Board board, Piece movePiece, Coordinate destination, Piece attackedPiece) {
+        AttackMove(Board board, Piece movePiece, Coordinate destination, Piece attackedPiece) {
             super(board, movePiece, destination);
             this.attackedPiece = attackedPiece;
         }
@@ -515,7 +515,7 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return movedPiece.getPieceType() + disambiguationColumn() + "x" + BoardUtils.getAlgebraicNotationFromCoordinate(this.destinationCoordinate);
+            return movedPiece.getPieceType() + disambiguationColumn() + "x" + BoardUtils.getInstance().getAlgebraicNotationFromCoordinate(this.destinationCoordinate);
         }
     }
 
@@ -537,8 +537,8 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return BoardUtils.getAlgebraicNotationFromCoordinate(this.movedPiece.getPieceCoordinate()).substring(0,1) + "x" +
-                   BoardUtils.getAlgebraicNotationFromCoordinate(this.destinationCoordinate);
+            return BoardUtils.getInstance().getAlgebraicNotationFromCoordinate(this.movedPiece.getPieceCoordinate()).substring(0,1) + "x" +
+                   BoardUtils.getInstance().getAlgebraicNotationFromCoordinate(this.destinationCoordinate);
         }
     }
 

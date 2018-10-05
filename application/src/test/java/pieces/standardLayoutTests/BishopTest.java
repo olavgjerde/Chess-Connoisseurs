@@ -26,7 +26,7 @@ class BishopTest {
      */
     @BeforeAll
     static void checkEightTimesEightSize() {
-        assumeTrue(BoardUtils.getWidth() == 8 && BoardUtils.getHeight() == 8,
+        assumeTrue(BoardUtils.getInstance().getWidth() == 8 && BoardUtils.getInstance().getHeight() == 8,
                 "Board size not in bounds for the standard piece type logic");
     }
 
@@ -36,7 +36,7 @@ class BishopTest {
     @Test
     void calculateLegalMovesOnOpenBoard() {
         Builder builder = new Builder();
-        Bishop bishop = new Bishop(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.BLACK);
+        Bishop bishop = new Bishop(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), Alliance.BLACK);
         builder.setPiece(bishop);
         builder.setMoveMaker(Alliance.BLACK);
         Board board = builder.build();
@@ -44,32 +44,32 @@ class BishopTest {
 
         // checking both diagonals
         assertTrue(bishopCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("d3"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("d3"))));
         assertTrue(bishopCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("c2"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("c2"))));
         assertTrue(bishopCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("b1"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("b1"))));
         assertTrue(bishopCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("f5"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f5"))));
         assertTrue(bishopCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("g6"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("g6"))));
         assertTrue(bishopCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("h7"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("h7"))));
 
         assertTrue(bishopCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("f3"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f3"))));
         assertTrue(bishopCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("g2"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("g2"))));
         assertTrue(bishopCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("h1"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("h1"))));
         assertTrue(bishopCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("d5"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("d5"))));
         assertTrue(bishopCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("c6"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("c6"))));
         assertTrue(bishopCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("b7"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("b7"))));
         assertTrue(bishopCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("a8"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("a8"))));
 
     }
 
@@ -79,15 +79,15 @@ class BishopTest {
     @Test
     void bishopStopsOnAllyEncounter() {
         Builder builder = new Builder();
-        Bishop bishopInQuestion = new Bishop(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
-        Bishop bishopAlly = new Bishop(BoardUtils.getCoordinateFromAlgebraicNotation("f5"), Alliance.WHITE);
+        Bishop bishopInQuestion = new Bishop(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
+        Bishop bishopAlly = new Bishop(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f5"), Alliance.WHITE);
         builder.setPiece(bishopInQuestion);
         builder.setPiece(bishopAlly);
         builder.setMoveMaker(Alliance.WHITE);
         Board board = builder.build();
 
         Move illegalMove = MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("g6"));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("g6"));
 
         assertFalse(bishopInQuestion.calculateLegalMoves(board).contains(illegalMove));
     }
@@ -98,15 +98,15 @@ class BishopTest {
     @Test
     void bishopStopsOnEnemyEncounter() {
         Builder builder = new Builder();
-        Bishop bishopInQuestion = new Bishop(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
-        Bishop bishopEnemy = new Bishop(BoardUtils.getCoordinateFromAlgebraicNotation("f5"), Alliance.BLACK);
+        Bishop bishopInQuestion = new Bishop(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
+        Bishop bishopEnemy = new Bishop(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f5"), Alliance.BLACK);
         builder.setPiece(bishopInQuestion);
         builder.setPiece(bishopEnemy);
         builder.setMoveMaker(Alliance.WHITE);
         Board board = builder.build();
 
         Move illegalMove = MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("g6"));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("g6"));
 
         assertFalse(bishopInQuestion.calculateLegalMoves(board).contains(illegalMove));
     }
@@ -117,15 +117,15 @@ class BishopTest {
     @Test
     void bishopGeneratesAttackOnEnemyEncounter() {
         Builder builder = new Builder();
-        Bishop bishopInQuestion = new Bishop(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
-        Bishop bishopEnemy = new Bishop(BoardUtils.getCoordinateFromAlgebraicNotation("f5"), Alliance.BLACK);
+        Bishop bishopInQuestion = new Bishop(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
+        Bishop bishopEnemy = new Bishop(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f5"), Alliance.BLACK);
         builder.setPiece(bishopInQuestion);
         builder.setPiece(bishopEnemy);
         builder.setMoveMaker(Alliance.WHITE);
         Board board = builder.build();
 
         Move attackMove = MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("f5"));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f5"));
 
         assertTrue(bishopInQuestion.calculateLegalMoves(board).contains(attackMove));
     }

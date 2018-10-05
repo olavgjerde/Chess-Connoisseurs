@@ -33,7 +33,6 @@ public class MiniMax implements MoveStrategy {
      * @param maxQuiescence how many times the ai is allowed to search deeper per top move node
      * @param usePieceSquareBoards to use piece-square board or not
      * @param printMoveInformation to print information about
-     * @param shuffleMode to shuffle moves, this removes move ordering and makes it random (for use with random board generator)
      */
     public MiniMax(int searchDepth, int maxQuiescence, boolean usePieceSquareBoards, boolean printMoveInformation) {
         this.boardEvaluator = new RegularBoardEvaluator(usePieceSquareBoards);
@@ -61,7 +60,7 @@ public class MiniMax implements MoveStrategy {
 
         int highestEncounteredValue = Integer.MIN_VALUE;
         int lowestEncounteredValue = Integer.MAX_VALUE;
-        int currentValue = 0;
+        int currentValue;
 
         if (printMoveInformation) System.out.println(board.currentPlayer().getAlliance().toString().toUpperCase() + " EVALUATING WITH DEPTH: " + searchDepth);
         Collection<Move> sorted = moveSortExpensive(board.currentPlayer().getLegalMoves());
@@ -197,7 +196,7 @@ public class MiniMax implements MoveStrategy {
             if (moveTransition.getTransitionBoard().currentPlayer().isInCheck()) {
                 activityScore += 2;
             }
-            for (final Move move : BoardUtils.retrieveLastNMoves(moveTransition.getTransitionBoard(), 4)) {
+            for (final Move move : BoardUtils.getInstance().retrieveLastNMoves(moveTransition.getTransitionBoard(), 4)) {
                 if (move.isAttack()) activityScore += 1;
             }
             if (activityScore > 3) {

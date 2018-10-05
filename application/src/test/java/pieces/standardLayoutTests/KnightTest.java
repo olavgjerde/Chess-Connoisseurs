@@ -23,7 +23,7 @@ class KnightTest {
      */
     @BeforeAll
     static void checkEightTimesEightSize() {
-        assumeTrue(BoardUtils.getWidth() == 8 && BoardUtils.getHeight() == 8,
+        assumeTrue(BoardUtils.getInstance().getWidth() == 8 && BoardUtils.getInstance().getHeight() == 8,
                 "Board size not in bounds for the standard piece type logic");
     }
 
@@ -33,7 +33,7 @@ class KnightTest {
     @Test
     void calculateLegalMovesOnOpenBoard() {
         Builder builder = new Builder();
-        Knight knight = new Knight(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.BLACK);
+        Knight knight = new Knight(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), Alliance.BLACK);
         builder.setPiece(knight);
         builder.setMoveMaker(Alliance.BLACK);
         Board board = builder.build();
@@ -43,24 +43,24 @@ class KnightTest {
         assertEquals(8, knightCalculatedMoves.size());
 
         assertTrue(knightCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("d2"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("d2"))));
         assertTrue(knightCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("c3"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("c3"))));
 
         assertTrue(knightCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("c5"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("c5"))));
         assertTrue(knightCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("d6"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("d6"))));
 
         assertTrue(knightCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("f6"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f6"))));
         assertTrue(knightCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("g5"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("g5"))));
 
         assertTrue(knightCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("g3"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("g3"))));
         assertTrue(knightCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("f2"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f2"))));
     }
 
     /**
@@ -69,15 +69,15 @@ class KnightTest {
     @Test
     void knightCanNotAttackAlly() {
         Builder builder = new Builder();
-        Knight knightInQuestion = new Knight(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
-        Knight knightEnemy = new Knight(BoardUtils.getCoordinateFromAlgebraicNotation("d2"), Alliance.WHITE);
+        Knight knightInQuestion = new Knight(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
+        Knight knightEnemy = new Knight(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("d2"), Alliance.WHITE);
         builder.setPiece(knightInQuestion);
         builder.setPiece(knightEnemy);
         builder.setMoveMaker(Alliance.WHITE);
         Board board = builder.build();
 
         Move illegalAttack = MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("d2"));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("d2"));
 
         assertFalse(knightInQuestion.calculateLegalMoves(board).contains(illegalAttack));
     }
@@ -88,15 +88,15 @@ class KnightTest {
     @Test
     void knightGeneratesAttackOnEnemyEncounter() {
         Builder builder = new Builder();
-        Knight knightInQuestion = new Knight(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
-        Knight knightEnemy = new Knight(BoardUtils.getCoordinateFromAlgebraicNotation("d2"), Alliance.BLACK);
+        Knight knightInQuestion = new Knight(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
+        Knight knightEnemy = new Knight(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("d2"), Alliance.BLACK);
         builder.setPiece(knightInQuestion);
         builder.setPiece(knightEnemy);
         builder.setMoveMaker(Alliance.WHITE);
         Board board = builder.build();
 
         Move legalAttack = MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("d2"));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("d2"));
 
         assertTrue(knightInQuestion.calculateLegalMoves(board).contains(legalAttack));
     }

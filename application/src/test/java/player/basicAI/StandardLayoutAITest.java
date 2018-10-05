@@ -21,7 +21,7 @@ class StandardLayoutAITest {
      */
     @BeforeAll
     static void checkEightTimesEightSize() {
-        assumeTrue(BoardUtils.getWidth() == 8 && BoardUtils.getHeight() == 8,
+        assumeTrue(BoardUtils.getInstance().getWidth() == 8 && BoardUtils.getInstance().getHeight() == 8,
                 "Board size not in bounds for the standard layout AI logic");
     }
 
@@ -33,28 +33,28 @@ class StandardLayoutAITest {
     void foolsMateTest() {
         Board board = Board.createStandardBoard();
 
-        final Move whitePawnToF3 = Move.MoveFactory.createMove(board, BoardUtils.getCoordinateFromAlgebraicNotation("f2"),
-                                                                      BoardUtils.getCoordinateFromAlgebraicNotation("f3"));
+        final Move whitePawnToF3 = Move.MoveFactory.createMove(board, BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f2"),
+                                                                      BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f3"));
         final MoveTransition trans1 = board.currentPlayer().makeMove(whitePawnToF3);
         assertTrue(trans1.getMoveStatus().isDone());
         board = trans1.getTransitionBoard();
 
-        final Move blackPawnToE5 = Move.MoveFactory.createMove(board, BoardUtils.getCoordinateFromAlgebraicNotation("e7"),
-                                                                      BoardUtils.getCoordinateFromAlgebraicNotation("e5"));
+        final Move blackPawnToE5 = Move.MoveFactory.createMove(board, BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e7"),
+                                                                      BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e5"));
         final MoveTransition trans2 = board.currentPlayer().makeMove(blackPawnToE5);
         assertTrue(trans2.getMoveStatus().isDone());
         board = trans2.getTransitionBoard();
 
-        final Move whitePawnToG4 = Move.MoveFactory.createMove(board, BoardUtils.getCoordinateFromAlgebraicNotation("g2"),
-                                                                      BoardUtils.getCoordinateFromAlgebraicNotation("g4"));
+        final Move whitePawnToG4 = Move.MoveFactory.createMove(board, BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("g2"),
+                                                                      BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("g4"));
         final MoveTransition trans3 = board.currentPlayer().makeMove(whitePawnToG4);
         assertTrue(trans3.getMoveStatus().isDone());
         board = trans3.getTransitionBoard();
 
         final MoveStrategy moveStrategy = new MiniMax(3, 5000, false, false);
         final Move AIMove = moveStrategy.execute(board);
-        final Move bestMove = Move.MoveFactory.createMove(board, BoardUtils.getCoordinateFromAlgebraicNotation("d8"),
-                                                                 BoardUtils.getCoordinateFromAlgebraicNotation("h4"));
+        final Move bestMove = Move.MoveFactory.createMove(board, BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("d8"),
+                                                                 BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("h4"));
 
         assertEquals(bestMove, AIMove);
     }

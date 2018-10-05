@@ -42,7 +42,7 @@ public class Pawn extends Piece {
         List<Move> allMoves = new ArrayList<>();
 
         Coordinate firstStep = this.goForward(1);
-        if (BoardUtils.isValidCoordinate(firstStep) && board.getTile(firstStep) != null && board.getTile(firstStep).isEmpty()) {
+        if (BoardUtils.getInstance().isValidCoordinate(firstStep) && board.getTile(firstStep) != null && board.getTile(firstStep).isEmpty()) {
             allMoves = addNormalMoves(board, firstStep);
             // here we know that position inbetween jump is empty
             Coordinate secondStep = this.goForward(2);
@@ -53,8 +53,8 @@ public class Pawn extends Piece {
 
         Coordinate attack1 = new Coordinate(getPieceCoordinate().getX() - 1, goForward(1).getY());
         Coordinate attack2 = new Coordinate(getPieceCoordinate().getX() + 1, goForward(1).getY());
-        if (BoardUtils.isValidCoordinate(attack1)) allMoves.addAll(addAttackMoves(board, attack1));
-        if (BoardUtils.isValidCoordinate(attack2)) allMoves.addAll(addAttackMoves(board, attack2));
+        if (BoardUtils.getInstance().isValidCoordinate(attack1)) allMoves.addAll(addAttackMoves(board, attack1));
+        if (BoardUtils.getInstance().isValidCoordinate(attack2)) allMoves.addAll(addAttackMoves(board, attack2));
 
         return Collections.unmodifiableList(allMoves);
     }

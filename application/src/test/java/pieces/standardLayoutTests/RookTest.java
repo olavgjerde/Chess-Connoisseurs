@@ -24,7 +24,7 @@ class RookTest {
      */
     @BeforeAll
     static void checkEightTimesEightSize() {
-        assumeTrue(BoardUtils.getWidth() == 8 && BoardUtils.getHeight() == 8,
+        assumeTrue(BoardUtils.getInstance().getWidth() == 8 && BoardUtils.getInstance().getHeight() == 8,
                 "Board size not in bounds for the standard piece type logic");
     }
 
@@ -34,39 +34,39 @@ class RookTest {
     @Test
     void calculateLegalMovesOnOpenBoard() {
         Builder builder = new Builder();
-        Rook rook = new Rook(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.BLACK);
+        Rook rook = new Rook(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), Alliance.BLACK);
         builder.setPiece(rook);
         builder.setMoveMaker(Alliance.BLACK);
         Board board = builder.build();
         Collection<Move> rookCalculatedMoves = board.getBlackPlayer().getLegalMoves();
 
         assertTrue(rookCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e1"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e1"))));
         assertTrue(rookCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e2"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e2"))));
         assertTrue(rookCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e3"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e3"))));
         assertTrue(rookCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e5"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e5"))));
         assertTrue(rookCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e6"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e6"))));
         assertTrue(rookCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e7"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e7"))));
         assertTrue(rookCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e8"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e8"))));
 
         assertTrue(rookCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("a4"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("a4"))));
         assertTrue(rookCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("b4"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("b4"))));
         assertTrue(rookCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("c4"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("c4"))));
         assertTrue(rookCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("d4"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("d4"))));
         assertTrue(rookCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("g4"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("g4"))));
         assertTrue(rookCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("h4"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("h4"))));
     }
 
     /**
@@ -75,15 +75,15 @@ class RookTest {
     @Test
     void rookStopsOnAllyEncounter() {
         Builder builder = new Builder();
-        Rook rookInQuestion = new Rook(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
-        Rook rookAlly = new Rook(BoardUtils.getCoordinateFromAlgebraicNotation("e5"), Alliance.WHITE);
+        Rook rookInQuestion = new Rook(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
+        Rook rookAlly = new Rook(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e5"), Alliance.WHITE);
         builder.setPiece(rookInQuestion);
         builder.setPiece(rookAlly);
         builder.setMoveMaker(Alliance.WHITE);
         Board board = builder.build();
 
         Move illegalMove = MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e6"));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e6"));
 
         assertFalse(rookInQuestion.calculateLegalMoves(board).contains(illegalMove));
     }
@@ -94,15 +94,15 @@ class RookTest {
     @Test
     void rookStopsOnEnemyEncounter() {
         Builder builder = new Builder();
-        Rook rookInQuestion = new Rook(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
-        Rook rookEnemy = new Rook(BoardUtils.getCoordinateFromAlgebraicNotation("e5"), Alliance.BLACK);
+        Rook rookInQuestion = new Rook(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
+        Rook rookEnemy = new Rook(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e5"), Alliance.BLACK);
         builder.setPiece(rookInQuestion);
         builder.setPiece(rookEnemy);
         builder.setMoveMaker(Alliance.WHITE);
         Board board = builder.build();
 
         Move illegalMove = MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e6"));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e6"));
 
         assertFalse(rookInQuestion.calculateLegalMoves(board).contains(illegalMove));
     }
@@ -113,15 +113,15 @@ class RookTest {
     @Test
     void rookGeneratesAttackOnEnemyEncounter() {
         Builder builder = new Builder();
-        Rook rookInQuestion = new Rook(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
-        Rook rookEnemy = new Rook(BoardUtils.getCoordinateFromAlgebraicNotation("e5"), Alliance.BLACK);
+        Rook rookInQuestion = new Rook(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
+        Rook rookEnemy = new Rook(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e5"), Alliance.BLACK);
         builder.setPiece(rookInQuestion);
         builder.setPiece(rookEnemy);
         builder.setMoveMaker(Alliance.WHITE);
         Board board = builder.build();
 
         Move attackMove = MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e5"));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e5"));
 
         assertTrue(rookInQuestion.calculateLegalMoves(board).contains(attackMove));
     }

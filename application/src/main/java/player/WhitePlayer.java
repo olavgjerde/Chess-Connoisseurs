@@ -49,7 +49,7 @@ public class WhitePlayer extends Player {
 
                 // Check that that the rook is in position, and that it is making it's first move.
                 // Check that there are no attacks on tiles in between the king and the rook
-                final Piece rookPiece = this.board.getTile(new Coordinate(BoardUtils.getWidth()-1, BoardUtils.getHeight()-1)).getPiece();
+                final Piece rookPiece = this.board.getTile(new Coordinate(BoardUtils.getInstance().getWidth()-1, BoardUtils.getInstance().getHeight()-1)).getPiece();
                 if (rookPiece instanceof Rook && rookPiece.isFirstMove() &&
                     calculateAttacksOnCoordinate(oneStepRight, opponentMoves).isEmpty() &&
                     calculateAttacksOnCoordinate(twoStepsRight, opponentMoves).isEmpty()) {
@@ -68,7 +68,7 @@ public class WhitePlayer extends Player {
                 // Check that that the rook is in position, and that it is making it's first move.
                 // Check that there are no attacks on tiles in between the king and the rook
                 // Rook may moved through attacked piece (threeStepsLeft)
-                final Piece rookPiece = this.board.getTile(new Coordinate(0, BoardUtils.getHeight() - 1)).getPiece();
+                final Piece rookPiece = this.board.getTile(new Coordinate(0, BoardUtils.getInstance().getHeight() - 1)).getPiece();
                 if (rookPiece instanceof Rook && rookPiece.isFirstMove() &&
                     calculateAttacksOnCoordinate(oneStepLeft, opponentMoves).isEmpty() &&
                     calculateAttacksOnCoordinate(twoStepsLeft, opponentMoves).isEmpty()) {

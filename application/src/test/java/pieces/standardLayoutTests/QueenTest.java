@@ -24,7 +24,7 @@ class QueenTest {
      */
     @BeforeAll
     static void checkEightTimesEightSize() {
-        assumeTrue(BoardUtils.getWidth() == 8 && BoardUtils.getHeight() == 8,
+        assumeTrue(BoardUtils.getInstance().getWidth() == 8 && BoardUtils.getInstance().getHeight() == 8,
                 "Board size not in bounds for the standard piece type logic");
     }
 
@@ -34,7 +34,7 @@ class QueenTest {
     @Test
     void calculateLegalMovesOnOpenBoard() {
         Builder builder = new Builder();
-        Queen queen = new Queen(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.BLACK);
+        Queen queen = new Queen(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), Alliance.BLACK);
         builder.setPiece(queen);
         builder.setMoveMaker(Alliance.BLACK);
         Board board = builder.build();
@@ -42,66 +42,66 @@ class QueenTest {
 
         // check that the available move for every column has been calculated
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("a4"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("a4"))));
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("a8"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("a8"))));
 
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("b1"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("b1"))));
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("b4"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("b4"))));
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("b7"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("b7"))));
 
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("c2"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("c2"))));
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("c4"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("c4"))));
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("c6"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("c6"))));
 
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("d3"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("d3"))));
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("d4"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("d4"))));
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("d5"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("d5"))));
 
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e1"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e1"))));
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e2"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e2"))));
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e3"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e3"))));
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e5"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e5"))));
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e6"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e6"))));
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e7"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e7"))));
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("e8"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e8"))));
 
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("f3"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f3"))));
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("f4"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f4"))));
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("f5"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f5"))));
 
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("g2"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("g2"))));
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("g4"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("g4"))));
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("g6"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("g6"))));
 
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("h1"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("h1"))));
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("h4"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("h4"))));
         assertTrue(queenCalculatedMoves.contains(MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("h7"))));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("h7"))));
     }
 
     /**
@@ -110,15 +110,15 @@ class QueenTest {
     @Test
     void queenStopsOnAllyEncounter() {
         Builder builder = new Builder();
-        Queen queenInQuestion = new Queen(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
-        Pawn pawnAlly = new Pawn(BoardUtils.getCoordinateFromAlgebraicNotation("f5"), Alliance.WHITE, false);
+        Queen queenInQuestion = new Queen(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
+        Pawn pawnAlly = new Pawn(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f5"), Alliance.WHITE, false);
         builder.setPiece(queenInQuestion);
         builder.setPiece(pawnAlly);
         builder.setMoveMaker(Alliance.WHITE);
         Board board = builder.build();
 
         Move illegalMove = MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("g6"));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("g6"));
 
         assertFalse(queenInQuestion.calculateLegalMoves(board).contains(illegalMove));
     }
@@ -129,15 +129,15 @@ class QueenTest {
     @Test
     void queenStopsOnEnemyEncounter() {
         Builder builder = new Builder();
-        Queen queenInQuestion = new Queen(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
-        Queen pawnEnemy = new Queen(BoardUtils.getCoordinateFromAlgebraicNotation("f5"), Alliance.BLACK);
+        Queen queenInQuestion = new Queen(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
+        Queen pawnEnemy = new Queen(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f5"), Alliance.BLACK);
         builder.setPiece(queenInQuestion);
         builder.setPiece(pawnEnemy);
         builder.setMoveMaker(Alliance.WHITE);
         Board board = builder.build();
 
         Move illegalMove = MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("g6"));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("g6"));
 
         assertFalse(queenInQuestion.calculateLegalMoves(board).contains(illegalMove));
     }
@@ -148,15 +148,15 @@ class QueenTest {
     @Test
     void queenGeneratesAttackOnEnemyEncounter() {
         Builder builder = new Builder();
-        Queen queenInQuestion = new Queen(BoardUtils.getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
-        Queen queenEnemy = new Queen(BoardUtils.getCoordinateFromAlgebraicNotation("f5"), Alliance.BLACK);
+        Queen queenInQuestion = new Queen(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), Alliance.WHITE);
+        Queen queenEnemy = new Queen(BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f5"), Alliance.BLACK);
         builder.setPiece(queenInQuestion);
         builder.setPiece(queenEnemy);
         builder.setMoveMaker(Alliance.WHITE);
         Board board = builder.build();
 
         Move attackMove = MoveFactory.createMove(board,
-                BoardUtils.getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getCoordinateFromAlgebraicNotation("f5"));
+                BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("e4"), BoardUtils.getInstance().getCoordinateFromAlgebraicNotation("f5"));
 
         assertTrue(queenInQuestion.calculateLegalMoves(board).contains(attackMove));
     }

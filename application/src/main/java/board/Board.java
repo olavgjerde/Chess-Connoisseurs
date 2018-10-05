@@ -48,8 +48,8 @@ public class Board {
      */
     private Map<Coordinate, Tile> createGameBoard(Builder builder) {
         Map<Coordinate, Tile> coordToTile = new HashMap<>();
-        for (int i = 0; i < BoardUtils.getHeight(); i++) {
-            for (int j = 0; j < BoardUtils.getWidth(); j++) {
+        for (int i = 0; i < BoardUtils.getInstance().getHeight(); i++) {
+            for (int j = 0; j < BoardUtils.getInstance().getWidth(); j++) {
                 coordToTile.put(new Coordinate(j,i), Tile.createTile(new Coordinate(j,i), builder.boardConfig.get(new Coordinate(j,i))));
             }
         }
@@ -63,7 +63,7 @@ public class Board {
      * @return a list of active pieces of a given alliance
      */
     private static Collection<Piece> calculateActivePieces(Builder builder, Alliance alliance) {
-        final List<Piece> activePieces = new ArrayList<>(BoardUtils.getWidth()*2);
+        final List<Piece> activePieces = new ArrayList<>(BoardUtils.getInstance().getWidth()*2);
         for (Piece piece : builder.boardConfig.values()) {
             if (piece.getPieceAlliance() == alliance) {
                 activePieces.add(piece);
@@ -183,8 +183,8 @@ public class Board {
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < BoardUtils.getHeight(); i++) {
-            for (int j = 0; j < BoardUtils.getWidth(); j++) {
+        for (int i = 0; i < BoardUtils.getInstance().getHeight(); i++) {
+            for (int j = 0; j < BoardUtils.getInstance().getWidth(); j++) {
                 final String tileText = this.gameBoard.get(new Coordinate(j,i)).toString();
                 builder.append(String.format("%3s", tileText));
             }

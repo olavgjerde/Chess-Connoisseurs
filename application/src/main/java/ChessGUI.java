@@ -465,12 +465,12 @@ public class ChessGUI extends Application {
      * @return populated MenuBar
      */
     private MenuBar populateMenuBar() {
-        GameMode typeOfGamemode = gameStateManager.getBoardType();
+        GameMode typeOfGame = gameStateManager.getBoardType();
         MenuBar menuBar = new MenuBar();
-        if (!typeOfGamemode.equals(GameMode.NORMAL) || !typeOfGamemode.equals(GameMode.RANDOM)) {
-            menuBar.getMenus().addAll(createFileMenu(), createOptionMenu(), createHelpMenu());
-        } else {
+        if (typeOfGame.equals(GameMode.NORMAL) || typeOfGame.equals(GameMode.RANDOM)) {
             menuBar.getMenus().addAll(createFileMenu(), createOptionMenu());
+        } else {
+            menuBar.getMenus().addAll(createFileMenu(), createOptionMenu(), createHelpMenu());
         }
         return menuBar;
     }
@@ -645,8 +645,8 @@ public class ChessGUI extends Application {
         Text whitePlayerText = new Text(whiteDisplayName + ": " + whitePlayerScore + " | " + whitePlayerStats);
         Text blackPlayerText = new Text(blackDisplayName + ": " + blackPlayerScore + " | " + blackPlayerStats);
         //Player names and scores styling
-        whitePlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (statusPaneRoot.getMaxWidth() / 9) - whitePlayerText.getText().length() / 50));
-        blackPlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (statusPaneRoot.getMaxWidth() / 9) - blackPlayerText.getText().length() / 50));
+        whitePlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (statusPaneRoot.getMaxWidth() / 9) - whitePlayerText.getText().length() / 50.0));
+        blackPlayerText.setFont(Font.font("Verdana", FontWeight.NORMAL, (statusPaneRoot.getMaxWidth() / 9) - blackPlayerText.getText().length() / 50.0));
         whiteScore.setAlignment(Pos.CENTER);
         blackScore.setAlignment(Pos.CENTER);
 
@@ -775,13 +775,13 @@ public class ChessGUI extends Application {
         chessGridPane.setAlignment(Pos.CENTER);
         chessGridPane.setVgap(5);
         chessGridPane.setHgap(5);
-        for (int y = 0; y < BoardUtils.getHeight(); y++) {
-            for (int x = 0; x < BoardUtils.getWidth(); x++) {
+        for (int y = 0; y < BoardUtils.getInstance().getHeight(); y++) {
+            for (int x = 0; x < BoardUtils.getInstance().getWidth(); x++) {
                 int gridPaneX = x, gridPaneY = y;
                 //Flip board if player plays against white ai
                 if (gameStateManager.isWhiteAI() && !gameStateManager.isBlackAI()) {
-                    gridPaneX = BoardUtils.getWidth() - (x + 1);
-                    gridPaneY = BoardUtils.getHeight() - (y + 1);
+                    gridPaneX = BoardUtils.getInstance().getWidth() - (x + 1);
+                    gridPaneY = BoardUtils.getInstance().getHeight() - (y + 1);
                 }
                 chessGridPane.add(new ChessTile(new Coordinate(x, y)), gridPaneX, gridPaneY);
             }
@@ -879,7 +879,7 @@ public class ChessGUI extends Application {
         menuRoot.setPadding(new Insets(0));
 
         //Give buttons a size in relation to screen dimensions
-        double buttonSize = ((windowHeight + windowWidth) * 4 / (BoardUtils.getWidth() * BoardUtils.getHeight()));
+        double buttonSize = ((windowHeight + windowWidth) * 4 / (BoardUtils.getInstance().getWidth() * BoardUtils.getInstance().getHeight()));
 
         //Fetch images for promotion and scale them to fit within buttons
         Alliance playerAlliance = gameStateManager.currentPlayerAlliance();
@@ -1047,7 +1047,7 @@ public class ChessGUI extends Application {
         t1.setFont(Font.font("Verdana", FontWeight.BOLD, windowWidth / 85));
         Text t2 = new Text(whitePlayerName + ": " + whitePlayerScore + " / ");
         Text t3 = new Text(blackPlayerName + ": " + blackPlayerScore + " ");
-        int length = t2.getText().length() + t3.getText().length();
+        double length = t2.getText().length() + t3.getText().length();
         t2.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, windowWidth / 85 - length / 50));
         t3.setFont(Font.font("Verdana", FontWeight.SEMI_BOLD, windowWidth / 85 - length / 50));
         gameOverRoot.getChildren().addAll(title, t1, t2, t3);
@@ -1086,7 +1086,7 @@ public class ChessGUI extends Application {
      * the tiles on data representation of the board and the gui representation of the board.
      */
     private class ChessTile extends StackPane {
-        final double TILE_SIZE = ((windowHeight * 6.4) / (BoardUtils.getWidth() * BoardUtils.getHeight()));
+        final double TILE_SIZE = ((windowHeight * 6.4) / (BoardUtils.getInstance().getWidth() * BoardUtils.getInstance().getHeight()));
         private final Coordinate coordinateId;
 
         /**
@@ -1130,8 +1130,8 @@ public class ChessGUI extends Application {
             //if human plays black against CPU we flip
             if (gameStateManager.isWhiteAI() && !gameStateManager.isBlackAI()) {
                 //the rightmost column
-                if (coordinateId.getX() == BoardUtils.getWidth() - 1) {
-                    yLabel = new Text(String.valueOf(Math.abs(coordinateId.getY() - BoardUtils.getHeight())));
+                if (coordinateId.getX() == BoardUtils.getInstance().getWidth() - 1) {
+                    yLabel = new Text(String.valueOf(Math.abs(coordinateId.getY() - BoardUtils.getInstance().getHeight())));
                 }
                 //the lower row
                 if (coordinateId.getY() == 0) {
@@ -1141,10 +1141,10 @@ public class ChessGUI extends Application {
             } else {
                 //the rightmost column
                 if (coordinateId.getX() == 0) {
-                    yLabel = new Text(String.valueOf(Math.abs(coordinateId.getY() - BoardUtils.getHeight())));
+                    yLabel = new Text(String.valueOf(Math.abs(coordinateId.getY() - BoardUtils.getInstance().getHeight())));
                 }
                 //the lower row
-                if (coordinateId.getY() == BoardUtils.getHeight() - 1) {
+                if (coordinateId.getY() == BoardUtils.getInstance().getHeight() - 1) {
                     String label = ((char) (coordinateId.getX() + 65)) + "";
                     xLabel = new Text(label);
                 }

@@ -31,7 +31,7 @@ public abstract class Piece {
      * @param pieceType       enum Type of the piece
      */
     public Piece(final Coordinate pieceCoordinate, final Alliance pieceAlliance, final boolean isFirstMove, final PieceType pieceType) {
-        if (BoardUtils.isValidCoordinate(pieceCoordinate)) this.pieceCoordinate = pieceCoordinate;
+        if (BoardUtils.getInstance().isValidCoordinate(pieceCoordinate)) this.pieceCoordinate = pieceCoordinate;
         else throw new RuntimeException("Piece constructed with coordinate out of bounds");
         this.pieceAlliance = pieceAlliance;
         this.isFirstMove = isFirstMove;
@@ -101,7 +101,7 @@ public abstract class Piece {
         List<Move> moves = new ArrayList<>();
         Coordinate nextCoordinate = new Coordinate(pieceCoordinate.getX() + changeX, pieceCoordinate.getY() + changeY);
 
-        while (BoardUtils.isValidCoordinate(nextCoordinate) && (distanceLimit > 0 || distanceLimit <= -1)) {
+        while (BoardUtils.getInstance().isValidCoordinate(nextCoordinate) && (distanceLimit > 0 || distanceLimit <= -1)) {
             if (board.isFriendly(this, nextCoordinate)) break;
             if (board.isEnemy(this, nextCoordinate)) {
                 moves.add(new MajorAttackMove(board, this, nextCoordinate, board.getTile(nextCoordinate).getPiece()));

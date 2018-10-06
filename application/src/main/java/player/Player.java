@@ -216,7 +216,7 @@ public class Player {
      * @return true if in checkmate, false otherwise
      */
     public boolean isInCheckmate() {
-        return isInCheck && !hasEscapesMoves();
+        return isInCheck && isStuck();
     }
 
     /**
@@ -226,7 +226,7 @@ public class Player {
      * false otherwise
      */
     public boolean isInStalemate() {
-        return !isInCheck && !hasEscapesMoves();
+        return !isInCheck && isStuck();
     }
 
     /**
@@ -241,13 +241,13 @@ public class Player {
      *
      * @return true if player has moves that escapes check-status, false otherwise
      */
-    private boolean hasEscapesMoves() {
+    private boolean isStuck() {
         for (Move move : this.legalMoves) {
             // make all moves possible and see if player "escapes"
             final MoveTransition transition = makeMove(move);
-            if (transition.getMoveStatus().isDone()) return true;
+            if (transition.getMoveStatus().isDone()) return false;
         }
-        return false;
+        return true;
     }
 
     /**

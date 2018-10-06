@@ -2,9 +2,9 @@ package pieces;
 
 import board.BoardUtils;
 import board.Coordinate;
-import player.BlackPlayer;
 import player.Player;
-import player.WhitePlayer;
+import player.Player;
+import player.Player;
 
 /**
  * Holds the two types of alliances that a chess piece can have
@@ -27,7 +27,7 @@ public enum Alliance {
         }
 
         @Override
-        public Player choosePlayerByAlliance(WhitePlayer whitePlayer, BlackPlayer blackPlayer) {
+        public Player choosePlayerByAlliance(Player whitePlayer, Player blackPlayer) {
             return whitePlayer;
         }
 
@@ -86,7 +86,7 @@ public enum Alliance {
         }
 
         @Override
-        public Player choosePlayerByAlliance(WhitePlayer whitePlayer, BlackPlayer blackPlayer) {
+        public Player choosePlayerByAlliance(Player whitePlayer, Player blackPlayer) {
             return blackPlayer;
         }
 
@@ -155,7 +155,7 @@ public enum Alliance {
      * @param blackPlayer the black player on the board
      * @return the Player object which controls the next move
      */
-    public abstract Player choosePlayerByAlliance(WhitePlayer whitePlayer, BlackPlayer blackPlayer);
+    public abstract Player choosePlayerByAlliance(Player whitePlayer, Player blackPlayer);
 
     /**
      * Return the piece-square value for the given coordinate

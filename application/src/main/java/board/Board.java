@@ -1,10 +1,8 @@
 package board;
 
 import pieces.*;
-import player.BlackPlayer;
 import player.MoveTransition;
 import player.Player;
-import player.WhitePlayer;
 import player.basicAI.MiniMax;
 import player.basicAI.MoveStrategy;
 
@@ -18,11 +16,8 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class Board {
     private final Map<Coordinate, Tile> gameBoard;
-    private final Collection<Piece> whitePieces;
-    private final Collection<Piece> blackPieces;
-    private final WhitePlayer whitePlayer;
-    private final BlackPlayer blackPlayer;
-    private final Player currentPlayer;
+    private final Collection<Piece> whitePieces, blackPieces;
+    private final Player whitePlayer, blackPlayer, currentPlayer;
     private final Pawn enPassantPawn;
     private final Move transitionMove;
 
@@ -34,8 +29,8 @@ public class Board {
 
         Collection<Move> whiteLegalMoves = calculateLegalMoves(this.whitePieces);
         Collection<Move> blackLegalMoves = calculateLegalMoves(this.blackPieces);
-        this.whitePlayer = new WhitePlayer(this, whiteLegalMoves, blackLegalMoves);
-        this.blackPlayer = new BlackPlayer(this, blackLegalMoves, whiteLegalMoves);
+        this.whitePlayer = new Player(this, Alliance.WHITE, whiteLegalMoves, blackLegalMoves);
+        this.blackPlayer = new Player(this, Alliance.BLACK, blackLegalMoves, whiteLegalMoves);
 
         this.currentPlayer = builder.nextMoveMaker.choosePlayerByAlliance(this.whitePlayer, this.blackPlayer);
         this.transitionMove = builder.transitionMove;
@@ -118,14 +113,14 @@ public class Board {
     /**
      * @return the Player object which controls the white pieces
      */
-    public WhitePlayer getWhitePlayer() {
+    public Player getWhitePlayer() {
         return whitePlayer;
     }
 
     /**
      * @return the Player object which controls the black pieces
      */
-    public BlackPlayer getBlackPlayer() {
+    public Player getBlackPlayer() {
         return blackPlayer;
     }
 

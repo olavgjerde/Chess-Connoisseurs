@@ -115,8 +115,7 @@ class PlayerTest {
         builder.setMoveMaker(Alliance.BLACK);
         Board board = builder.build();
 
-        assertEquals(2, board.getBlackPlayer().calculateKingCastles(board.getBlackPlayer().getLegalMoves(),
-                                                                             board.getWhitePlayer().getLegalMoves()).size());
+        assertEquals(2, board.getBlackPlayer().calculateKingCastles(board.getWhitePlayer().getLegalMoves()).size());
 
     }
 
@@ -135,8 +134,7 @@ class PlayerTest {
         builder.setMoveMaker(Alliance.WHITE);
         Board board = builder.build();
 
-        assertEquals(2, board.getWhitePlayer().calculateKingCastles(board.getWhitePlayer().getLegalMoves(),
-                board.getBlackPlayer().getLegalMoves()).size());
+        assertEquals(2, board.getWhitePlayer().calculateKingCastles(board.getBlackPlayer().getLegalMoves()).size());
 
     }
 

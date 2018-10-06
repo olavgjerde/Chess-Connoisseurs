@@ -1,11 +1,13 @@
 package player;
 
 import board.Board;
+import board.BoardUtils;
 import board.Coordinate;
 import board.Move;
 import pieces.Alliance;
 import pieces.King;
 import pieces.Piece;
+import pieces.Rook;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,20 +19,23 @@ import static board.Move.*;
 /**
  * The abstract player class represents the notion of a 'player' on a given board.
  */
-public abstract class Player {
+public class Player {
     protected final Board board;
-    final King playerKing;
+    private final King playerKing;
     private final Collection<Move> legalMoves;
     private boolean isInCheck = false;
+    private final Alliance playerAlliance;
 
     /**
      * Constructor for abstract player object
-     * @param board which the player plays on
-     * @param legalMoves moves belonging to the player
+     *
+     * @param board         which the player plays on
+     * @param legalMoves    moves belonging to the player
      * @param opponentMoves move belonging to the opponent
      */
-    Player(Board board, Collection<Move> legalMoves, Collection<Move> opponentMoves) {
+    public Player(Board board, Alliance playerAlliance, Collection<Move> legalMoves, Collection<Move> opponentMoves) {
         this.board = board;
+        this.playerAlliance = playerAlliance;
         King king = establishKing();
         this.playerKing = king;
 
@@ -38,7 +43,7 @@ public abstract class Player {
         // allows the creation of boards without a king -> mostly for testing purposes
         if (king != null) {
             this.isInCheck = !calculateAttacksOnCoordinate(this.playerKing.getPieceCoordinate(), opponentMoves).isEmpty();
-            legalMoves.addAll(calculateKingCastles(legalMoves, opponentMoves));
+            legalMoves.addAll(calculateKingCastles(opponentMoves));
         }
         this.legalMoves = legalMoves;
     }
@@ -46,35 +51,95 @@ public abstract class Player {
     /**
      * @return a collection of the player's pieces
      */
-    public abstract Collection<Piece> getActivePieces();
+    public Collection<Piece> getActivePieces() {
+        return this.playerAlliance == Alliance.WHITE ? this.board.getWhitePieces() : this.board.getBlackPieces();
+    }
 
     /**
      * @return Alliance enum of the player
      */
-    public abstract Alliance getAlliance();
+    public Alliance getAlliance() {
+        return this.playerAlliance;
+    }
 
     /**
      * @return a Player object which is the opponent of 'this'
      */
-    public abstract Player getOpponent();
+    public Player getOpponent() {
+        return this.playerAlliance == Alliance.WHITE ? this.board.getBlackPlayer() : this.board.getWhitePlayer();
+    }
 
     /**
      * This method shall calculate if there are any castling moves that is available to the player
-     * @param playerMoves the moves available to the player
+     *
      * @param opponentMoves the moves available to the opponent
      * @return a Collection of possible castling moves
      */
-    protected abstract Collection<Move> calculateKingCastles(Collection<Move> playerMoves, Collection<Move> opponentMoves);
+    Collection<Move> calculateKingCastles(Collection<Move> opponentMoves) {
+        final List<Move> kingCastles = new ArrayList<>();
+
+        if (this.playerKing.isFirstMove() && !this.isInCheck()) {
+            // King side castle
+            Coordinate oneStepRight = new Coordinate(this.playerKing.getPieceCoordinate().getX() + 1, this.playerKing.getPieceCoordinate().getY());
+            Coordinate twoStepsRight = new Coordinate(oneStepRight.getX() + 1, oneStepRight.getY());
+            if (this.board.getTile(oneStepRight).isEmpty() && this.board.getTile(twoStepsRight).isEmpty()) {
+
+                // Check that that the rook is in position, and that it is making it's first move.
+                // Check that there are no attacks on tiles in between the king and the rook
+                Piece rookPiece;
+                if (this.playerAlliance == Alliance.WHITE) {
+                    rookPiece = this.board.getTile(new Coordinate(BoardUtils.getInstance().getWidth() - 1, BoardUtils.getInstance().getHeight() - 1)).getPiece();
+                } else {
+                    rookPiece = this.board.getTile(new Coordinate(BoardUtils.getInstance().getWidth() - 1, 0)).getPiece();
+                }
+
+                if (rookPiece instanceof Rook && rookPiece.isFirstMove() &&
+                        calculateAttacksOnCoordinate(oneStepRight, opponentMoves).isEmpty() &&
+                        calculateAttacksOnCoordinate(twoStepsRight, opponentMoves).isEmpty()) {
+                    // add this move to list of possible castling moves
+                    kingCastles.add(new KingSideCastleMove(this.board, this.playerKing, twoStepsRight,
+                            (Rook) rookPiece, rookPiece.getPieceCoordinate(), oneStepRight));
+                }
+            }
+            // Queen side castle
+            Coordinate oneStepLeft = new Coordinate(this.playerKing.getPieceCoordinate().getX() - 1, this.playerKing.getPieceCoordinate().getY());
+            Coordinate twoStepsLeft = new Coordinate(oneStepLeft.getX() - 1, oneStepLeft.getY());
+            Coordinate threeStepsLeft = new Coordinate(twoStepsLeft.getX() - 1, twoStepsLeft.getY());
+            if (this.board.getTile(oneStepLeft).isEmpty() && this.board.getTile(twoStepsLeft).isEmpty() &&
+                    this.board.getTile(threeStepsLeft).isEmpty()) {
+
+                // Check that that the rook is in position, and that it is making it's first move.
+                // Check that there are no attacks on tiles in between the king and the rook
+                // Rook may moved through attacked piece (threeStepsLeft)
+                Piece rookPiece;
+                if (this.playerAlliance == Alliance.WHITE) {
+                    rookPiece = this.board.getTile(new Coordinate(0, BoardUtils.getInstance().getHeight() - 1)).getPiece();
+                } else {
+                    rookPiece = this.board.getTile(new Coordinate(0, 0)).getPiece();
+                }
+
+                if (rookPiece instanceof Rook && rookPiece.isFirstMove() &&
+                        calculateAttacksOnCoordinate(oneStepLeft, opponentMoves).isEmpty() &&
+                        calculateAttacksOnCoordinate(twoStepsLeft, opponentMoves).isEmpty()) {
+                    // add this move to list of possible castling moves
+                    kingCastles.add(new QueenSideCastleMove(this.board, this.playerKing, twoStepsLeft,
+                            (Rook) rookPiece, rookPiece.getPieceCoordinate(), oneStepLeft));
+                }
+            }
+        }
+        return Collections.unmodifiableList(kingCastles);
+    }
 
     /**
      * Finds all possible attacks on a given coordinate
+     *
      * @param pieceCoordinate coordinate to calculate attacks for
-     * @param moves available for the opponent player
+     * @param moves           available for the opponent player
      * @return a list for moves that can attack the given coordinate
      */
-    protected static Collection<Move> calculateAttacksOnCoordinate(Coordinate pieceCoordinate, Collection<Move> moves) {
+    static Collection<Move> calculateAttacksOnCoordinate(Coordinate pieceCoordinate, Collection<Move> moves) {
         final List<Move> attackMoves = new ArrayList<>();
-        for (Move move :  moves) {
+        for (Move move : moves) {
             if (pieceCoordinate.equals(move.getDestinationCoordinate())) {
                 attackMoves.add(move);
             }
@@ -84,10 +149,11 @@ public abstract class Player {
 
     /**
      * Of all the player's pieces find the King piece
+     *
      * @return King(Piece) - object
      */
     private King establishKing() {
-        for(Piece piece : getActivePieces()) {
+        for (Piece piece : getActivePieces()) {
             if (piece instanceof King) {
                 return (King) piece;
             }
@@ -98,7 +164,7 @@ public abstract class Player {
     /**
      * @return the King object of the player
      */
-    public King getPlayerKing() {
+    King getPlayerKing() {
         return playerKing;
     }
 
@@ -111,6 +177,7 @@ public abstract class Player {
 
     /**
      * Find a moves belonging to a given piece
+     *
      * @param piece to find moves for
      * @return the given piece's moves
      */
@@ -126,6 +193,7 @@ public abstract class Player {
 
     /**
      * Check if a given move is legal
+     *
      * @param move to evaluate
      * @return true is move is legal, false otherwise
      */
@@ -135,6 +203,7 @@ public abstract class Player {
 
     /**
      * Check if the player is in check
+     *
      * @return true if player is in check, false otherwise
      */
     public boolean isInCheck() {
@@ -143,6 +212,7 @@ public abstract class Player {
 
     /**
      * Check if the player is in checkmate
+     *
      * @return true if in checkmate, false otherwise
      */
     public boolean isInCheckmate() {
@@ -151,6 +221,7 @@ public abstract class Player {
 
     /**
      * Check if the player is in a stalemate
+     *
      * @return true if the player is not in check, but does not have any escape moves,
      * false otherwise
      */
@@ -167,6 +238,7 @@ public abstract class Player {
 
     /**
      * Calculate if the player as any moves that enables them to escape 'check'
+     *
      * @return true if player has moves that escapes check-status, false otherwise
      */
     private boolean hasEscapesMoves() {
@@ -180,6 +252,7 @@ public abstract class Player {
 
     /**
      * Requests a move on the board where the player is playing
+     *
      * @param move to execute
      * @return MoveTransition object which contains the Board, the Move that was requested, and the
      * status of that move.

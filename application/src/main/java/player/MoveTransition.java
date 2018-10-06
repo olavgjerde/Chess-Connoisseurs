@@ -9,18 +9,15 @@ import static board.Move.*;
  */
 public class MoveTransition {
     private final Board transitionBoard;
-    private final Move move;
     private final MoveStatus moveStatus;
 
     /**
      * Construct a MoveTransition object
      * @param transitionBoard board with initial positions
-     * @param move to be made
      * @param moveStatus status of that given move (can be done or not etc.)
      */
-    public MoveTransition(Board transitionBoard, Move move, MoveStatus moveStatus) {
+    MoveTransition(Board transitionBoard, MoveStatus moveStatus) {
         this.transitionBoard = transitionBoard;
-        this.move = move;
         this.moveStatus = moveStatus;
     }
 

@@ -30,7 +30,7 @@ public class Score {
      */
     public int[] matchRating(String username1, String username2, double gameResult1, double gameResult2) {
 
-        int score[] = new int[2];
+        int[] score = new int[2];
         double player1Rating = userRating.get(username1);
         double player2Rating = userRating.get(username2);
 

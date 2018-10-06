@@ -30,8 +30,8 @@ public abstract class Move {
         this.isFirstMove = movedPiece.isFirstMove();
     }
 
-    private Move(Board board, Coordinate destinationCoordinate) {
-        this.board = board;
+    private Move(Coordinate destinationCoordinate) {
+        this.board = null;
         this.destinationCoordinate = destinationCoordinate;
         this.movedPiece = null;
         this.isFirstMove = false;
@@ -187,7 +187,7 @@ public abstract class Move {
      */
     public static final class NullMove extends Move {
         public NullMove() {
-            super(null, new Coordinate(-1,-1));
+            super(new Coordinate(-1,-1));
         }
 
         @Override

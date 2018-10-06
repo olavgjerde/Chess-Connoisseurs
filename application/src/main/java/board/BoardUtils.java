@@ -62,7 +62,7 @@ public class BoardUtils {
      * @param coordinate to get algebraic notation for
      * @return String (algebraic notation) corresponding to coordinate
      */
-    String getAlgebraicNotationFromCoordinate(Coordinate coordinate) {
+    public String getAlgebraicNotationFromCoordinate(Coordinate coordinate) {
         return COORDINATE_TO_ALGEBRAIC.get(coordinate);
     }
 
@@ -97,7 +97,8 @@ public class BoardUtils {
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                String algebraic = letter++ + "" + (getHeight() - i);
+                String algebraic = letter++ + "" + (8 - i);
+                System.out.println(algebraic);
                 coordToString.put(new Coordinate(j, i), algebraic);
             }
             letter = 'a';

@@ -187,7 +187,7 @@ public abstract class Player {
     public MoveTransition makeMove(Move move) {
         if (!isMoveLegal(move)) {
             // return unchanged board in move transition
-            return new MoveTransition(this.board, move, MoveStatus.ILLEGAL_MOVE);
+            return new MoveTransition(this.board, MoveStatus.ILLEGAL_MOVE);
         }
 
         // Board where the move has taken place. NB!: if the player who made the move has the color white,
@@ -201,9 +201,9 @@ public abstract class Player {
             final Collection<Move> currentPlayerMoves = transitionBoard.currentPlayer().getLegalMoves();
             final Collection<Move> attacksOnPlayerKing = Player.calculateAttacksOnCoordinate(kingOfPlayerThatMoves.getPieceCoordinate(), currentPlayerMoves);
             if (!attacksOnPlayerKing.isEmpty()) {
-                return new MoveTransition(this.board, move, MoveStatus.LEAVES_PLAYER_IN_CHECK);
+                return new MoveTransition(this.board, MoveStatus.LEAVES_PLAYER_IN_CHECK);
             }
         }
-        return new MoveTransition(transitionBoard, move, MoveStatus.DONE);
+        return new MoveTransition(transitionBoard, MoveStatus.DONE);
     }
 }

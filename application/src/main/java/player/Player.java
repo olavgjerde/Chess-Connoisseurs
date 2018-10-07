@@ -17,7 +17,7 @@ import java.util.List;
 import static board.Move.*;
 
 /**
- * The abstract player class represents the notion of a 'player' on a given board.
+ * The player class represents the notion of a 'player' on a given chessboard.
  */
 public class Player {
     private final Board board;

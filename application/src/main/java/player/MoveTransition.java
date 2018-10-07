@@ -1,7 +1,6 @@
 package player;
 
 import board.Board;
-import board.Move;
 import static board.Move.*;
 
 /**

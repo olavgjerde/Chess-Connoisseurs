@@ -7,8 +7,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static board.Move.*;
-
 /**
  * Represents the chess-piece "Queen"
  * See more documentation in Piece-class.

@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import pieces.Alliance;
 import pieces.Pawn;
-import pieces.Piece;
 import pieces.Piece.PieceType;
 import pieces.Rook;
 import player.MoveTransition;

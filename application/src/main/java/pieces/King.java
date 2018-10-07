@@ -7,8 +7,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static board.Move.*;
-
 public class King extends Piece {
 
     /**

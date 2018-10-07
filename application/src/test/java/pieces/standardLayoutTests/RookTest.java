@@ -9,7 +9,6 @@ import pieces.Alliance;
 import pieces.Rook;
 
 import java.util.Collection;
-import java.util.List;
 
 import static board.Board.*;
 import static board.Move.*;

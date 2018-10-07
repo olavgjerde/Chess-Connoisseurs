@@ -32,6 +32,15 @@ import player.Score;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * GUI for chess application
+ *
+ * DISCLAIMER:
+ * To those that may stumble upon this class; this is not a good example of you should structure a GUI.
+ * This class is in dire need of refactoring and restructuring. It was mostly made by hack and slash coding with little
+ * to no experience with javafx in a very short time period to finish a school project.
+ * Hopefully the rest of the project is more readable than this class, and good luck with your endeavours! :)
+ */
 public class ChessGUI extends Application {
     private static double windowWidth = Screen.getPrimary().getBounds().getWidth(), windowHeight = Screen.getPrimary().getBounds().getHeight();
     private static Stage primaryStage;
@@ -616,8 +625,6 @@ public class ChessGUI extends Application {
 
     /**
      * Draw the pane that displays information about the games state
-     *
-     * @return VBox with nodes that belong to the state pane
      */
     private void drawStatusPane() {
         VBox statusPaneRoot = new VBox();

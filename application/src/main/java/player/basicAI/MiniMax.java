@@ -29,8 +29,9 @@ public class MiniMax implements MoveStrategy {
 
     /**
      * The constructor for the MiniMax Alpha-beta algorithm
-     * @param searchDepth depth of the search (plys)
-     * @param maxQuiescence how many times the ai is allowed to search deeper per top move node
+     *
+     * @param searchDepth          depth of the search (plys)
+     * @param maxQuiescence        how many times the ai is allowed to search deeper per top move node
      * @param usePieceSquareBoards to use piece-square board or not
      * @param printMoveInformation to print information about
      */
@@ -62,7 +63,8 @@ public class MiniMax implements MoveStrategy {
         int lowestEncounteredValue = Integer.MAX_VALUE;
         int currentValue;
 
-        if (printMoveInformation) System.out.println(board.currentPlayer().getAlliance().toString().toUpperCase() + " EVALUATING WITH DEPTH: " + searchDepth);
+        if (printMoveInformation)
+            System.out.println(board.currentPlayer().getAlliance().toString().toUpperCase() + " EVALUATING WITH DEPTH: " + searchDepth);
         Collection<Move> sorted = moveSortExpensive(board.currentPlayer().getLegalMoves());
         int moveCount = 1;
         for (Move move : sorted) {
@@ -119,8 +121,8 @@ public class MiniMax implements MoveStrategy {
      *
      * @param board       to make move on
      * @param searchDepth current depth of search
-     * @param alpha
-     * @param beta
+     * @param alpha       for current search
+     * @param beta        for current search
      * @return lowest board value encountered
      */
     private int min(Board board, int searchDepth, int alpha, int beta) {
@@ -148,8 +150,8 @@ public class MiniMax implements MoveStrategy {
      *
      * @param board       to make move on
      * @param searchDepth current depth of search
-     * @param alpha
-     * @param beta
+     * @param alpha       for current search
+     * @param beta        for current search
      * @return highest board value encountered
      */
     private int max(Board board, int searchDepth, int alpha, int beta) {

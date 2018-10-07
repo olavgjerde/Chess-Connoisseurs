@@ -503,11 +503,9 @@ public class Board {
         /**
          * Adds a piece to the boardConfig-map
          * @param piece to be placed
-         * @return Builder with this setting
          */
-        public Builder setPiece(Piece piece) {
+        public void setPiece(Piece piece) {
             this.boardConfig.put(piece.getPieceCoordinate(), piece);
-            return this;
         }
 
         /**

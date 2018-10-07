@@ -619,7 +619,7 @@ public class ChessGUI extends Application {
      *
      * @return VBox with nodes that belong to the state pane
      */
-    private VBox drawStatusPane() {
+    private void drawStatusPane() {
         VBox statusPaneRoot = new VBox();
         statusPaneRoot.setStyle("-fx-border-color: black; -fx-background-color: radial-gradient(center 50% 50%, radius 140%, derive(darkslategray, -20%), black)");
         statusPaneRoot.setPadding(new Insets(30, 30, 0, 30));
@@ -695,7 +695,6 @@ public class ChessGUI extends Application {
 
         //Use setRight to update root pane when used as a redraw method
         this.gamePlayPane.setRight(statusPaneRoot);
-        return statusPaneRoot;
     }
 
     /**

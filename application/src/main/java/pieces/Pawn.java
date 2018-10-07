@@ -142,7 +142,7 @@ public class Pawn extends Piece {
      * @param nIncrements how many steps to move forward
      * @return new coordinate based on initial piece coordinate
      */
-    public Coordinate goForward(int nIncrements) {
+    private Coordinate goForward(int nIncrements) {
         if (this.pieceAlliance == Alliance.WHITE) return new Coordinate(getPieceCoordinate().getX(), getPieceCoordinate().getY() - nIncrements);
         return new Coordinate(getPieceCoordinate().getX(), getPieceCoordinate().getY() + nIncrements);
     }
@@ -152,7 +152,7 @@ public class Pawn extends Piece {
      * @param nIncrements how many steps to move forward
      * @return new coordinate based on initial piece coordinate
      */
-    public Coordinate goBackward(int nIncrements) {
+    private Coordinate goBackward(int nIncrements) {
         if (this.pieceAlliance == Alliance.WHITE) return new Coordinate(getPieceCoordinate().getX(), getPieceCoordinate().getY() + nIncrements);
         return new Coordinate(getPieceCoordinate().getX(), getPieceCoordinate().getY() - nIncrements);
     }

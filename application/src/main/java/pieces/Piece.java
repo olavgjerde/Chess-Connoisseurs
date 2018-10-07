@@ -30,7 +30,7 @@ public abstract class Piece {
      * @param isFirstMove     if it is the piece's first move or not
      * @param pieceType       enum Type of the piece
      */
-    public Piece(final Coordinate pieceCoordinate, final Alliance pieceAlliance, final boolean isFirstMove, final PieceType pieceType) {
+    Piece(final Coordinate pieceCoordinate, final Alliance pieceAlliance, final boolean isFirstMove, final PieceType pieceType) {
         if (BoardUtils.getInstance().isValidCoordinate(pieceCoordinate)) this.pieceCoordinate = pieceCoordinate;
         else throw new RuntimeException("Piece constructed with coordinate out of bounds");
         this.pieceAlliance = pieceAlliance;
@@ -154,7 +154,7 @@ public abstract class Piece {
         KING("K", 20000);
 
         private final String pieceName;
-        private int pieceValue;
+        private final int pieceValue;
 
         PieceType(String pieceName, int pieceValue) {
             this.pieceName = pieceName;

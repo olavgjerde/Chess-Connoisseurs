@@ -22,10 +22,10 @@ import static board.Move.*;
 public class MiniMax implements MoveStrategy {
     private final BoardEvaluator boardEvaluator;
     private final int searchDepth;
+    private final int maxQuiescence;
     private final boolean printMoveInformation;
     private int quiescenceCount;
     private int totalQuiescence;
-    private int maxQuiescence;
 
     /**
      * The constructor for the MiniMax Alpha-beta algorithm

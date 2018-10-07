@@ -21,7 +21,7 @@ public class Board {
     private final Pawn enPassantPawn;
     private final Move transitionMove;
 
-    public Board(Builder builder) {
+    private Board(Builder builder) {
         this.gameBoard = createGameBoard(builder);
         this.whitePieces = calculateActivePieces(builder, Alliance.WHITE);
         this.blackPieces = calculateActivePieces(builder, Alliance.BLACK);

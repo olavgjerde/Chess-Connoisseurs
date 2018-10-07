@@ -3,8 +3,6 @@ package pieces;
 import board.BoardUtils;
 import board.Coordinate;
 import player.Player;
-import player.Player;
-import player.Player;
 
 /**
  * Holds the two types of alliances that a chess piece can have
@@ -310,7 +308,7 @@ public enum Alliance {
             -50,-30,-30,-30,-30,-30,-30,-50
     };
 
-    public final static int[] BLACK_KING_PREFERRED_COORDINATES = {
+    private final static int[] BLACK_KING_PREFERRED_COORDINATES = {
             20, 30, 10,  0,  0, 10, 30, 20,
             20, 20,  0,  0,  0,  0, 20, 20,
             -10,-20,-20,-20,-20,-20,-20,-10,
@@ -321,7 +319,7 @@ public enum Alliance {
             -30,-40,-40,-50,-50,-40,-40,-30
     };
 
-    public final static int[] BLACK_KING_PREFERRED_ENDGAME_COORDINATES = {
+    private final static int[] BLACK_KING_PREFERRED_ENDGAME_COORDINATES = {
             -50,-30,-30,-30,-30,-30,-30,-50,
             -30,-30,  0,  0,  0,  0,-30,-30,
             -30,-10, 20, 30, 30, 20,-10,-30,

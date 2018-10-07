@@ -15,8 +15,8 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 
 public class Score {
-    private HashMap<String, Integer> userRating = new HashMap<>();
-    private HashMap<String, Stats> userStats = new HashMap<>();
+    private final HashMap<String, Integer> userRating = new HashMap<>();
+    private final HashMap<String, Stats> userStats = new HashMap<>();
 
     /**
      * takes the old rating of both players, and the result of the game for both players,

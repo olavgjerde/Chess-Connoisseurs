@@ -9,6 +9,7 @@ import java.net.URL;
 /**
  * Load all the resources into memory
  */
+@SuppressWarnings("WeakerAccess")
 class ResourceLoader {
 
     //Pieces

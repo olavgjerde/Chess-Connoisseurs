@@ -20,7 +20,7 @@ import static board.Move.*;
  * The abstract player class represents the notion of a 'player' on a given board.
  */
 public class Player {
-    protected final Board board;
+    private final Board board;
     private final King playerKing;
     private final Collection<Move> legalMoves;
     private boolean isInCheck = false;

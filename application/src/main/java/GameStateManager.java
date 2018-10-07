@@ -26,9 +26,9 @@ class GameStateManager {
     //Keep count of board history (board states)
     private final List<Board> boardHistory = new ArrayList<>();
     //Move history, even = white moves, odd = black moves
-    private List<Move> moveHistory = new ArrayList<>();
+    private final List<Move> moveHistory = new ArrayList<>();
     //List of all the dead pieces
-    private List<Piece> takenPieces = new ArrayList<>();
+    private final List<Piece> takenPieces = new ArrayList<>();
 
     /**
      * Constructor for GameStateManager class

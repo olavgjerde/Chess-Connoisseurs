@@ -8,10 +8,11 @@ import java.util.*;
  */
 public class BoardUtils {
     private static BoardUtils boardUtils = null;
-    private Map<Coordinate, String> COORDINATE_TO_ALGEBRAIC;
-    private Map<String, Coordinate> ALGEBRAIC_TO_COORDINATE;
-    private Map<Coordinate, Integer> COORDINATE_TO_INTEGER;
-    private int height, width;
+    private final Map<Coordinate, String> COORDINATE_TO_ALGEBRAIC;
+    private final Map<String, Coordinate> ALGEBRAIC_TO_COORDINATE;
+    private final Map<Coordinate, Integer> COORDINATE_TO_INTEGER;
+    private final int height;
+    private final int width;
 
     private BoardUtils() {
         this.COORDINATE_TO_ALGEBRAIC = initializeAlgebraicNotation();

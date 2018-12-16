@@ -1,3 +1,5 @@
+package gui.extra;
+
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import javafx.scene.image.Image;
@@ -9,22 +11,22 @@ import java.net.URL;
 /**
  * Load all the resources into memory
  */
-@SuppressWarnings("WeakerAccess")
-class ResourceLoader {
+public class ResourceLoader {
+
+    private static ResourceLoader resourceLoader = null;
 
     //Pieces
-    final Image BB, BK, BN, BP, BQ, BR, WB, WK, WN, WP, WQ, WR;
+    public final Image BB, BK, BN, BP, BQ, BR, WB, WK, WN, WP, WQ, WR;
 
     //GUI images
-    final Image ConnoisseurChess, hintButton, undoButton, gameStats;
+    public final Image ConnoisseurChess, hintButton, undoButton, gameStats;
 
     //Rule text
-    final String horde, lightBrigade, tutor;
+    public final String horde, lightBrigade, tutor;
 
-    //sounds
-    //TODO
+    //Sounds - not implemented
 
-    ResourceLoader() {
+    private ResourceLoader() {
         BB = new Image("/images/" + "BB" + ".png");
         BK = new Image("/images/" + "BK" + ".png");
         BN = new Image("/images/" + "BN" + ".png");
@@ -49,13 +51,20 @@ class ResourceLoader {
         tutor = readFile("rules/tutor.txt");
     }
 
+    public static ResourceLoader getInstance() {
+        if (resourceLoader == null) {
+            resourceLoader = new ResourceLoader();
+        }
+        return resourceLoader;
+    }
+
     /**
      * Find an image to represent a piece
      *
      * @param p piece to find image for
      * @return image representation of piece
      */
-    Image getPieceImage(Piece p) {
+    public Image getPieceImage(Piece p) {
         Alliance pieceAlliance = p.getPieceAlliance();
         boolean isWhite = pieceAlliance == Alliance.WHITE;
         switch (p.getPieceType()) {

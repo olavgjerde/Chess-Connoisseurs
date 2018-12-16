@@ -1,9 +1,12 @@
+package gui;
+
 import board.*;
 import board.Move.MoveFactory;
 import board.Move.PawnPromotion;
 import pieces.Alliance;
 import pieces.Piece;
 import player.MoveTransition;
+import player.Score;
 import player.basicAI.BoardEvaluator;
 import player.basicAI.MiniMax;
 import player.basicAI.MoveStrategy;
@@ -18,45 +21,52 @@ import java.util.concurrent.ThreadLocalRandom;
  * The game state manager wraps the Board class and supplies the GUI
  * with methods that retrieve information about the current game state.
  */
-class GameStateManager {
+public class GameStateManager {
     private Board chessDataBoard;
-    private boolean isWhiteAI, isBlackAI, tutorMode;
+    private final GameMode gameMode;
+
+    private final Score scoreSystem = Score.getInstance();
+    private final String whiteUsername, blackUsername;
+    private String whitePlayerStats, blackPlayerStats;
+    private int whitePlayerScore, blackPlayerScore;
+    private boolean isWhiteAI, isBlackAI;
     private final int aiDepth;
-    private final GameMode boardType;
-    //Keep count of board history (board states)
-    private final List<Board> boardHistory = new ArrayList<>();
+
     //Move history, even = white moves, odd = black moves
     private final List<Move> moveHistory = new ArrayList<>();
-    //List of all the dead pieces
     private final List<Piece> takenPieces = new ArrayList<>();
+    private final List<Board> boardHistory = new ArrayList<>();
+
+    private ChessGame mainGUI = null;
 
     /**
      * Constructor for GameStateManager class
      *
+     * @param whiteUsername username of white player
+     * @param blackUserName username of black player
      * @param isWhiteAI     if white ai is playing
      * @param isBlackAI     if black ai is playing
      * @param aiDepth       depth that ai should use for its search
-     * @param boardType     enum ex. GameMode.RANDOM, GameMode.HORDE etc
+     * @param gameMode     enum ex. GameMode.RANDOM, GameMode.HORDE etc
      */
-    GameStateManager(boolean isWhiteAI, boolean isBlackAI, int aiDepth, GameMode boardType) {
+    public GameStateManager(String whiteUsername, String blackUserName, boolean isWhiteAI, boolean isBlackAI, int aiDepth, GameMode gameMode) {
+        this.whiteUsername = whiteUsername;
+        this.blackUsername = blackUserName;
         this.isWhiteAI = isWhiteAI;
         this.isBlackAI = isBlackAI;
         this.aiDepth = aiDepth;
-        this.boardType = boardType;
+        this.gameMode = gameMode;
 
-        if (boardType.equals(GameMode.RANDOM)) this.chessDataBoard = Board.createRandomBoard();
-        else if (boardType.equals(GameMode.HORDE)) this.chessDataBoard = Board.createHordeBoard();
-        else if (boardType.equals(GameMode.LIGHTBRIGADE)) this.chessDataBoard = Board.createLightBrigadeBoard();
-        else if (boardType.equals(GameMode.TUTOR)) {
-            //Pick random tutor-board
+        if (gameMode.equals(GameMode.RANDOM)) this.chessDataBoard = Board.createRandomBoard();
+        else if (gameMode.equals(GameMode.HORDE)) this.chessDataBoard = Board.createHordeBoard();
+        else if (gameMode.equals(GameMode.LIGHTBRIGADE)) this.chessDataBoard = Board.createLightBrigadeBoard();
+        else if (gameMode.equals(GameMode.TUTOR)) {
             switch (ThreadLocalRandom.current().nextInt(4)) {
-                case 0: this.chessDataBoard = Board.createTutorBoardOne(); break;
-                case 1: this.chessDataBoard = Board.createTutorBoardTwo(); break;
-                case 2: this.chessDataBoard = Board.createTutorBoardThree(); break;
-                case 3: this.chessDataBoard = Board.createTutorBoardFour(); break;
+                case 0: this.chessDataBoard = Board.createTutorBoardTwo(); break;
+                case 1: this.chessDataBoard = Board.createTutorBoardThree(); break;
+                case 2: this.chessDataBoard = Board.createTutorBoardFour(); break;
                 default: this.chessDataBoard = Board.createTutorBoardOne();
             }
-            this.tutorMode = true;
         }
         else this.chessDataBoard = Board.createStandardBoard();
 
@@ -77,7 +87,8 @@ class GameStateManager {
 
         if (moveTransition.getMoveStatus().isDone()) {
             if (moveAttempt instanceof PawnPromotion) {
-                Piece.PieceType userSelectedType = ChessGUI.showPromotionWindow();
+                if (mainGUI == null) throw new IllegalStateException("State manager not supplied with main GUI");
+                Piece.PieceType userSelectedType = mainGUI.showPromotionWindow();
                 List<PawnPromotion> availablePromotions = MoveFactory.getPromotionMoves(chessDataBoard);
                 for (PawnPromotion promotion : availablePromotions) {
                     if (promotion.getUpgradeType() == userSelectedType &&
@@ -126,7 +137,7 @@ class GameStateManager {
      * Undo the current players last move if more than
      * 3 moves have been made on the current board
      */
-    void undoMove() {
+    public void undoMove() {
         if (boardHistory.size() < 3 || moveHistory.isEmpty()) return;
         for (int i = 0; i < 2; i++) {
             boardHistory.remove(boardHistory.size() - 1);
@@ -142,14 +153,14 @@ class GameStateManager {
      *
      * @return true if undo is allowed, false otherwise
      */
-    boolean undoIsIllegal() {
+    public boolean undoIsIllegal() {
         return boardHistory.size() < 3 || (!isBlackAI && !isWhiteAI);
     }
 
     /**
      * Sets the toggles for white and black ai to false
      */
-    void killAI() {
+    public void killAI() {
         this.isBlackAI = false;
         this.isWhiteAI = false;
     }
@@ -157,42 +168,42 @@ class GameStateManager {
     /**
      * @return true if the current player is in check, false otherwise
      */
-    boolean currentPlayerInCheck() {
+    public boolean currentPlayerInCheck() {
         return this.chessDataBoard.currentPlayer().isInCheck();
     }
 
     /**
      * @return true if the current player is in checkmate
      */
-    boolean currentPlayerInCheckMate() {
+    public boolean currentPlayerInCheckMate() {
         return this.chessDataBoard.currentPlayer().isInCheckmate();
     }
 
     /**
      * @return true if the current player is in a stalemate
      */
-    boolean currentPlayerInStaleMate() {
+    public boolean currentPlayerInStaleMate() {
         return this.chessDataBoard.currentPlayer().isInStalemate();
     }
 
     /**
      * @return the Alliance of the player currently in turn
      */
-    Alliance currentPlayerAlliance() {
+    public Alliance currentPlayerAlliance() {
         return chessDataBoard.currentPlayer().getAlliance();
     }
 
     /**
      * @return true if black ai is enabled, false otherwise
      */
-    boolean isBlackAI() {
+    public boolean isBlackAI() {
         return this.isBlackAI;
     }
 
     /**
      * @return true if white ai is enabled, false otherwise.
      */
-    boolean isWhiteAI() {
+    public boolean isWhiteAI() {
         return this.isWhiteAI;
     }
 
@@ -200,16 +211,7 @@ class GameStateManager {
      * @return true if tutor mode is enabled, false otherwise
      */
     boolean isTutorMode() {
-        return this.tutorMode;
-    }
-
-    /**
-     * Get the board type enum of the current board
-     * @see GameMode
-     * @return the board type in the form of an enum
-     */
-    GameMode getBoardType() {
-        return boardType;
+        return this.gameMode.equals(GameMode.TUTOR);
     }
 
     /**
@@ -217,7 +219,7 @@ class GameStateManager {
      *
      * @return true if there are no further moves for the player (or all black pieces are gone - horde mode)
      */
-    boolean isGameOver() {
+    public boolean isGameOver() {
         boolean checkmate = chessDataBoard.currentPlayer().isInCheckmate();
         boolean stalemate = chessDataBoard.currentPlayer().isInStalemate();
         boolean repetition = isDraw();
@@ -233,7 +235,7 @@ class GameStateManager {
      *
      * @return true if its a draw, false otherwise
      */
-    boolean isDraw() {
+    public boolean isDraw() {
         int counter = 0;
         for (Board b : boardHistory) {
             if (chessDataBoard.toString().equals(b.toString())) counter++;
@@ -242,10 +244,38 @@ class GameStateManager {
         return false;
     }
 
+    void gameOverCalculations() {
+        int[] scores;
+        if (currentPlayerInStaleMate() || isDraw()) {
+            scores = scoreSystem.matchRating(whiteUsername, blackUsername, 0.5, 0.5);
+            if (isWhiteAI() && isBlackAI()) {
+                scoreSystem.addDraw(whiteUsername);
+            } else {
+                scoreSystem.addDraw(whiteUsername);
+                scoreSystem.addDraw(blackUsername);
+            }
+        } else if (currentPlayerAlliance() == Alliance.BLACK) {
+            scores = scoreSystem.matchRating(whiteUsername, blackUsername, 1, 0);
+            scoreSystem.addWin(whiteUsername);
+            scoreSystem.addLoss(blackUsername);
+        } else {
+            scores = scoreSystem.matchRating(whiteUsername, blackUsername, 0, 1);
+            scoreSystem.addLoss(whiteUsername);
+            scoreSystem.addWin(blackUsername);
+        }
+
+        scoreSystem.updateHighscore(whiteUsername, scores[0]);
+        scoreSystem.updateHighscore(blackUsername, scores[1]);
+        whitePlayerScore = scores[0];
+        blackPlayerScore = scores[1];
+        whitePlayerStats = scoreSystem.getStats(whiteUsername);
+        blackPlayerStats = scoreSystem.getStats(blackUsername);
+    }
+
     /**
      * @return the depth the AI is using for its searches
      */
-    int getAiDepth() {
+    public int getAiDepth() {
         return this.aiDepth;
     }
 
@@ -254,7 +284,7 @@ class GameStateManager {
      *
      * @return the score the board was given
      */
-    int getBoardEvaluation() {
+    public int getBoardEvaluation() {
         BoardEvaluator boardEvaluator = new RegularBoardEvaluator(true);
         int score = boardEvaluator.evaluate(chessDataBoard, 4);
         return chessDataBoard.currentPlayer().getAlliance() == Alliance.WHITE ? score : score * -1;
@@ -263,7 +293,7 @@ class GameStateManager {
     /**
      * @return the PNG notation of the last move made on the board
      */
-    String getLastMoveText() {
+    public String getLastMoveText() {
         String lastMoveText = "";
         if (!moveHistory.isEmpty()) {
             lastMoveText = moveHistory.get(moveHistory.size() - 1).toString();
@@ -302,16 +332,6 @@ class GameStateManager {
     }
 
     /**
-     * Find the tile on the chess Board given a coordinate
-     *
-     * @param coordinate of tile
-     * @return tile on the given coordinate
-     */
-    Tile getTile(Coordinate coordinate) {
-        return chessDataBoard.getTile(coordinate);
-    }
-
-    /**
      * Makes a list of all legal moves available to the current player from the given board tile
      *
      * @param tile tile on the board
@@ -326,5 +346,58 @@ class GameStateManager {
             }
         }
         return coordinatesToHighlight;
+    }
+
+    /**
+     * Find the tile on the chess Board given a coordinate
+     *
+     * @param coordinate of tile
+     * @return tile on the given coordinate
+     */
+    Tile getTile(Coordinate coordinate) {
+        return chessDataBoard.getTile(coordinate);
+    }
+
+    /**
+     * Get the game mode enum of the current board
+     * @see GameMode
+     * @return the game mode in the form of an enum
+     */
+    public GameMode getGameMode() {
+        return gameMode;
+    }
+
+    public String getWhiteUsername() {
+        return whiteUsername;
+    }
+
+    public String getBlackUsername() {
+        return blackUsername;
+    }
+
+    public String getWhitePlayerStats() {
+        return whitePlayerStats;
+    }
+
+    public String getBlackPlayerStats() {
+        return blackPlayerStats;
+    }
+
+    public int getWhitePlayerScore() {
+        return whitePlayerScore;
+    }
+
+    public int getBlackPlayerScore() {
+        return blackPlayerScore;
+    }
+
+    /**
+     * Adding a reference to the MainGUI create a bi-directional path
+     * between the "GUI" and the Manager, this allows the manager to call
+     * "showPromotionWindow()" on the main GUI.
+     * @param mainGUI Main GUI running the game
+     */
+    void addMainGUIComponent(ChessGame mainGUI) {
+        this.mainGUI = mainGUI;
     }
 }

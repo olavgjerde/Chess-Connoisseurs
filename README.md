@@ -48,7 +48,7 @@ Regarding the post_develop branch:
 + Internet connectivity is disabled in the sourcecode
    - But the original release (with sound, effects and connectivity) remains in the 'executable' folder.  
    
-######Refactoring  
+###### Refactoring  
 
     The GUI code is still by no means pretty, but some of the main parts  
     have been separated into their own classes. I did this because I had  

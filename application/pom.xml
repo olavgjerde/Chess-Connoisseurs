@@ -44,7 +44,7 @@
                             <shadedArtifactAttached>true</shadedArtifactAttached>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>ChessGUI</mainClass>
+                                    <mainClass>gui.ChessGame</mainClass>
                                 </transformer>
                             </transformers>
                             <artifactSet>
